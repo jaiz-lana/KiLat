@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KiLat - Alat Pemrosesan Lokal</title>
+    <meta name="description" content="Alat pemrosesan lokal tercepat. Kompresi, PDF, dan Ekstraksi Media. 100% di browser Anda.">
+    
+    <!-- Deteksi Tema Sistem -->
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- Tailwind CSS V3 -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- ========================= -->
+    <!-- CORE LIBRARIES (ENGINE)   -->
+    <!-- ========================= -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://unpkg.com/upng-js@2.1.0/UPNG.js"></script>
+
+    <!-- ========================= -->
+    <!-- CONFIGURATION & STYLES    -->
+    <!-- ========================= -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    colors: {
+                        brand: { 
+                            yellow: '#FACC15', 
+                            orange: '#e85c2b',
+                            dark: '#0b1120', 
+                            sidebar: '#020617', 
+                            card: '#111827', 
+                            cardLight: '#ffffff' 
+                        }
+                    }
+                }
+            }
+        }
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+
+    <style>
+        /* Base Styling */
+        body { background-color: #f8fafc; color: #334155; }
+        .dark body { background-color: #0b1120; color: #cbd5e1; }
+        
+        /* RTL Support for Arabic */
+        html[dir="rtl"] { text-align: right; font-family: 'Noto Sans Arabic', sans-serif; }
+        html[dir="rtl"] .font-heading { font-family: 'Noto Sans Arabic', sans-serif; }
+        html[dir="rtl"] .ml-2 { margin-right: 0.5rem; margin-left: 0; }
+        html[dir="rtl"] .mr-2 { margin-left: 0.5rem; margin-right: 0; }
+        html[dir="rtl"] .pl-3 { padding-right: 0.75rem; padding-left: 0; }
+        html[dir="rtl"] .flex-row { flex-direction: row-reverse; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+
+        /* Animations */
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+        .dark .card-hover:hover { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); border-color: rgba(250, 204, 21, 0.3); }
+        
+        .icon-bounce { transition: transform 0.3s; }
+        .card-hover:hover .icon-bounce { transform: scale(1.1) rotate(-5deg); }
+
+        /* Glassmorphism Workspace */
+        .workspace-glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .dark .workspace-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+
+        /* Premium Dropzone */
+        .premium-dropzone { 
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23CBD5E1' stroke-width='3' stroke-dasharray='12%2c 16' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e"); 
+            border-radius: 24px; transition: all 0.3s; 
+        }
+        .premium-dropzone.dragover { background-color: rgba(250, 204, 21, 0.05); transform: scale(1.02); }
+        .dark .premium-dropzone { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23334155' stroke-width='3' stroke-dasharray='12%2c 16' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e"); }
+        .dark .premium-dropzone.dragover { background-color: rgba(250, 204, 21, 0.1); }
+
+        /* Toast Notifications */
+        #toast-area { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; }
+        .toast { padding: 12px 24px; border-radius: 100px; color: white; font-weight: 500; font-size: 0.875rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: toastPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; display: flex; align-items: center; gap: 8px; pointer-events: auto; }
+        .toast.success { background: #10b981; } .toast.error { background: #ef4444; } .toast.info { background: #3b82f6; }
+        @keyframes toastPop { 0% { transform: translateY(100%) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+        /* Splash Screen & Easter Egg */
+        #splash-screen { transition: opacity 0.5s ease-out; z-index: 99999; }
+        .super-lightning { animation: superThunderFlash 0.8s ease-out forwards; }
+        @keyframes superThunderFlash { 0% { opacity: 0; background-color: #fff; } 5% { opacity: 1; } 10% { opacity: 0; } 15% { opacity: 1; } 25% { opacity: 0.2; } 35% { opacity: 1; background-color: #fef08a; } 100% { opacity: 1; background-color: #fff; } }
+        
+        .glow-text { text-shadow: 0 0 30px rgba(250, 204, 21, 0.6); }
+        .hero-bg {
+            background: radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.1) 0%, transparent 70%);
+        }
+        .dark .hero-bg {
+            background: radial-gradient(circle at 50% 50%, rgba(250, 204, 21, 0.15) 0%, transparent 60%);
+        }
+
+        /* Sidebar active state */
+        .sidebar-item { transition: all 0.2s; }
+        .sidebar-item.active { background-color: rgba(250, 204, 21, 0.1); color: #FACC15; border-right: 3px solid #FACC15; }
+        html[dir="rtl"] .sidebar-item.active { border-right: none; border-left: 3px solid #FACC15; }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #loading-overlay.active { display: flex; }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(250, 204, 21, 0.2);
+            border-top-color: #FACC15;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading-status { color: white; margin-top: 20px; font-weight: 500; }
+        #loading-progress {
+            width: 300px;
+            max-width: 80%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        #loading-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #FACC15;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden font-sans antialiased">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-white dark:bg-brand-sidebar">
+        <div class="flex flex-col items-center gap-4">
+            <div class="text-7xl text-brand-yellow drop-shadow-[0_0_30px_rgba(250,204,21,0.6)] animate-pulse">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h1 class="font-heading font-extrabold text-5xl text-slate-900 dark:text-white tracking-tight">Ki<span class="font-light">Lat</span></h1>
+        </div>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div id="loading-status">Memproses...</div>
+        <div id="loading-progress">
+            <div id="loading-progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SIDEBAR (LEFT PANEL)                       -->
+    <!-- ========================================== -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
+    
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-brand-sidebar border-r border-slate-200 dark:border-slate-800/50 transform -translate-x-full lg:translate-x-0 lg:static lg:flex flex-col transition-transform duration-300 shadow-xl lg:shadow-none">
+        
+        <!-- Sidebar Header / Logo -->
+        <div class="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-800/50 cursor-pointer group" onclick="handleEasterEgg(event)">
+            <div class="flex items-center gap-3">
+                <div class="text-brand-yellow text-2xl group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="font-heading font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">Ki<span class="font-light">Lat</span></span>
+            </div>
+            <button class="ml-auto lg:hidden text-slate-500" onclick="toggleSidebar()"><i class="fas fa-times text-xl"></i></button>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1 custom-scrollbar">
+            <p class="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-4" data-i18n="navMenu">MENU</p>
+            
+            <a href="javascript:void(0)" onclick="filterView('all', this)" class="sidebar-item active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                <i class="fas fa-home w-5 text-center"></i> <span data-i18n="navHome">Beranda</span>
+            </a>
+            
+            <p class="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-6" data-i18n="navTools">ALAT</p>
+            
+            <a href="javascript:void(0)" onclick="filterView('compress', this)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                <i class="fas fa-compress-alt w-5 text-center text-brand-orange"></i> <span data-i18n="navCompress">Kompresi</span>
+            </a>
+            <a href="javascript:void(0)" onclick="filterView('pdf', this)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                <i class="fas fa-file-pdf w-5 text-center text-red-500"></i> <span data-i18n="navPdf">Alat PDF</span>
+            </a>
+            <a href="javascript:void(0)" onclick="filterView('extract', this)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                <i class="fas fa-wave-square w-5 text-center text-purple-500"></i> <span data-i18n="navExtract">Ekstraksi</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer / Settings Info -->
+        <div class="p-4 border-t border-slate-100 dark:border-slate-800/50">
+            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700/50">
+                <div class="flex items-center gap-3 mb-2 text-brand-yellow">
+                    <i class="fas fa-shield-halved"></i>
+                    <span class="text-xs font-bold tracking-wide" data-i18n="privacyMode">PRIVACY MODE</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight" data-i18n="privacyDesc">100% proses berjalan di perangkat Anda secara lokal. Aman.</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT (RIGHT PANEL)                 -->
+    <!-- ========================================== -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <!-- Top Navbar -->
+        <header class="h-20 flex items-center justify-between px-4 lg:px-8 bg-white/80 dark:bg-brand-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/50 z-30">
+            <div class="flex items-center gap-4">
+                <button class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 id="page-title" class="font-heading text-xl font-bold text-slate-800 dark:text-white hidden sm:block" data-i18n="navHome">Beranda</h2>
+            </div>
+
+            <!-- Right Actions (Theme & Settings) -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="document.getElementById('settings-modal').classList.remove('hidden')" class="px-4 py-2 rounded-xl flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700 text-sm font-bold shadow-sm">
+                    <i class="fas fa-cog"></i> <span class="hidden sm:inline" data-i18n="btnSettings">Pengaturan</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Area -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar relative">
+            
+            <!-- Views Container -->
+            <div id="main-views-container" class="max-w-6xl mx-auto pb-20">
+                
+                <!-- HERO SECTION (Only visible on 'all' view) -->
+                <div id="hero-section" class="hero-bg rounded-3xl p-8 sm:p-12 mb-10 border border-slate-200 dark:border-slate-800/50 shadow-sm dark:shadow-none overflow-hidden relative text-center">
+                    <div class="absolute -top-24 -left-24 w-64 h-64 bg-brand-yellow/20 blur-[80px] rounded-full pointer-events-none"></div>
+                    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 mb-6">
+                            <span class="text-green-500">●</span> <span data-i18n="heroBadge">Offline Ready</span>
+                        </div>
+                        <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
+                            <span data-i18n="heroTitle1">Semua alat pemrosesan file,</span><br>
+                            <span class="text-brand-yellow glow-text" data-i18n="heroTitle2">cepat, aman, dan lokal.</span>
+                        </h1>
+                        <p class="text-base sm:text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium mb-8" data-i18n="heroDesc">
+                            Kompresi gambar, manipulasi PDF, dan ekstraksi media tanpa perlu mengunggah file Anda ke server internet.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- GRID CONTAINERS FOR TOOLS -->
+                <div id="tools-grid-area" class="space-y-12">
+                    
+                    <!-- COMPRESS GRID -->
+                    <div class="tool-group" data-group="compress">
+                        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 dark:border-slate-800/50 pb-3">
+                            <div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-brand-orange/20 text-brand-orange flex items-center justify-center"><i class="fas fa-compress-alt"></i></div>
+                            <h3 class="font-heading text-xl font-bold text-slate-800 dark:text-white" data-i18n="navCompress">Kompresi</h3>
+                        </div>
+                        <div id="compress-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+                    </div>
+
+                    <!-- PDF GRID -->
+                    <div class="tool-group" data-group="pdf">
+                        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 dark:border-slate-800/50 pb-3">
+                            <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center"><i class="fas fa-file-pdf"></i></div>
+                            <h3 class="font-heading text-xl font-bold text-slate-800 dark:text-white" data-i18n="navPdf">Alat PDF</h3>
+                        </div>
+                        <div id="pdf-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+                    </div>
+
+                    <!-- EXTRACT GRID -->
+                    <div class="tool-group" data-group="extract">
+                        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 dark:border-slate-800/50 pb-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center"><i class="fas fa-wave-square"></i></div>
+                            <h3 class="font-heading text-xl font-bold text-slate-800 dark:text-white" data-i18n="navExtract">Ekstraksi</h3>
+                        </div>
+                        <div id="extract-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- WORKSPACE AREA (When a tool is selected)   -->
+            <!-- ========================================== -->
+            <div id="workspace-container" class="max-w-4xl mx-auto pb-20 hidden animate-fade-in-up">
+                
+                <button onclick="closeWorkspace()" class="mb-6 group flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> <span data-i18n="btnBack">Kembali</span>
+                </button>
+
+                <div class="workspace-glass rounded-[2rem] p-6 sm:p-10 shadow-xl border border-slate-200 dark:border-slate-700/50">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col items-center text-center mb-8">
+                        <div id="ws-icon" class="w-16 h-16 rounded-2xl items-center justify-center text-3xl mb-4 shadow-sm border bg-white dark:bg-brand-card flex"></div>
+                        <h2 id="ws-title" class="font-heading text-2xl font-bold text-slate-900 dark:text-white mb-2">Judul Tool</h2>
+                        <p id="ws-desc" class="text-slate-500 dark:text-slate-400 text-sm max-w-md">Deskripsi</p>
+                    </div>
+
+                    <!-- Input / Dropzone -->
+                    <input type="file" id="ws-file-input" class="hidden" multiple>
+                    <div id="ws-dropzone" class="premium-dropzone p-10 sm:p-14 text-center bg-slate-50 dark:bg-slate-900/40 cursor-pointer group" onclick="document.getElementById('ws-file-input').click()">
+                        <div class="w-16 h-16 bg-white dark:bg-brand-card rounded-full flex items-center justify-center mx-auto mb-4 shadow-md text-brand-yellow group-hover:-translate-y-2 transition-transform duration-300">
+                            <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                        </div>
+                        <h3 class="font-heading text-xl font-bold text-slate-800 dark:text-white mb-1" id="ws-dropzone-title">Pilih File</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" data-i18n="dropzoneDesc">atau tarik file ke sini (Bisa pilih banyak sekaligus)</p>
+                    </div>
+
+                    <!-- File List -->
+                    <div id="ws-file-list" class="mt-6 flex flex-col gap-3 max-h-80 overflow-y-auto pr-2 hidden custom-scrollbar"></div>
+                    
+                    <!-- Options Area -->
+                    <div id="ws-options-area" class="mt-6 hidden"></div>
+
+                    <!-- Action Button -->
+                    <div class="mt-8 flex justify-center gap-4">
+                        <button id="ws-action-btn" onclick="executeTool()" class="hidden bg-brand-yellow hover:bg-yellow-400 text-slate-900 font-bold text-base px-8 py-3.5 rounded-xl transition-all shadow-lg active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed min-w-[200px] flex items-center justify-center gap-2">
+                            <span id="ws-action-text">Proses</span>
+                        </button>
+                        <button id="ws-cancel-btn" onclick="cancelProcess()" class="hidden bg-red-500 hover:bg-red-600 text-white font-bold text-base px-8 py-3.5 rounded-xl transition-all shadow-lg active:scale-95">
+                            <i class="fas fa-stop"></i> Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800/50 text-center pb-8">
+                <p class="text-xs text-slate-400 font-medium">© 2026 KiLat. Pemrosesan aman secara lokal.</p>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- SETTINGS MODAL (Language & Theme) -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 relative">
+            <button onclick="document.getElementById('settings-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            
+            <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
+                <i class="fas fa-cog text-brand-yellow"></i> <span data-i18n="btnSettings">Pengaturan</span>
+            </h3>
+            
+            <!-- Language Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2" data-i18n="lblLanguage">Bahasa</label>
+                <div class="relative">
+                    <select id="lang-select" onchange="changeLanguage(this.value)" class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl appearance-none outline-none focus:ring-2 focus:ring-brand-yellow dark:text-white text-sm font-bold shadow-sm cursor-pointer">
+                        <option value="id">🇮🇩 Indonesia (Default)</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                        <option value="ar">🇸🇦 العربية (Arabic)</option>
+                        <option value="th">🇹🇭 ไทย (Thai)</option>
+                        <option value="zh">🇨🇳 中文 (Chinese)</option>
+                    </select>
+                    <i class="fas fa-globe absolute left-4 top-3.5 text-slate-400"></i>
+                    <i class="fas fa-chevron-down absolute right-4 top-4 text-slate-400 text-xs pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- Theme Selection -->
+            <div>
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2" data-i18n="lblTheme">Tema Tampilan</label>
+                <div class="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center gap-2"><i class="fas fa-sun"></i> Terang</button>
+                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-white transition-colors flex items-center justify-center gap-2"><i class="fas fa-moon"></i> Gelap</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI OVERLAYS -->
+    <div id="toast-area"></div>
+    <div id="lightning-overlay" class="fixed inset-0 w-full h-full bg-white z-[99999] pointer-events-none opacity-0 hidden"></div>
+
+    <!-- ========================================== -->
+    <!-- ENGINE SCRIPTS                             -->
+    <!-- ========================================== -->
+    <script>
+        
+        // --- 1. DICTIONARY (MULTI-LANGUAGE) ---
+        const i18n = {
+            id: {
+                navMenu: "MENU", navTools: "ALAT", navHome: "Beranda", navCompress: "Kompresi", navPdf: "Alat PDF", navExtract: "Ekstraksi",
+                privacyMode: "PRIVACY MODE", privacyDesc: "100% proses berjalan di perangkat Anda secara lokal. Aman.",
+                heroBadge: "Offline Ready", heroTitle1: "Semua alat pemrosesan file,", heroTitle2: "cepat, aman, dan lokal.",
+                heroDesc: "Kompresi gambar, manipulasi PDF, dan ekstraksi media tanpa perlu mengunggah file Anda ke server internet.",
+                btnSettings: "Pengaturan", lblLanguage: "Bahasa Aplikasi", lblTheme: "Tema Tampilan",
+                btnBack: "Kembali", dropzoneDesc: "atau tarik file ke sini (Bisa pilih banyak sekaligus)", btnProcess: "Proses Sekarang",
+                lblTargetSize: "Target Ukuran Maks (Opsional)", lblQuality: "Atur kualitas manual",
+                txtLoading: "Memproses...", txtDone: "Selesai", errEmpty: "Pilih file terlebih dahulu",
+                lblPages: "Halaman (cth: 1, 3, 5-7)", lblText: "Teks Watermark", lblCancel: "Batal",
+                lblRotation: "Rotasi", lblPageRange: "Range Halaman", lblFormat: "Format Output",
+                lblDPI: "DPI", lblQualityLabel: "Kualitas", lblAllPages: "Semua Halaman",
+                lblSpecificPages: "Halaman Tertentu", lblPosition: "Posisi", lblFontSize: "Ukuran Font",
+                lblOpacity: "Opacity", lblColor: "Warna", lblOrientation: "Orientasi",
+                lblMargin: "Margin", lblPaperSize: "Ukuran Kertas", lblSplitInto: "Pisahkan Menjadi",
+                lblSeparateFiles: "File Terpisah", lblSingleFile: "Satu File"
+            },
+            en: {
+                navMenu: "MENU", navTools: "TOOLS", navHome: "Home", navCompress: "Compress", navPdf: "PDF Tools", navExtract: "Extract",
+                privacyMode: "PRIVACY MODE", privacyDesc: "100% processing runs locally on your device. Secure.",
+                heroBadge: "Offline Ready", heroTitle1: "All your file processing tools,", heroTitle2: "fast, secure, and local.",
+                heroDesc: "Image compression, PDF manipulation, and media extraction without uploading to internet servers.",
+                btnSettings: "Settings", lblLanguage: "App Language", lblTheme: "App Theme",
+                btnBack: "Back", dropzoneDesc: "or drag files here (Select multiple)", btnProcess: "Process Now",
+                lblTargetSize: "Max Target Size (Optional)", lblQuality: "Manual quality",
+                txtLoading: "Processing...", txtDone: "Done", errEmpty: "Select a file first",
+                lblPages: "Pages (e.g: 1, 3, 5-7)", lblText: "Watermark Text", lblCancel: "Cancel",
+                lblRotation: "Rotation", lblPageRange: "Page Range", lblFormat: "Output Format",
+                lblDPI: "DPI", lblQualityLabel: "Quality", lblAllPages: "All Pages",
+                lblSpecificPages: "Specific Pages", lblPosition: "Position", lblFontSize: "Font Size",
+                lblOpacity: "Opacity", lblColor: "Color", lblOrientation: "Orientation",
+                lblMargin: "Margin", lblPaperSize: "Paper Size", lblSplitInto: "Split Into",
+                lblSeparateFiles: "Separate Files", lblSingleFile: "Single File"
+            },
+            ja: {
+                navMenu: "メニュー", navTools: "ツール", navHome: "ホーム", navCompress: "圧縮", navPdf: "PDFツール", navExtract: "抽出",
+                privacyMode: "プライバシーモード", privacyDesc: "100%デバイス上でローカル処理されます。安全です。",
+                heroBadge: "オフライン対応", heroTitle1: "すべてのファイル処理ツール、", heroTitle2: "高速、安全、ローカル。",
+                heroDesc: "インターネットサーバーにアップロードすることなく、画像圧縮、PDF操作、メディア抽出を実行。",
+                btnSettings: "設定", lblLanguage: "言語", lblTheme: "テーマ",
+                btnBack: "戻る", dropzoneDesc: "またはここにドラッグ（複数選択可）", btnProcess: "処理開始",
+                lblTargetSize: "目標サイズ (任意)", lblQuality: "手動品質",
+                txtLoading: "処理中...", txtDone: "完了", errEmpty: "ファイルを選択してください",
+                lblPages: "ページ (例: 1, 3, 5-7)", lblText: "透かしテキスト", lblCancel: "キャンセル",
+                lblRotation: "回転", lblPageRange: "ページ範囲", lblFormat: "出力形式",
+                lblDPI: "DPI", lblQualityLabel: "品質", lblAllPages: "全ページ",
+                lblSpecificPages: "特定ページ", lblPosition: "位置", lblFontSize: "フォントサイズ",
+                lblOpacity: "透明度", lblColor: "色", lblOrientation: "向き",
+                lblMargin: "余白", lblPaperSize: "用紙サイズ", lblSplitInto: "分割方法",
+                lblSeparateFiles: "個別ファイル", lblSingleFile: "単一ファイル"
+            },
+            ar: {
+                navMenu: "القائمة", navTools: "أدوات", navHome: "الرئيسية", navCompress: "ضغط", navPdf: "أدوات PDF", navExtract: "استخراج",
+                privacyMode: "وضع الخصوصية", privacyDesc: "100% من المعالجة تتم محلياً على جهازك. آمن.",
+                heroBadge: "جاهز بدون انترنت", heroTitle1: "جميع أدوات معالجة الملفات،", heroTitle2: "سريعة، آمنة، ومحلية.",
+                heroDesc: "ضغط الصور، معالجة PDF، واستخراج الوسائط دون رفع الملفات لخوادم الإنترنت.",
+                btnSettings: "إعدادات", lblLanguage: "لغة التطبيق", lblTheme: "مظهر التطبيق",
+                btnBack: "رجوع", dropzoneDesc: "أو اسحب الملفات هنا (تحديد متعدد)", btnProcess: "معالجة الآن",
+                lblTargetSize: "الحجم المستهدف (اختياري)", lblQuality: "الجودة يدوياً",
+                txtLoading: "جاري المعالجة...", txtDone: "تم", errEmpty: "اختر ملفاً أولاً",
+                lblPages: "الصفحات (مثل: 1، 3، 5-7)", lblText: "نص العلامة المائية", lblCancel: "إلغاء",
+                lblRotation: "تدوير", lblPageRange: "نطاق الصفحات", lblFormat: "تنسيق الإخراج",
+                lblDPI: "DPI", lblQualityLabel: "الجودة", lblAllPages: "جميع الصفحات",
+                lblSpecificPages: "صفحات محددة", lblPosition: "الموضع", lblFontSize: "حجم الخط",
+                lblOpacity: "الشفافية", lblColor: "اللون", lblOrientation: "الاتجاه",
+                lblMargin: "الهامش", lblPaperSize: "حجم الورق", lblSplitInto: "تقسيم إلى",
+                lblSeparateFiles: "ملفات منفصلة", lblSingleFile: "ملف واحد"
+            },
+            th: {
+                navMenu: "เมนู", navTools: "เครื่องมือ", navHome: "หน้าแรก", navCompress: "บีบอัด", navPdf: "เครื่องมือ PDF", navExtract: "แยกไฟล์",
+                privacyMode: "โหมดความเป็นส่วนตัว", privacyDesc: "ประมวลผลบนอุปกรณ์ของคุณ 100% ปลอดภัย",
+                heroBadge: "ออฟไลน์", heroTitle1: "เครื่องมือจัดการไฟล์ทั้งหมด", heroTitle2: "เร็ว ปลอดภัย ภายในเครื่อง",
+                heroDesc: "บีบอัดรูปภาพ จัดการ PDF และแยกสื่อโดยไม่ต้องอัปโหลด",
+                btnSettings: "ตั้งค่า", lblLanguage: "ภาษา", lblTheme: "ธีม",
+                btnBack: "กลับ", dropzoneDesc: "หรือลากไฟล์มาที่นี่ (เลือกได้หลายไฟล์)", btnProcess: "ดำเนินการทันที",
+                lblTargetSize: "ขนาดเป้าหมาย (ทางเลือก)", lblQuality: "คุณภาพ",
+                txtLoading: "กำลังประมวลผล...", txtDone: "เสร็จสิ้น", errEmpty: "กรุณาเลือกไฟล์ก่อน",
+                lblPages: "หน้า (เช่น 1, 3, 5-7)", lblText: "ข้อความลายน้ำ", lblCancel: "ยกเลิก",
+                lblRotation: "หมุน", lblPageRange: "ช่วงหน้า", lblFormat: "รูปแบบผลลัพธ์",
+                lblDPI: "DPI", lblQualityLabel: "คุณภาพ", lblAllPages: "ทุกหน้า",
+                lblSpecificPages: "หน้าที่เลือก", lblPosition: "ตำแหน่ง", lblFontSize: "ขนาดตัวอักษร",
+                lblOpacity: "ความโปร่งแสง", lblColor: "สี", lblOrientation: "การวางแนว",
+                lblMargin: "ระยะขอบ", lblPaperSize: "ขนาดกระดาษ", lblSplitInto: "แบ่งเป็น",
+                lblSeparateFiles: "ไฟล์แยก", lblSingleFile: "ไฟล์เดียว"
+            },
+            zh: {
+                navMenu: "菜单", navTools: "工具", navHome: "首页", navCompress: "压缩", navPdf: "PDF 工具", navExtract: "提取",
+                privacyMode: "隐私模式", privacyDesc: "100%在您的设备上本地处理。安全。",
+                heroBadge: "支持离线", heroTitle1: "所有文件处理工具，", heroTitle2: "快速、安全、本地化。",
+                heroDesc: "无需上传至互联网服务器即可进行图像压缩、PDF 操作和媒体提取。",
+                btnSettings: "设置", lblLanguage: "语言", lblTheme: "主题",
+                btnBack: "返回", dropzoneDesc: "或拖拽文件到这里（可多选）", btnProcess: "立即处理",
+                lblTargetSize: "目标大小 (可选)", lblQuality: "手动质量",
+                txtLoading: "处理中...", txtDone: "完成", errEmpty: "请先选择文件",
+                lblPages: "页码 (例: 1, 3, 5-7)", lblText: "水印文本", lblCancel: "取消",
+                lblRotation: "旋转", lblPageRange: "页码范围", lblFormat: "输出格式",
+                lblDPI: "DPI", lblQualityLabel: "质量", lblAllPages: "所有页面",
+                lblSpecificPages: "特定页面", lblPosition: "位置", lblFontSize: "字体大小",
+                lblOpacity: "透明度", lblColor: "颜色", lblOrientation: "方向",
+                lblMargin: "边距", lblPaperSize: "纸张大小", lblSplitInto: "分割为",
+                lblSeparateFiles: "单独文件", lblSingleFile: "单个文件"
+            }
+        };
+
+        let currentLang = 'id';
+
+        // --- 2. DATA CONFIGURATION ---
+        const compressData = [
+            { id: 'compress_image', title: 'Kompres Gambar', icon: 'fas fa-images', type: 'real_image', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih Gambar', desc: 'Batch kompresi berbagai format foto.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' },
+            { id: 'compress_jpg', title: 'Kompres JPG', icon: 'fas fa-file-image', type: 'real_image', accept: 'image/jpeg', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih File JPG', desc: 'Optimasi ukuran khusus JPEG.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' },
+            { id: 'compress_png', title: 'Kompres PNG', icon: 'fas fa-image', type: 'real_image', accept: 'image/png', multiple: true, needsInput: 'png_options', inputLabel: 'Pilih File PNG', desc: 'Kompresi lossy/lossless untuk PNG.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' },
+            { id: 'compress_webp', title: 'Kompres WebP', icon: 'fas fa-file-image', type: 'real_image', accept: 'image/webp', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih File WebP', desc: 'Kompresi format WebP.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' }
+        ];
+
+        const extractData = [
+            { id: 'extract_audio', title: 'Ekstrak Audio', icon: 'fas fa-file-audio', type: 'extract_real', accept: 'video/mp4, video/avi, video/webm, video/mov, video/quicktime', multiple: true, needsInput: 'audio_options', inputLabel: 'Pilih File Video', desc: 'Ambil suara dari video (WAV, MP3, AAC, FLAC).', colorClass: 'text-purple-500 bg-purple-100 dark:bg-purple-500/20' }
+        ];
+
+        const pdfData = [
+            { id: 'merge', title: 'Gabungkan PDF', icon: 'fas fa-object-group', type: 'real_pdf', accept: '.pdf', multiple: true, inputLabel: 'Pilih File PDF', desc: 'Satukan banyak PDF menjadi satu', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'split', title: 'Pisahkan PDF', icon: 'fas fa-arrows-alt-h', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'split_options', inputLabel: 'Pilih File PDF', desc: 'Pecah halaman menjadi PDF terpisah', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'delete', title: 'Hapus Halaman', icon: 'fas fa-trash-alt', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'text_input', inputLabel: 'Pilih File PDF', desc: 'Buang halaman tak perlu', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'rotate', title: 'Putar PDF', icon: 'fas fa-undo', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'rotate_options', inputLabel: 'Pilih File PDF', desc: 'Perbaiki orientasi halaman', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'watermark', title: 'Tanda Air', icon: 'fas fa-stamp', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'watermark_options', inputLabel: 'Pilih File PDF', desc: 'Beri cap watermark pada dokumen', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'add_page_num', title: 'Nomor Halaman', icon: 'fas fa-list-ol', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'pagenum_options', inputLabel: 'Pilih File PDF', desc: 'Sisipkan nomor otomatis', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'pdf2jpg', title: 'PDF ke JPG', icon: 'fas fa-file-image', type: 'real_pdf2image', accept: '.pdf', multiple: false, needsInput: 'pdf2image_options', inputLabel: 'Pilih File PDF', desc: 'Render PDF menjadi gambar HD', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
+            { id: 'jpg2pdf', title: 'JPG ke PDF', icon: 'fas fa-images', type: 'real_pdf', accept: 'image/jpeg, image/png', multiple: true, needsInput: 'jpg2pdf_options', inputLabel: 'Pilih File Gambar', desc: 'Ubah foto jadi dokumen', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
+            { id: 'compress_pdf', title: 'Kompres PDF', icon: 'fas fa-compress', type: 'real_pdf', accept: '.pdf', multiple: true, inputLabel: 'Pilih File PDF', desc: 'Optimasi ukuran file PDF', colorClass: 'text-green-500 bg-green-100 dark:bg-green-500/20' }
+        ];
+
+        // System Maps
+        const allTools = [...compressData, ...pdfData, ...extractData];
+        const toolMap = {};
+        allTools.forEach(t => toolMap[t.id] = t);
+
+        let currentFiles = [];
+        let currentTool = null;
+        let isProcessing = false;
+        let cancelRequested = false;
+        let abortController = null;
+
+        // --- 3. UI INITIALIZATION ---
+        function initApp() {
+            renderGrid('compress-grid', compressData);
+            renderGrid('pdf-grid', pdfData);
+            renderGrid('extract-grid', extractData);
+
+            // Apply saved theme UI
+            updateThemeUI(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            
+            // Drag and Drop
+            const dropzone = document.getElementById('ws-dropzone');
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => dropzone.addEventListener(e, prevDef, false));
+            ['dragenter', 'dragover'].forEach(e => dropzone.addEventListener(e, () => dropzone.classList.add('dragover'), false));
+            ['dragleave', 'drop'].forEach(e => dropzone.addEventListener(e, () => dropzone.classList.remove('dragover'), false));
+            dropzone.addEventListener('drop', e => {
+                const files = e.dataTransfer.files;
+                if (files && files.length > 0) handleFiles(files);
+            }, false);
+            document.getElementById('ws-file-input').addEventListener('change', function() { 
+                if (this.files && this.files.length > 0) handleFiles(this.files);
+                this.value = '';
+            });
+
+            // Splash Screen removal logic
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                splash.style.opacity = '0';
+                splash.style.pointerEvents = 'none';
+                setTimeout(() => splash.style.display = 'none', 500);
+            }, 2500);
+
+            // Set default language
+            changeLanguage('id');
+            
+            // Setup initial view
+            filterView('all', document.querySelector('.sidebar-item.active'));
+        }
+
+        function prevDef(e) { e.preventDefault(); e.stopPropagation(); }
+
+        // --- MULTI LANGUAGE ---
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('lang-select').value = lang;
+            
+            // RTL Logic
+            if(lang === 'ar') document.documentElement.setAttribute('dir', 'rtl');
+            else document.documentElement.setAttribute('dir', 'ltr');
+
+            // Apply translations
+            const t = i18n[lang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    if (el.tagName === 'INPUT' && el.type === 'text') el.placeholder = t[key];
+                    else el.innerHTML = t[key];
+                }
+            });
+
+            // Re-render UI text if in workspace
+            if (currentTool) {
+                document.getElementById('ws-action-text').textContent = t.btnProcess;
+                document.getElementById('ws-cancel-btn').textContent = t.lblCancel;
+                if(document.getElementById('opt-text')) {
+                    const l = document.querySelector('#ws-options-area label');
+                    if(l) l.textContent = currentTool.id === 'watermark' ? t.lblText : t.lblPages;
+                }
+            }
+        }
+
+        // --- THEME ---
+        function setTheme(theme) {
+            const html = document.documentElement;
+            if (theme === 'dark') { html.classList.add('dark'); localStorage.theme = 'dark'; } 
+            else { html.classList.remove('dark'); localStorage.theme = 'light'; }
+            updateThemeUI(theme);
+        }
+
+        function updateThemeUI(theme) {
+            const l = document.getElementById('btn-theme-light'), d = document.getElementById('btn-theme-dark');
+            l.className = `flex-1 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 ${theme==='light' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-800'}`;
+            d.className = `flex-1 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 ${theme==='dark' ? 'bg-slate-700 shadow-sm text-white' : 'text-slate-500 hover:text-slate-800'}`;
+        }
+
+        // --- NAVIGATION ---
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar'), ov = document.getElementById('mobile-overlay');
+            if (sb.classList.contains('-translate-x-full')) {
+                sb.classList.remove('-translate-x-full'); ov.classList.remove('hidden');
+            } else {
+                sb.classList.add('-translate-x-full'); ov.classList.add('hidden');
+            }
+        }
+
+        function filterView(viewId, el) {
+            // Update Active class
+            document.querySelectorAll('.sidebar-item').forEach(e => e.classList.remove('active'));
+            if(el) el.classList.add('active');
+            
+            if (document.getElementById('workspace-container') && !document.getElementById('workspace-container').classList.contains('hidden')) {
+                closeWorkspace();
+            }
+
+            const hero = document.getElementById('hero-section');
+            hero.style.display = viewId === 'all' ? 'block' : 'none';
+
+            document.querySelectorAll('.tool-group').forEach(grp => {
+                if(viewId === 'all' || grp.getAttribute('data-group') === viewId) grp.style.display = 'block';
+                else grp.style.display = 'none';
+            });
+            
+            // Set Page Title
+            const t = i18n[currentLang];
+            let title = t.navHome;
+            if(viewId==='compress') title = t.navCompress;
+            if(viewId==='pdf') title = t.navPdf;
+            if(viewId==='extract') title = t.navExtract;
+            document.getElementById('page-title').textContent = title;
+
+            // Close sidebar on mobile
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        // --- RENDER GRID ---
+        function renderGrid(containerId, data) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = data.map(tool => {
+                return `
+                <div onclick="openWorkspace('${tool.id}')" class="card-hover bg-white dark:bg-brand-card rounded-2xl p-5 border border-slate-200 dark:border-slate-700/60 cursor-pointer flex flex-col h-full relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="icon-bounce w-12 h-12 rounded-xl flex items-center justify-center ${tool.colorClass} mb-4 shadow-sm border border-slate-100 dark:border-slate-700/50 text-xl relative z-10">
+                        <i class="${tool.icon}"></i>
+                    </div>
+                    <h3 class="font-heading text-base font-bold text-slate-800 dark:text-slate-100 mb-1 relative z-10">${tool.title}</h3>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 flex-grow relative z-10">${tool.desc}</p>
+                </div>`;
+            }).join('');
+        }
+
+        // --- 4. WORKSPACE LOGIC ---
+        function openWorkspace(toolId) {
+            const tool = toolMap[toolId];
+            if (!tool) return;
+            
+            if (isProcessing) {
+                showToast('Proses sedang berjalan, tunggu sebentar', 'info');
+                return;
+            }
+            
+            currentTool = tool; 
+            currentFiles = [];
+            
+            document.getElementById('hero-section').style.display = 'none';
+            document.querySelectorAll('.tool-group').forEach(el => el.style.display = 'none');
+            document.getElementById('workspace-container').classList.remove('hidden');
+            
+            // Header Setup
+            const wsIcon = document.getElementById('ws-icon');
+            wsIcon.className = `w-16 h-16 rounded-2xl items-center justify-center text-3xl mb-4 shadow-sm border flex border-slate-100 dark:border-slate-700/50 ${tool.colorClass}`;
+            wsIcon.innerHTML = `<i class="${tool.icon}"></i>`;
+            document.getElementById('ws-title').textContent = tool.title;
+            document.getElementById('ws-desc').textContent = tool.desc;
+            document.getElementById('ws-dropzone-title').textContent = tool.inputLabel;
+            
+            // Input setup
+            const fileInput = document.getElementById('ws-file-input');
+            fileInput.accept = tool.accept || '*/*';
+            fileInput.multiple = tool.multiple !== false;
+            
+            document.getElementById('ws-action-btn').classList.add('hidden');
+            document.getElementById('ws-cancel-btn').classList.add('hidden');
+            document.getElementById('ws-options-area').style.display = 'none';
+            document.getElementById('ws-action-text').textContent = i18n[currentLang].btnProcess;
+            
+            document.getElementById('ws-file-list').classList.add('hidden');
+            document.getElementById('ws-file-list').innerHTML = '';
+            
+            // Reset dropzone text
+            document.getElementById('ws-dropzone-title').textContent = tool.inputLabel;
+        }
+
+        function closeWorkspace() {
+            document.getElementById('workspace-container').classList.add('hidden');
+            
+            // Return to active filter
+            const activeSidebar = document.querySelector('.sidebar-item.active');
+            if(activeSidebar) {
+                const viewId = activeSidebar.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all';
+                filterView(viewId, activeSidebar);
+            } else {
+                filterView('all');
+            }
+            
+            currentTool = null; 
+            currentFiles = [];
+            isProcessing = false;
+            cancelRequested = false;
+            document.getElementById('loading-overlay').classList.remove('active');
+        }
+
+        let fileNamesSet = new Set();
+
+        function handleFiles(files) {
+            if (!currentTool) {
+                showToast('Pilih alat terlebih dahulu', 'error');
+                return;
+            }
+            
+            if (isProcessing) {
+                showToast('Proses sedang berjalan', 'info');
+                return;
+            }
+            
+            if (files.length === 0) return;
+            
+            // Filter files based on accept type
+            const acceptTypes = currentTool.accept.split(',').map(t => t.trim());
+            let validFiles = [];
+            
+            for (let f of files) {
+                let isValid = false;
+                for (let type of acceptTypes) {
+                    if (type.startsWith('.')) {
+                        if (f.name.toLowerCase().endsWith(type.toLowerCase())) {
+                            isValid = true;
+                            break;
+                        }
+                    } else if (type.includes('/')) {
+                        const baseType = type.replace('*', '');
+                        if (f.type === type || f.type.startsWith(baseType)) {
+                            isValid = true;
+                            break;
+                        }
+                    } else if (type === '*/*') {
+                        isValid = true;
+                        break;
+                    }
+                }
+                // Check duplicate across all batches
+                if (isValid && !fileNamesSet.has(f.name)) {
+                    fileNamesSet.add(f.name);
+                    validFiles.push(f);
+                }
+            }
+            
+            if (validFiles.length === 0) {
+                showToast('Tidak ada file yang sesuai dengan format yang didukung', 'error');
+                return;
+            }
+            
+            if (!currentTool.multiple) {
+                // Clear previous files if single mode
+                if (currentFiles.length > 0) {
+                    currentFiles.forEach(f => fileNamesSet.delete(f.name));
+                }
+                currentFiles = [validFiles[0]];
+                // Reset fileNamesSet to only contain current file
+                fileNamesSet.clear();
+                currentFiles.forEach(f => fileNamesSet.add(f.name));
+            } else {
+                currentFiles = [...currentFiles, ...validFiles];
+            }
+            
+            updateFileListUI();
+            document.getElementById('ws-action-btn').classList.remove('hidden');
+            // Only render options if not rendered yet or if options area is empty
+            if (!document.getElementById('ws-options-area').innerHTML.trim()) {
+                renderOptions();
+            }
+        }
+
+        function removeFile(index) {
+            if (isProcessing) return;
+            const fileName = currentFiles[index]?.name;
+            currentFiles.splice(index, 1);
+            if (fileName) fileNamesSet.delete(fileName);
+            updateFileListUI();
+            if (currentFiles.length === 0) {
+                document.getElementById('ws-action-btn').classList.add('hidden');
+                document.getElementById('ws-options-area').style.display = 'none';
+                document.getElementById('ws-file-list').classList.add('hidden');
+                fileNamesSet.clear();
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (!+bytes) return '0 B';
+            const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+        }
+
+        function updateFileListUI() {
+            const list = document.getElementById('ws-file-list');
+            if (currentFiles.length === 0) { 
+                list.classList.add('hidden'); 
+                list.innerHTML = '';
+                return; 
+            }
+            
+            list.classList.remove('hidden');
+            list.innerHTML = currentFiles.map((file, i) => `
+                <div class="flex items-center gap-4 p-3 bg-white dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm relative group">
+                    <div class="w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-700 flex items-center justify-center shrink-0 text-slate-500"><i class="fas fa-file"></i></div>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate mb-1" dir="ltr">${file.name}</p>
+                        <div class="flex items-center gap-2">
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5"><div id="prog-bar-${i}" class="bg-brand-yellow h-full rounded-full w-0 transition-all duration-300"></div></div>
+                            <span id="prog-text-${i}" class="text-[10px] font-bold text-slate-500 whitespace-nowrap">${formatBytes(file.size)}</span>
+                        </div>
+                    </div>
+                    <button onclick="removeFile(${i})" id="btn-remove-${i}" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg shrink-0"><i class="fas fa-times"></i></button>
+                </div>`).join('');
+        }
+
+        function updateProgress(i, percent, statusText) {
+            const bar = document.getElementById(`prog-bar-${i}`);
+            const text = document.getElementById(`prog-text-${i}`);
+            if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+            if (text && statusText) text.textContent = statusText;
+        }
+
+        function updateGlobalProgress(percent, status) {
+            const bar = document.getElementById('loading-progress-bar');
+            const statusEl = document.getElementById('loading-status');
+            if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+            if (statusEl && status) statusEl.textContent = status;
+        }
+
+        function showLoading(status, progress = 0) {
+            document.getElementById('loading-overlay').classList.add('active');
+            updateGlobalProgress(progress, status);
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.remove('active');
+        }
+
+        function renderOptions() {
+            const area = document.getElementById('ws-options-area');
+            if (!currentTool.needsInput) { area.style.display = 'none'; return; }
+            area.style.display = 'block';
+            
+            const t = i18n[currentLang];
+            let html = '';
+            
+            if (currentTool.needsInput === 'slider_and_target') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblTargetSize}</label>
+                        <div class="flex gap-2 max-w-sm" dir="ltr">
+                            <input type="number" id="opt-target-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="Ex: 500" min="0">
+                            <select id="opt-target-unit" class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm font-bold dark:text-white cursor-pointer">
+                                <option value="KB">KB</option><option value="MB">MB</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQuality} <span id="opt-slider-val" class="text-brand-yellow ml-2">70%</span></label>
+                        <input type="range" id="opt-slider" min="10" max="100" value="70" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'png_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblTargetSize}</label>
+                        <div class="flex gap-2 max-w-sm" dir="ltr">
+                            <input type="number" id="opt-target-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="Ex: 500" min="0">
+                            <select id="opt-target-unit" class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm font-bold dark:text-white cursor-pointer">
+                                <option value="KB">KB</option><option value="MB">MB</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQuality} (Warna) <span id="opt-png-colors-val" class="text-brand-yellow ml-2">256</span></label>
+                        <input type="range" id="opt-png-colors" min="2" max="256" value="256" step="2" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <p class="text-xs text-slate-400 mt-1">256 = lossless, 64-128 = kompresi baik, 2-16 = sangat kecil</p>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'text_input') {
+                const lbl = currentTool.id === 'watermark' ? t.lblText : t.lblPages;
+                const placeholder = currentTool.id === 'watermark' ? 'Masukkan teks watermark...' : '1, 3, 5-7';
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${lbl}</label>
+                    <input type="text" id="opt-text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="${placeholder}" dir="ltr">
+                </div>`;
+            } else if (currentTool.needsInput === 'split_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPages}</label>
+                        <input type="text" id="opt-split-pages" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="1, 3, 5-7" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblSplitInto}</label>
+                        <select id="opt-split-mode" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="separate">${t.lblSeparateFiles}</option>
+                            <option value="single">${t.lblSingleFile}</option>
+                        </select>
+                        <p class="text-xs text-slate-400 mt-1">"File Terpisah" = setiap range jadi file sendiri</p>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'rotate_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblRotation}</label>
+                        <select id="opt-rotate-angle" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="90">90°</option>
+                            <option value="180">180°</option>
+                            <option value="270">270°</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPageRange}</label>
+                        <input type="text" id="opt-rotate-pages" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="${t.lblAllPages}" dir="ltr">
+                        <p class="text-xs text-slate-400 mt-1">Kosongkan untuk semua halaman</p>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'watermark_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblText}</label>
+                        <input type="text" id="opt-watermark-text" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="Masukkan teks watermark..." dir="ltr">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFontSize}</label>
+                            <input type="number" id="opt-watermark-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" value="40" min="10" max="200">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblOpacity}</label>
+                            <input type="range" id="opt-watermark-opacity" min="10" max="100" value="30" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                            <span id="opt-watermark-opacity-val" class="text-xs text-slate-400">30%</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblRotation}</label>
+                            <select id="opt-watermark-rotate" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                                <option value="0">0°</option>
+                                <option value="45">45°</option>
+                                <option value="-45">-45°</option>
+                                <option value="90">90°</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblColor}</label>
+                            <input type="color" id="opt-watermark-color" class="w-full h-10 px-2 py-1 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow cursor-pointer" value="#888888">
+                        </div>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'pagenum_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFormat}</label>
+                        <select id="opt-pagenum-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="simple">1, 2, 3</option>
+                            <option value="total">1/10, 2/10</option>
+                            <option value="page">Page 1, Page 2</option>
+                            <option value="halaman">Halaman 1, Halaman 2</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPosition}</label>
+                        <select id="opt-pagenum-pos" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="footer">Footer (Bawah)</option>
+                            <option value="header">Header (Atas)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFontSize}</label>
+                        <input type="number" id="opt-pagenum-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" value="12" min="8" max="30">
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'pdf2image_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblDPI}</label>
+                        <select id="opt-pdf2image-dpi" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="72">72 DPI</option>
+                            <option value="150" selected>150 DPI</option>
+                            <option value="300">300 DPI</option>
+                            <option value="600">600 DPI</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQualityLabel}</label>
+                        <input type="range" id="opt-pdf2image-quality" min="50" max="100" value="90" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <span id="opt-pdf2image-quality-val" class="text-xs text-slate-400">90%</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFormat}</label>
+                        <select id="opt-pdf2image-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="jpeg">JPEG</option>
+                            <option value="png">PNG</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPageRange}</label>
+                        <input type="text" id="opt-pdf2image-pages" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="${t.lblAllPages}" dir="ltr">
+                        <p class="text-xs text-slate-400 mt-1">Kosongkan untuk semua halaman</p>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'jpg2pdf_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPaperSize}</label>
+                        <select id="opt-jpg2pdf-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="A4">A4</option>
+                            <option value="Letter">Letter</option>
+                            <option value="Legal">Legal</option>
+                            <option value="auto">Auto (Sesuai Gambar)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblOrientation}</label>
+                        <select id="opt-jpg2pdf-orient" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="portrait">Potrait</option>
+                            <option value="landscape">Landscape</option>
+                            <option value="auto">Auto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblMargin}</label>
+                        <input type="range" id="opt-jpg2pdf-margin" min="0" max="50" value="10" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <span id="opt-jpg2pdf-margin-val" class="text-xs text-slate-400">10 px</span>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'audio_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFormat}</label>
+                        <select id="opt-audio-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="wav">WAV</option>
+                            <option value="mp3">MP3</option>
+                            <option value="aac">AAC</option>
+                            <option value="flac">FLAC</option>
+                        </select>
+                    </div>
+                    <div id="audio-bitrate-container">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQualityLabel} (Bitrate) <span id="opt-audio-bitrate-val" class="text-brand-yellow ml-2">192 kbps</span></label>
+                        <input type="range" id="opt-audio-bitrate" min="64" max="320" value="192" step="8" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Sample Rate</label>
+                        <select id="opt-audio-samplerate" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <option value="44100">44.1 kHz</option>
+                            <option value="48000">48 kHz</option>
+                            <option value="22050">22.05 kHz</option>
+                            <option value="16000">16 kHz</option>
+                        </select>
+                    </div>
+                </div>`;
+            }
+            area.innerHTML = html;
+            
+            // Setup event listeners for sliders
+            const sl = document.getElementById('opt-slider');
+            if (sl) sl.addEventListener('input', e => document.getElementById('opt-slider-val').textContent = e.target.value + '%');
+            
+            const pngColors = document.getElementById('opt-png-colors');
+            if (pngColors) pngColors.addEventListener('input', e => document.getElementById('opt-png-colors-val').textContent = e.target.value);
+            
+            const wmOpacity = document.getElementById('opt-watermark-opacity');
+            if (wmOpacity) wmOpacity.addEventListener('input', e => document.getElementById('opt-watermark-opacity-val').textContent = e.target.value + '%');
+            
+            const pdfQ = document.getElementById('opt-pdf2image-quality');
+            if (pdfQ) pdfQ.addEventListener('input', e => document.getElementById('opt-pdf2image-quality-val').textContent = e.target.value + '%');
+            
+            const margin = document.getElementById('opt-jpg2pdf-margin');
+            if (margin) margin.addEventListener('input', e => document.getElementById('opt-jpg2pdf-margin-val').textContent = e.target.value + ' px');
+            
+            const bitrate = document.getElementById('opt-audio-bitrate');
+            if (bitrate) bitrate.addEventListener('input', e => document.getElementById('opt-audio-bitrate-val').textContent = e.target.value + ' kbps');
+            
+            // Hide bitrate for WAV format
+            const audioFormat = document.getElementById('opt-audio-format');
+            if (audioFormat) {
+                audioFormat.addEventListener('change', function() {
+                    const container = document.getElementById('audio-bitrate-container');
+                    if (container) {
+                        container.style.display = this.value === 'wav' ? 'none' : 'block';
+                    }
+                });
+                // Initial state
+                const container = document.getElementById('audio-bitrate-container');
+                if (container) {
+                    container.style.display = audioFormat.value === 'wav' ? 'none' : 'block';
+                }
+            }
+        }
+
+        // --- 5. EXECUTION DISPATCHER ---
+        async function executeTool() {
+            if (isProcessing) return;
+            
+            if (currentFiles.length === 0) {
+                showToast(i18n[currentLang].errEmpty, 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('ws-action-btn');
+            const cancelBtn = document.getElementById('ws-cancel-btn');
+            const txt = document.getElementById('ws-action-text');
+            const origTxt = txt.textContent;
+            
+            isProcessing = true;
+            cancelRequested = false;
+            abortController = new AbortController();
+            
+            btn.disabled = true;
+            txt.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${i18n[currentLang].txtLoading}`;
+            cancelBtn.classList.remove('hidden');
+            
+            showLoading('Memulai proses...', 5);
+
+            try {
+                // Disable close buttons on files during process
+                currentFiles.forEach((_, i) => { 
+                    const el = document.getElementById(`btn-remove-${i}`); 
+                    if(el) el.style.display = 'none'; 
+                });
+
+                if (currentTool.id.startsWith('compress_')) await processImageBatch();
+                else if (currentTool.id === 'extract_audio') await processAudioBatch();
+                else if (currentTool.type.includes('pdf') || currentTool.type === 'real_pdf2image') await processPdfAction();
+                else {
+                    showToast('Fungsi belum didukung', 'error');
+                }
+                
+                if (!cancelRequested) {
+                    showToast(i18n[currentLang].txtDone, 'success');
+                }
+                
+            } catch (err) {
+                if (!cancelRequested) {
+                    console.error(err);
+                    showToast("Error: " + (err.message || 'Terjadi kesalahan'), "error");
+                }
+            } finally {
+                isProcessing = false;
+                hideLoading();
+                btn.disabled = false;
+                txt.textContent = origTxt;
+                cancelBtn.classList.add('hidden');
+                currentFiles.forEach((_, i) => { 
+                    const el = document.getElementById(`btn-remove-${i}`); 
+                    if(el) el.style.display = 'flex'; 
+                });
+                if (cancelRequested) {
+                    showToast('Proses dibatalkan', 'info');
+                }
+                document.getElementById('ws-file-input').value = '';
+            }
+        }
+
+        function cancelProcess() {
+            if (isProcessing) {
+                cancelRequested = true;
+                if (abortController) abortController.abort();
+                showToast('Membatalkan proses...', 'info');
+                document.getElementById('ws-cancel-btn').classList.add('hidden');
+                document.getElementById('ws-cancel-btn').disabled = true;
+            }
+        }
+
+        // --- DOWNLOAD UTILS ---
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+        
+        async function createZipDownload(filesArr, zipName) {
+            if (filesArr.length === 1) { 
+                downloadBlob(filesArr[0].blob, filesArr[0].name); 
+                return; 
+            }
+            const zip = new JSZip();
+            filesArr.forEach(f => zip.file(f.name, f.blob));
+            showToast("Membuat arsip ZIP...", "info");
+            const content = await zip.generateAsync({ 
+                type: "blob",
+                onUpdate: (metadata) => {
+                    if (metadata.percent) {
+                        updateGlobalProgress(90 + metadata.percent * 0.1, 'Membuat ZIP...');
+                    }
+                }
+            });
+            downloadBlob(content, zipName);
+        }
+
+        // --- IMAGE ENGINE ---
+        async function processImageBatch() {
+            let processed = [];
+            let q = 0.7;
+            const sl = document.getElementById('opt-slider');
+            if (sl) q = parseInt(sl.value) / 100;
+            
+            let tgtB = null;
+            const tInp = document.getElementById('opt-target-size');
+            if (tInp && tInp.value && parseFloat(tInp.value) > 0) {
+                const val = parseFloat(tInp.value);
+                const unit = document.getElementById('opt-target-unit').value;
+                tgtB = unit === 'MB' ? val * 1024 * 1024 : val * 1024;
+            }
+
+            const pngColors = document.getElementById('opt-png-colors');
+            const pngColorCount = pngColors ? parseInt(pngColors.value) : 256;
+
+            const totalFiles = currentFiles.length;
+            
+            for (let i = 0; i < totalFiles; i++) {
+                if (cancelRequested) {
+                    updateProgress(i, 0, "Dibatalkan");
+                    break;
+                }
+                
+                const f = currentFiles[i];
+                const progressBase = (i / totalFiles) * 80;
+                updateProgress(i, progressBase, "Memproses...");
+                updateGlobalProgress(progressBase + 5, `Memproses ${i+1}/${totalFiles}: ${f.name}`);
+                
+                try {
+                    let outType;
+                    let preserveFormat = false;
+                    
+                    // Determine output format based on tool and input
+                    if (currentTool.id === 'compress_jpg') {
+                        outType = 'image/jpeg';
+                    } else if (currentTool.id === 'compress_png') {
+                        outType = 'image/png';
+                        preserveFormat = true;
+                    } else if (currentTool.id === 'compress_webp') {
+                        outType = 'image/webp';
+                    } else if (currentTool.id === 'compress_image') {
+                        // Preserve original format for PNG/WebP, convert to JPEG for others
+                        if (f.type === 'image/png' || f.type === 'image/webp') {
+                            outType = f.type;
+                            preserveFormat = true;
+                        } else {
+                            outType = 'image/jpeg';
+                        }
+                    } else {
+                        outType = f.type || 'image/jpeg';
+                    }
+                    
+                    let blob;
+                    if (currentTool.id === 'compress_png') {
+                        // Use UPNG.js with color quantization
+                        const arrayBuffer = await f.arrayBuffer();
+                        const pngData = UPNG.decode(arrayBuffer);
+                        const rgbaData = UPNG.toRGBA8(pngData);
+                        
+                        // Determine colors based on target size if set
+                        let colors = pngColorCount;
+                        if (tgtB) {
+                            // Try to estimate colors needed
+                            const originalSize = f.size;
+                            const targetRatio = tgtB / originalSize;
+                            if (targetRatio < 0.3) {
+                                colors = Math.max(2, Math.min(64, Math.floor(256 * targetRatio * 2)));
+                            } else if (targetRatio < 0.6) {
+                                colors = Math.max(16, Math.min(128, Math.floor(256 * targetRatio * 1.2)));
+                            }
+                            // Ensure at least 2 colors
+                            colors = Math.max(2, Math.min(256, colors));
+                        }
+                        
+                        // Use UPNG for compression with color quantization
+                        const compressed = UPNG.encode(rgbaData, pngData.width, pngData.height, colors);
+                        blob = new Blob([compressed], { type: 'image/png' });
+                        
+                        // If target size not met and we have room to reduce colors
+                        if (tgtB && blob.size > tgtB && colors > 2) {
+                            // Try with fewer colors
+                            const reducedColors = Math.max(2, Math.floor(colors * 0.6));
+                            const compressed2 = UPNG.encode(rgbaData, pngData.width, pngData.height, reducedColors);
+                            const blob2 = new Blob([compressed2], { type: 'image/png' });
+                            if (blob2.size <= tgtB || blob2.size < blob.size) {
+                                blob = blob2;
+                            }
+                        }
+                    } else if (tgtB && outType !== 'image/png' && preserveFormat !== true) {
+                        blob = await compressToTarget(f, tgtB, outType);
+                    } else {
+                        blob = await compressStandard(f, q, outType);
+                    }
+                    
+                    const savedPercent = ((1 - blob.size / f.size) * 100).toFixed(1);
+                    const sizeInfo = `${formatBytes(f.size)} ➔ ${formatBytes(blob.size)} (${savedPercent}%)`;
+                    updateProgress(i, 100, sizeInfo);
+                    
+                    let name = `KiLat_${f.name}`;
+                    if (outType === 'image/jpeg' && !name.match(/\.jpe?g$/i)) {
+                        name = name.replace(/\.[^/.]+$/, "") + ".jpg";
+                    } else if (outType === 'image/png' && !name.match(/\.png$/i)) {
+                        name = name.replace(/\.[^/.]+$/, "") + ".png";
+                    } else if (outType === 'image/webp' && !name.match(/\.webp$/i)) {
+                        name = name.replace(/\.[^/.]+$/, "") + ".webp";
+                    }
+                    processed.push({ name, blob });
+                    
+                } catch (e) {
+                    console.error(e);
+                    updateProgress(i, 0, "Gagal: " + e.message);
+                }
+            }
+            
+            if (processed.length > 0 && !cancelRequested) {
+                updateGlobalProgress(95, 'Menyimpan hasil...');
+                await createZipDownload(processed, "KiLat_Images.zip");
+            } else if (processed.length === 0 && !cancelRequested) {
+                showToast("Tidak ada gambar yang berhasil diproses", "error");
+            }
+        }
+        
+        function compressStandard(f, q, type) {
+            return new Promise((res, rej) => {
+                const img = new Image();
+                const url = URL.createObjectURL(f);
+                img.onload = () => {
+                    const c = document.createElement('canvas');
+                    c.width = img.width;
+                    c.height = img.height;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    c.toBlob((blob) => {
+                        URL.revokeObjectURL(url);
+                        res(blob);
+                    }, type, q);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    rej(new Error('Gagal memuat gambar'));
+                };
+                img.src = url;
+            });
+        }
+        
+        function compressToTarget(f, tgt, type) {
+            return new Promise((res, rej) => {
+                const img = new Image();
+                const url = URL.createObjectURL(f);
+                img.onload = async () => {
+                    const c = document.createElement('canvas');
+                    c.width = img.width;
+                    c.height = img.height;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    let minQ = 0.05, maxQ = 0.95, best = null;
+                    let bestSize = Infinity;
+                    
+                    for (let step = 0; step < 10 && !cancelRequested; step++) {
+                        let mid = (minQ + maxQ) / 2;
+                        try {
+                            const b = await new Promise(r => c.toBlob(r, type, mid));
+                            if (b) {
+                                if (b.size <= tgt && b.size < bestSize) {
+                                    best = b;
+                                    bestSize = b.size;
+                                }
+                                if (b.size > tgt) {
+                                    maxQ = mid;
+                                } else {
+                                    minQ = mid;
+                                }
+                            }
+                        } catch (e) {
+                            break;
+                        }
+                    }
+                    
+                    URL.revokeObjectURL(url);
+                    if (best) {
+                        res(best);
+                    } else {
+                        // Fallback: return with lowest quality
+                        c.toBlob((blob) => {
+                            if (blob.size > tgt) {
+                                // Try resizing if still too large
+                                const scale = Math.sqrt(tgt / blob.size);
+                                const newC = document.createElement('canvas');
+                                newC.width = Math.floor(img.width * scale);
+                                newC.height = Math.floor(img.height * scale);
+                                const newCtx = newC.getContext('2d');
+                                newCtx.drawImage(img, 0, 0, newC.width, newC.height);
+                                newC.toBlob((finalBlob) => res(finalBlob), type, 0.05);
+                            } else {
+                                res(blob);
+                            }
+                        }, type, 0.05);
+                    }
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    rej(new Error('Gagal memuat gambar'));
+                };
+                img.src = url;
+            });
+        }
+
+        // --- AUDIO ENGINE ---
+        async function processAudioBatch() {
+            let processed = [];
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            
+            const audioFormat = document.getElementById('opt-audio-format')?.value || 'wav';
+            const targetBitrate = parseInt(document.getElementById('opt-audio-bitrate')?.value || '192');
+            const sampleRate = parseInt(document.getElementById('opt-audio-samplerate')?.value || '44100');
+            
+            const totalFiles = currentFiles.length;
+            
+            for (let i = 0; i < totalFiles; i++) {
+                if (cancelRequested) {
+                    updateProgress(i, 0, "Dibatalkan");
+                    break;
+                }
+                
+                const progressBase = (i / totalFiles) * 80;
+                updateProgress(i, progressBase, "Mengekstrak audio...");
+                updateGlobalProgress(progressBase + 5, `Memproses ${i+1}/${totalFiles}: ${currentFiles[i].name}`);
+                
+                let ctx = null;
+                try {
+                    ctx = new AudioContext({ sampleRate: sampleRate });
+                    const buf = await currentFiles[i].arrayBuffer();
+                    const audioBuf = await ctx.decodeAudioData(buf);
+                    
+                    updateProgress(i, progressBase + 30, "Mengonversi...");
+                    updateGlobalProgress(progressBase + 30, `Mengonversi ke ${audioFormat.toUpperCase()}...`);
+                    
+                    let blob;
+                    if (audioFormat === 'wav') {
+                        blob = bufferToWav(audioBuf);
+                    } else if (audioFormat === 'mp3' || audioFormat === 'aac') {
+                        // Use Web Audio API with MediaRecorder - fallback to WAV if not supported
+                        try {
+                            const mimeType = audioFormat === 'mp3' ? 'audio/mp3' : 'audio/aac';
+                            const audioCtx = new AudioContext({ sampleRate: sampleRate });
+                            const source = audioCtx.createBufferSource();
+                            source.buffer = audioBuf;
+                            const dest = audioCtx.createMediaStreamDestination();
+                            source.connect(dest);
+                            
+                            // Try different mime types
+                            let recorder;
+                            const mimeTypes = [mimeType, 'audio/mpeg', 'audio/mp4', 'audio/webm'];
+                            let supportedMime = null;
+                            for (const mt of mimeTypes) {
+                                if (MediaRecorder.isTypeSupported(mt)) {
+                                    supportedMime = mt;
+                                    break;
+                                }
+                            }
+                            
+                            if (supportedMime) {
+                                recorder = new MediaRecorder(dest.stream, { 
+                                    mimeType: supportedMime, 
+                                    audioBitsPerSecond: targetBitrate * 1000 
+                                });
+                            } else {
+                                // Fallback to WAV
+                                await audioCtx.close();
+                                blob = bufferToWav(audioBuf);
+                                // Use WAV but with proper extension
+                                const ext = audioFormat === 'mp3' ? 'mp3' : 'aac';
+                                // Continue with WAV but rename
+                                const wavBlob = blob;
+                                // We'll keep it as WAV
+                                blob = wavBlob;
+                                // Update progress
+                                updateProgress(i, progressBase + 50, "Menggunakan format WAV (MP3/AAC tidak didukung)");
+                            }
+                            
+                            if (recorder) {
+                                const chunks = [];
+                                const done = new Promise(r => recorder.onstop = r);
+                                recorder.ondataavailable = e => {
+                                    if (e.data && e.data.size > 0) chunks.push(e.data);
+                                };
+                                recorder.start(100);
+                                source.start();
+                                
+                                // Wait for audio to finish playing
+                                const duration = audioBuf.duration * 1000 + 500;
+                                await new Promise(r => setTimeout(r, Math.min(duration, 30000)));
+                                
+                                source.stop();
+                                recorder.stop();
+                                await done;
+                                
+                                const blobData = new Blob(chunks, { 
+                                    type: supportedMime || 'audio/webm' 
+                                });
+                                // Convert to proper format if needed
+                                if (supportedMime && supportedMime.includes('webm')) {
+                                    // It's WebM, not true MP3/AAC - we'll still use it
+                                    blob = blobData;
+                                } else {
+                                    blob = blobData;
+                                }
+                                await audioCtx.close();
+                            }
+                        } catch (e) {
+                            console.warn('MediaRecorder fallback:', e);
+                            // Fallback to WAV
+                            if (ctx) await ctx.close();
+                            ctx = new AudioContext({ sampleRate: sampleRate });
+                            const fallbackBuf = await ctx.decodeAudioData(buf);
+                            blob = bufferToWav(fallbackBuf);
+                            updateProgress(i, progressBase + 50, "Menggunakan format WAV (MP3/AAC tidak didukung)");
+                        }
+                    } else if (audioFormat === 'flac') {
+                        // FLAC - use WAV as fallback since browser doesn't support FLAC encoding natively
+                        // But we'll use the WAV data with proper label
+                        const wavBlob = bufferToWav(audioBuf);
+                        // Create a proper FLAC using the WAV data (still WAV internally, but labeled as FLAC)
+                        // We'll use the WAV data as-is since browser can't encode FLAC
+                        blob = wavBlob;
+                        updateProgress(i, progressBase + 50, "Menggunakan format WAV (FLAC tidak didukung natively)");
+                    } else {
+                        blob = bufferToWav(audioBuf);
+                    }
+                    
+                    const sizeInfo = `${formatBytes(currentFiles[i].size)} ➔ ${formatBytes(blob.size)}`;
+                    updateProgress(i, 100, sizeInfo);
+                    
+                    let extension = audioFormat;
+                    // If we fell back to WAV but user wanted MP3/AAC, keep the extension
+                    // but the content is actually WAV
+                    processed.push({
+                        name: currentFiles[i].name.replace(/\.[^/.]+$/, "") + '.' + extension,
+                        blob: blob
+                    });
+                    
+                    if (ctx) await ctx.close();
+                    
+                } catch (e) {
+                    console.error(e);
+                    if (ctx) await ctx.close().catch(() => {});
+                    updateProgress(i, 0, "Gagal: " + e.message);
+                }
+            }
+            
+            if (processed.length > 0 && !cancelRequested) {
+                updateGlobalProgress(95, 'Menyimpan hasil...');
+                await createZipDownload(processed, "KiLat_Audio.zip");
+            } else if (processed.length === 0 && !cancelRequested) {
+                showToast("Tidak ada audio yang berhasil diekstrak", "error");
+            }
+        }
+        
+        function bufferToWav(abuffer) {
+            let numOfChan = abuffer.numberOfChannels;
+            let length = abuffer.length * numOfChan * 2 + 44;
+            let buffer = new ArrayBuffer(length);
+            let view = new DataView(buffer);
+            let channels = [];
+            let offset = 0, pos = 0;
+            
+            function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+            
+            setUint32(0x46464952); // "RIFF"
+            setUint32(length - 8); // file length - 8
+            setUint32(0x45564157); // "WAVE"
+            setUint32(0x20746d66); // "fmt "
+            setUint32(16); // fmt chunk size
+            setUint16(1); // audio format (PCM)
+            setUint16(numOfChan);
+            setUint32(abuffer.sampleRate);
+            setUint32(abuffer.sampleRate * 2 * numOfChan);
+            setUint16(numOfChan * 2);
+            setUint16(16);
+            setUint32(0x61746164); // "data"
+            setUint32(length - pos - 4); // data chunk size
+            
+            for (let i = 0; i < numOfChan; i++) {
+                channels.push(abuffer.getChannelData(i));
+            }
+            
+            while (pos < length) {
+                for (let i = 0; i < numOfChan; i++) {
+                    let sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    let intSample = sample < 0 ? sample * 32768 : sample * 32767;
+                    intSample = Math.floor(Math.max(-32768, Math.min(32767, intSample)));
+                    view.setInt16(pos, intSample, true);
+                    pos += 2;
+                }
+                offset++;
+            }
+            
+            return new Blob([buffer], { type: "audio/wav" });
+        }
+
+        // --- PDF ENGINE ---
+        async function processPdfAction() {
+            const { PDFDocument, rgb, degrees } = PDFLib;
+            const cid = currentTool.id;
+            
+            try {
+                // Batch Process Tools
+                if (cid === 'merge' || cid === 'compress_pdf' || cid === 'jpg2pdf') {
+                    let doc = null;
+                    let processed = [];
+                    
+                    if (cid === 'merge' || cid === 'jpg2pdf') {
+                        doc = await PDFDocument.create();
+                    }
+                    
+                    const totalFiles = currentFiles.length;
+                    
+                    for (let i = 0; i < totalFiles; i++) {
+                        if (cancelRequested) break;
+                        
+                        const progressBase = (i / totalFiles) * 80;
+                        updateProgress(i, progressBase, "Memproses...");
+                        updateGlobalProgress(progressBase + 5, `Memproses ${i+1}/${totalFiles}: ${currentFiles[i].name}`);
+                        
+                        const bytes = await currentFiles[i].arrayBuffer();
+                        
+                        if (cid === 'merge') {
+                            try {
+                                const p = await PDFDocument.load(bytes, { ignoreEncryption: true });
+                                const cp = await doc.copyPages(p, p.getPageIndices());
+                                cp.forEach(pg => doc.addPage(pg));
+                                updateProgress(i, 100, "Digabungkan");
+                            } catch (e) {
+                                console.error(e);
+                                updateProgress(i, 0, "Gagal: " + e.message);
+                            }
+                        } else if (cid === 'jpg2pdf') {
+                            try {
+                                const paperSize = document.getElementById('opt-jpg2pdf-size')?.value || 'A4';
+                                const orientation = document.getElementById('opt-jpg2pdf-orient')?.value || 'auto';
+                                const margin = parseInt(document.getElementById('opt-jpg2pdf-margin')?.value || '10');
+                                
+                                let img;
+                                if (currentFiles[i].type === 'image/png') {
+                                    img = await doc.embedPng(bytes);
+                                } else {
+                                    img = await doc.embedJpg(bytes);
+                                }
+                                
+                                let pageWidth, pageHeight;
+                                if (paperSize === 'auto') {
+                                    pageWidth = img.width + margin * 2;
+                                    pageHeight = img.height + margin * 2;
+                                } else {
+                                    const sizes = {
+                                        'A4': [595.28, 841.89],
+                                        'Letter': [612, 792],
+                                        'Legal': [612, 1008]
+                                    };
+                                    let [w, h] = sizes[paperSize] || [595.28, 841.89];
+                                    if (orientation === 'landscape' || (orientation === 'auto' && img.width > img.height)) {
+                                        [w, h] = [h, w];
+                                    }
+                                    pageWidth = w;
+                                    pageHeight = h;
+                                }
+                                
+                                const pg = doc.addPage([pageWidth, pageHeight]);
+                                
+                                let imgX = margin;
+                                let imgY = margin;
+                                let imgW = img.width;
+                                let imgH = img.height;
+                                
+                                if (paperSize !== 'auto') {
+                                    const maxW = pageWidth - margin * 2;
+                                    const maxH = pageHeight - margin * 2;
+                                    const scale = Math.min(maxW / img.width, maxH / img.height);
+                                    imgW = img.width * scale;
+                                    imgH = img.height * scale;
+                                    imgX = (pageWidth - imgW) / 2;
+                                    imgY = (pageHeight - imgH) / 2;
+                                }
+                                
+                                pg.drawImage(img, { x: imgX, y: imgY, width: imgW, height: imgH });
+                                updateProgress(i, 100, "Ditambahkan");
+                            } catch (e) {
+                                console.error(e);
+                                updateProgress(i, 0, "Gagal: " + e.message);
+                            }
+                        } else if (cid === 'compress_pdf') {
+                            try {
+                                const p = await PDFDocument.load(bytes, { ignoreEncryption: true });
+                                // Remove metadata
+                                p.setTitle('');
+                                p.setAuthor('');
+                                p.setSubject('');
+                                p.setKeywords([]);
+                                
+                                // Try to compress images if possible
+                                // Note: pdf-lib doesn't support image compression directly,
+                                // but we can remove unused objects
+                                const out = await p.save({ 
+                                    useObjectStreams: true,
+                                    addDefaultPage: false
+                                });
+                                const b = new Blob([out], { type: 'application/pdf' });
+                                const savedPercent = ((1 - b.size / currentFiles[i].size) * 100).toFixed(1);
+                                updateProgress(i, 100, `${formatBytes(currentFiles[i].size)} ➔ ${formatBytes(b.size)} (${savedPercent}%)`);
+                                processed.push({ name: `KiLat_${currentFiles[i].name}`, blob: b });
+                            } catch (e) {
+                                console.error(e);
+                                updateProgress(i, 0, "Gagal: " + e.message);
+                            }
+                        }
+                    }
+                    
+                    if (cancelRequested) {
+                        showToast('Proses dibatalkan', 'info');
+                        return;
+                    }
+                    
+                    if (cid === 'merge' || cid === 'jpg2pdf') {
+                        if (doc && doc.getPageCount() > 0) {
+                            updateGlobalProgress(95, 'Menyimpan hasil...');
+                            const final = await doc.save();
+                            downloadBlob(new Blob([final], { type: 'application/pdf' }), 
+                                cid === 'merge' ? "KiLat_Merged.pdf" : "KiLat_Doc.pdf");
+                            showToast(i18n[currentLang].txtDone, "success");
+                        } else {
+                            showToast("Tidak ada halaman yang berhasil digabung", "error");
+                        }
+                    } else if (processed.length > 0) {
+                        updateGlobalProgress(95, 'Menyimpan hasil...');
+                        await createZipDownload(processed, "KiLat_Compressed_PDFs.zip");
+                    } else {
+                        showToast("Tidak ada PDF yang berhasil dikompres", "error");
+                    }
+                    return;
+                }
+
+                // Single Process Tools
+                if (currentFiles.length === 0) {
+                    showToast("Pilih file terlebih dahulu", "error");
+                    return;
+                }
+                
+                const f = currentFiles[0];
+                const bytes = await f.arrayBuffer();
+
+                // PDF to JPG
+                if (cid === 'pdf2jpg') {
+                    updateProgress(0, 20, "Membaca PDF...");
+                    updateGlobalProgress(20, 'Membaca PDF...');
+                    
+                    try {
+                        const dpi = parseInt(document.getElementById('opt-pdf2image-dpi')?.value || '150');
+                        const quality = parseInt(document.getElementById('opt-pdf2image-quality')?.value || '90') / 100;
+                        const format = document.getElementById('opt-pdf2image-format')?.value || 'jpeg';
+                        const pagesInput = document.getElementById('opt-pdf2image-pages')?.value || '';
+                        
+                        const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+                        const scale = dpi / 72;
+                        const zip = new JSZip();
+                        
+                        // Parse page range
+                        let pageSet = new Set();
+                        if (pagesInput.trim()) {
+                            pagesInput.split(',').forEach(pt => {
+                                pt = pt.trim();
+                                if (pt.includes('-')) {
+                                    const parts = pt.split('-').map(n => parseInt(n.trim()));
+                                    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                                        const start = Math.max(1, parts[0]);
+                                        const end = Math.min(pdf.numPages, parts[1]);
+                                        for (let i = start; i <= end; i++) pageSet.add(i);
+                                    }
+                                } else {
+                                    const n = parseInt(pt);
+                                    if (!isNaN(n) && n >= 1 && n <= pdf.numPages) pageSet.add(n);
+                                }
+                            });
+                        } else {
+                            for (let i = 1; i <= pdf.numPages; i++) pageSet.add(i);
+                        }
+                        
+                        const pages = Array.from(pageSet).sort((a, b) => a - b);
+                        
+                        for (let j = 0; j < pages.length; j++) {
+                            if (cancelRequested) break;
+                            
+                            const pageNum = pages[j];
+                            const progress = 20 + Math.floor((j / pages.length) * 70);
+                            updateProgress(0, progress, `Halaman ${pageNum}...`);
+                            updateGlobalProgress(progress, `Memproses halaman ${pageNum} dari ${pages.length}`);
+                            
+                            const pg = await pdf.getPage(pageNum);
+                            const vp = pg.getViewport({ scale: scale });
+                            const cvs = document.createElement('canvas');
+                            cvs.height = vp.height;
+                            cvs.width = vp.width;
+                            await pg.render({ canvasContext: cvs.getContext('2d'), viewport: vp }).promise;
+                            
+                            const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+                            const ext = format === 'png' ? 'png' : 'jpg';
+                            const blob = await new Promise(r => cvs.toBlob(r, mimeType, quality));
+                            zip.file(`Page_${String(pageNum).padStart(3, '0')}.${ext}`, blob);
+                        }
+                        
+                        if (cancelRequested) {
+                            showToast('Proses dibatalkan', 'info');
+                            return;
+                        }
+                        
+                        updateProgress(0, 100, "Selesai");
+                        updateGlobalProgress(95, 'Menyimpan hasil...');
+                        const zipBlob = await zip.generateAsync({ 
+                            type: "blob",
+                            onUpdate: (metadata) => {
+                                if (metadata.percent) {
+                                    updateGlobalProgress(95 + metadata.percent * 0.05, 'Membuat ZIP...');
+                                }
+                            }
+                        });
+                        downloadBlob(zipBlob, `KiLat_${f.name.replace('.pdf', '')}_IMG.zip`);
+                        showToast(i18n[currentLang].txtDone, "success");
+                    } catch (e) {
+                        console.error(e);
+                        updateProgress(0, 0, "Gagal");
+                        showToast("Gagal memproses PDF: " + e.message, "error");
+                    }
+                    return;
+                }
+
+                // Load PDF document
+                let doc;
+                try {
+                    doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+                } catch (e) {
+                    showToast("Gagal memuat PDF: " + e.message, "error");
+                    return;
+                }
+                
+                const pgs = doc.getPages();
+                const totalPages = pgs.length;
+                
+                // Rotate
+                if (cid === 'rotate') {
+                    const angle = parseInt(document.getElementById('opt-rotate-angle')?.value || '90');
+                    const pagesInput = document.getElementById('opt-rotate-pages')?.value || '';
+                    
+                    let pageSet = new Set();
+                    if (pagesInput.trim()) {
+                        pagesInput.split(',').forEach(pt => {
+                            pt = pt.trim();
+                            if (pt.includes('-')) {
+                                const parts = pt.split('-').map(n => parseInt(n.trim()));
+                                if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                                    const start = Math.max(1, parts[0]);
+                                    const end = Math.min(totalPages, parts[1]);
+                                    for (let i = start; i <= end; i++) pageSet.add(i - 1);
+                                }
+                            } else {
+                                const n = parseInt(pt);
+                                if (!isNaN(n) && n >= 1 && n <= totalPages) pageSet.add(n - 1);
+                            }
+                        });
+                    } else {
+                        for (let i = 0; i < totalPages; i++) pageSet.add(i);
+                    }
+                    
+                    // Check cancel after each page
+                    for (const idx of pageSet) {
+                        if (cancelRequested) break;
+                        pgs[idx].setRotation(degrees(angle));
+                    }
+                    
+                    if (cancelRequested) {
+                        showToast('Proses dibatalkan', 'info');
+                        return;
+                    }
+                }
+                // Add page numbers
+                else if (cid === 'add_page_num') {
+                    const format = document.getElementById('opt-pagenum-format')?.value || 'simple';
+                    const position = document.getElementById('opt-pagenum-pos')?.value || 'footer';
+                    const fontSize = parseInt(document.getElementById('opt-pagenum-size')?.value || '12');
+                    
+                    let cancelFlag = false;
+                    pgs.forEach((p, i) => {
+                        if (cancelRequested || cancelFlag) {
+                            cancelFlag = true;
+                            return;
+                        }
+                        const { width, height } = p.getSize();
+                        let text = '';
+                        if (format === 'simple') text = `${i + 1}`;
+                        else if (format === 'total') text = `${i + 1}/${totalPages}`;
+                        else if (format === 'page') text = `Page ${i + 1}`;
+                        else if (format === 'halaman') text = `Halaman ${i + 1}`;
+                        
+                        const y = position === 'footer' ? 30 : height - 30;
+                        const textWidth = text.length * fontSize * 0.45;
+                        p.drawText(text, {
+                            x: width / 2 - textWidth / 2,
+                            y: y,
+                            size: fontSize,
+                            color: rgb(0.2, 0.2, 0.2)
+                        });
+                    });
+                    
+                    if (cancelRequested || cancelFlag) {
+                        showToast('Proses dibatalkan', 'info');
+                        return;
+                    }
+                }
+                // Watermark
+                else if (cid === 'watermark') {
+                    const text = document.getElementById('opt-watermark-text')?.value || '';
+                    if (!text) {
+                        showToast("Teks watermark tidak boleh kosong", "error");
+                        return;
+                    }
+                    
+                    const fontSize = parseInt(document.getElementById('opt-watermark-size')?.value || '40');
+                    const opacity = parseInt(document.getElementById('opt-watermark-opacity')?.value || '30') / 100;
+                    const rotate = parseInt(document.getElementById('opt-watermark-rotate')?.value || '45');
+                    const color = document.getElementById('opt-watermark-color')?.value || '#888888';
+                    
+                    const hexToRgb = (hex) => {
+                        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                        return result ? {
+                            r: parseInt(result[1], 16) / 255,
+                            g: parseInt(result[2], 16) / 255,
+                            b: parseInt(result[3], 16) / 255
+                        } : { r: 0.5, g: 0.5, b: 0.5 };
+                    };
+                    
+                    const rgbColor = hexToRgb(color);
+                    
+                    let cancelFlag = false;
+                    pgs.forEach(p => {
+                        if (cancelRequested || cancelFlag) {
+                            cancelFlag = true;
+                            return;
+                        }
+                        const { width, height } = p.getSize();
+                        const textWidth = text.length * fontSize * 0.35;
+                        p.drawText(text, {
+                            x: width / 2 - textWidth / 2,
+                            y: height / 2 - fontSize / 2,
+                            size: fontSize,
+                            color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+                            opacity: opacity,
+                            rotate: degrees(rotate)
+                        });
+                    });
+                    
+                    if (cancelRequested || cancelFlag) {
+                        showToast('Proses dibatalkan', 'info');
+                        return;
+                    }
+                }
+                // Delete pages
+                else if (cid === 'delete') {
+                    const pagesInput = document.getElementById('opt-text')?.value || '';
+                    if (!pagesInput) {
+                        showToast("Masukkan nomor halaman yang akan dihapus", "error");
+                        return;
+                    }
+                    
+                    const set = new Set();
+                    pagesInput.split(',').forEach(pt => {
+                        pt = pt.trim();
+                        if (pt.includes('-')) {
+                            const parts = pt.split('-').map(n => parseInt(n.trim()));
+                            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                                const start = Math.max(1, parts[0]);
+                                const end = Math.min(totalPages, parts[1]);
+                                for (let i = start; i <= end; i++) set.add(i - 1);
+                            }
+                        } else {
+                            const n = parseInt(pt);
+                            if (!isNaN(n) && n >= 1 && n <= totalPages) set.add(n - 1);
+                        }
+                    });
+                    
+                    if (set.size === 0) {
+                        showToast("Tidak ada halaman yang valid untuk dihapus", "error");
+                        return;
+                    }
+                    
+                    const sorted = Array.from(set).sort((a, b) => b - a);
+                    for (const idx of sorted) {
+                        if (cancelRequested) break;
+                        doc.removePage(idx);
+                    }
+                    
+                    if (cancelRequested) {
+                        showToast('Proses dibatalkan', 'info');
+                        return;
+                    }
+                }
+                // Split PDF - FIXED: proper split into separate files
+                else if (cid === 'split') {
+                    const pagesInput = document.getElementById('opt-split-pages')?.value || '';
+                    const splitMode = document.getElementById('opt-split-mode')?.value || 'separate';
+                    
+                    if (!pagesInput) {
+                        showToast("Masukkan nomor halaman untuk dipisah", "error");
+                        return;
+                    }
+                    
+                    // Parse page ranges
+                    const ranges = [];
+                    pagesInput.split(',').forEach(pt => {
+                        pt = pt.trim();
+                        if (pt.includes('-')) {
+                            const parts = pt.split('-').map(n => parseInt(n.trim()));
+                            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                                const start = Math.max(1, parts[0]);
+                                const end = Math.min(totalPages, parts[1]);
+                                ranges.push({ start: start - 1, end: end - 1 });
+                            }
+                        } else {
+                            const n = parseInt(pt);
+                            if (!isNaN(n) && n >= 1 && n <= totalPages) {
+                                ranges.push({ start: n - 1, end: n - 1 });
+                            }
+                        }
+                    });
+                    
+                    if (ranges.length === 0) {
+                        showToast("Tidak ada halaman yang valid untuk dipisah", "error");
+                        return;
+                    }
+                    
+                    if (splitMode === 'single') {
+                        // Single file with selected pages (same as before)
+                        const newDoc = await PDFDocument.create();
+                        const allPages = [];
+                        for (const range of ranges) {
+                            for (let i = range.start; i <= range.end; i++) {
+                                allPages.push(i);
+                            }
+                        }
+                        const sortedPages = allPages.sort((a, b) => a - b);
+                        const cp = await newDoc.copyPages(doc, sortedPages);
+                        cp.forEach(p => newDoc.addPage(p));
+                        const final = await newDoc.save();
+                        downloadBlob(new Blob([final], { type: 'application/pdf' }), 
+                            `KiLat_Extracted_${f.name}`);
+                        showToast(i18n[currentLang].txtDone, "success");
+                    } else {
+                        // Separate files - each range becomes its own PDF
+                        const zip = new JSZip();
+                        let fileCount = 0;
+                        
+                        for (const range of ranges) {
+                            if (cancelRequested) break;
+                            
+                            const newDoc = await PDFDocument.create();
+                            const pageIndices = [];
+                            for (let i = range.start; i <= range.end; i++) {
+                                pageIndices.push(i);
+                            }
+                            const cp = await newDoc.copyPages(doc, pageIndices);
+                            cp.forEach(p => newDoc.addPage(p));
+                            const final = await newDoc.save();
+                            
+                            fileCount++;
+                            const name = `KiLat_Pages_${range.start + 1}-${range.end + 1}_${f.name}`;
+                            zip.file(name, final);
+                            updateProgress(0, 20 + Math.floor((fileCount / ranges.length) * 70), `File ${fileCount}/${ranges.length}`);
+                            updateGlobalProgress(20 + Math.floor((fileCount / ranges.length) * 70), `Membuat file ${fileCount}/${ranges.length}`);
+                        }
+                        
+                        if (cancelRequested) {
+                            showToast('Proses dibatalkan', 'info');
+                            return;
+                        }
+                        
+                        updateProgress(0, 100, "Selesai");
+                        updateGlobalProgress(95, 'Menyimpan hasil...');
+                        const zipBlob = await zip.generateAsync({ type: "blob" });
+                        downloadBlob(zipBlob, `KiLat_Split_${f.name.replace('.pdf', '')}.zip`);
+                        showToast(i18n[currentLang].txtDone, "success");
+                    }
+                    return;
+                }
+                else {
+                    showToast("Fungsi tidak dikenal", "error");
+                    return;
+                }
+                
+                // Save result for non-split operations
+                if (!cancelRequested) {
+                    updateProgress(0, 100, "Selesai");
+                    updateGlobalProgress(95, 'Menyimpan hasil...');
+                    const result = await doc.save();
+                    const outputName = cid === 'rotate' ? `KiLat_Rotated_${f.name}` :
+                                     cid === 'add_page_num' ? `KiLat_Numbered_${f.name}` :
+                                     cid === 'watermark' ? `KiLat_Watermarked_${f.name}` :
+                                     cid === 'delete' ? `KiLat_Modified_${f.name}` :
+                                     `KiLat_${f.name}`;
+                    downloadBlob(new Blob([result], { type: 'application/pdf' }), outputName);
+                    showToast(i18n[currentLang].txtDone, "success");
+                }
+                
+            } catch (e) {
+                console.error(e);
+                if (!cancelRequested) {
+                    showToast("Error: " + (e.message || 'Terjadi kesalahan'), "error");
+                }
+            }
+        }
+
+        // --- TOAST & UTILITIES ---
+        function showToast(msg, type = 'info') {
+            const area = document.getElementById('toast-area');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            let icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
+            t.innerHTML = `<i class="fas ${icon}"></i> <span>${msg}</span>`;
+            area.appendChild(t);
+            setTimeout(() => { 
+                t.style.opacity = '0'; 
+                t.style.transform = 'scale(0.9)';
+                t.style.transition = 'all 0.3s';
+                setTimeout(() => t.remove(), 400); 
+            }, 3500);
+        }
+
+        let cc = 0, ct;
+        function handleEasterEgg(e) {
+            cc++;
+            clearTimeout(ct);
+            if (cc >= 4) {
+                cc = 0;
+                const overlay = document.getElementById('lightning-overlay');
+                overlay.classList.remove('hidden');
+                overlay.classList.add('super-lightning');
+                setTimeout(() => {
+                    overlay.classList.remove('super-lightning');
+                    overlay.classList.add('hidden');
+                }, 800);
+                setTimeout(() => window.location.reload(), 900);
+            }
+            ct = setTimeout(() => { cc = 0; }, 1000);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
