@@ -1,5 +1,4 @@
 # KiLat
-Alat kompresi gambar, manipulasi PDF, dan ekstrak suara dari video
 
 <div align="center">
   <img src="https://img.shields.io/badge/version-2.0.0-blue.svg" alt="Version">
