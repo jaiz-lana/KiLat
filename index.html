@@ -8,11 +8,14 @@
     
     <!-- Deteksi Tema Sistem -->
     <script>
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        (function() {
+            var theme = localStorage.theme;
+            if (theme === 'dark' || ((!theme || theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
     </script>
 
     <!-- Tailwind CSS V3 -->
@@ -20,6 +23,9 @@
     
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Humanistic Styles -->
+    
     
     <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
@@ -31,6 +37,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://unpkg.com/upng-js@2.1.0/UPNG.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <!-- ========================= -->
     <!-- CONFIGURATION & STYLES    -->
@@ -46,11 +53,12 @@
                     },
                     colors: {
                         brand: { 
-                            yellow: '#FACC15', 
-                            orange: '#e85c2b',
-                            dark: '#0b1120', 
-                            sidebar: '#020617', 
-                            card: '#111827', 
+                            green: '#16a34a', 
+                            greenLight: '#22c55e',
+                            teal: '#0d9488',
+                            dark: '#08140c', 
+                            sidebar: '#040a06', 
+                            card: '#0e1f14', 
                             cardLight: '#ffffff' 
                         }
                     }
@@ -62,8 +70,8 @@
 
     <style>
         /* Base Styling */
-        body { background-color: #f8fafc; color: #334155; }
-        .dark body { background-color: #0b1120; color: #cbd5e1; }
+        body { background-color: #f8fafc; color: #1e293b; }
+        .dark body { background-color: #08140c; color: #e2e8f0; }
         
         /* RTL Support for Arabic */
         html[dir="rtl"] { text-align: right; font-family: 'Noto Sans Arabic', sans-serif; }
@@ -77,58 +85,62 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+        .dark ::-webkit-scrollbar-thumb { background: #1b3824; }
 
         /* Animations */
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
-        .dark .card-hover:hover { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); border-color: rgba(250, 204, 21, 0.3); }
+        .card-hover { transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+        .card-hover:hover { transform: translateY(-5px) scale(1.015) !important; box-shadow: 0 14px 28px -6px rgba(0,0,0,0.08), 0 0 0 1px rgba(22, 163, 74, 0.25) !important; }
+        .dark .card-hover:hover { box-shadow: 0 16px 32px -8px rgba(0,0,0,0.6), 0 0 0 1px rgba(34, 197, 94, 0.35) !important; }
         
-        .icon-bounce { transition: transform 0.3s; }
-        .card-hover:hover .icon-bounce { transform: scale(1.1) rotate(-5deg); }
+        .icon-bounce { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .card-hover:hover .icon-bounce { transform: scale(1.12) rotate(-6deg); }
 
         /* Glassmorphism Workspace */
-        .workspace-glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-        .dark .workspace-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+        .workspace-glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(226, 232, 240, 0.9); }
+        .dark .workspace-glass { background: rgba(14, 31, 20, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(34, 197, 94, 0.15); }
 
         /* Premium Dropzone */
         .premium-dropzone { 
             background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23CBD5E1' stroke-width='3' stroke-dasharray='12%2c 16' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e"); 
-            border-radius: 24px; transition: all 0.3s; 
+            border-radius: 24px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
         }
-        .premium-dropzone.dragover { background-color: rgba(250, 204, 21, 0.05); transform: scale(1.02); }
-        .dark .premium-dropzone { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23334155' stroke-width='3' stroke-dasharray='12%2c 16' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e"); }
-        .dark .premium-dropzone.dragover { background-color: rgba(250, 204, 21, 0.1); }
+        .premium-dropzone.dragover { background-color: rgba(22, 163, 74, 0.06); transform: scale(1.02); }
+        .dark .premium-dropzone { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%231b3824' stroke-width='3' stroke-dasharray='12%2c 16' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e"); }
+        .dark .premium-dropzone.dragover { background-color: rgba(34, 197, 94, 0.12); }
 
         /* Toast Notifications */
         #toast-area { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; }
         .toast { padding: 12px 24px; border-radius: 100px; color: white; font-weight: 500; font-size: 0.875rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: toastPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; display: flex; align-items: center; gap: 8px; pointer-events: auto; }
-        .toast.success { background: #10b981; } .toast.error { background: #ef4444; } .toast.info { background: #3b82f6; }
+        .toast.success { background: #10b981; } .toast.error { background: #ef4444; } .toast.info { background: #0d9488; }
         @keyframes toastPop { 0% { transform: translateY(100%) scale(0.9); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
 
         /* Splash Screen & Easter Egg */
         #splash-screen { transition: opacity 0.5s ease-out; z-index: 99999; }
         .super-lightning { animation: superThunderFlash 0.8s ease-out forwards; }
-        @keyframes superThunderFlash { 0% { opacity: 0; background-color: #fff; } 5% { opacity: 1; } 10% { opacity: 0; } 15% { opacity: 1; } 25% { opacity: 0.2; } 35% { opacity: 1; background-color: #fef08a; } 100% { opacity: 1; background-color: #fff; } }
+        @keyframes superThunderFlash { 0% { opacity: 0; background-color: #fff; } 5% { opacity: 1; } 10% { opacity: 0; } 15% { opacity: 1; } 25% { opacity: 0.2; } 35% { opacity: 1; background-color: #bbf7d0; } 100% { opacity: 1; background-color: #fff; } }
         
-        .glow-text { text-shadow: 0 0 30px rgba(250, 204, 21, 0.6); }
+        .glow-text { text-shadow: 0 0 30px rgba(22, 163, 74, 0.5); }
         .hero-bg {
-            background: radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle at 50% 50%, rgba(22, 163, 74, 0.08) 0%, rgba(13, 148, 136, 0.04) 50%, transparent 70%);
         }
         .dark .hero-bg {
-            background: radial-gradient(circle at 50% 50%, rgba(250, 204, 21, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.16) 0%, rgba(13, 148, 136, 0.08) 50%, transparent 60%);
         }
 
         /* Sidebar active state */
-        .sidebar-item { transition: all 0.2s; }
-        .sidebar-item.active { background-color: rgba(250, 204, 21, 0.1); color: #FACC15; border-right: 3px solid #FACC15; }
-        html[dir="rtl"] .sidebar-item.active { border-right: none; border-left: 3px solid #FACC15; }
+        .sidebar-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-item:hover { transform: translateX(3px); background-color: rgba(22, 163, 74, 0.08); }
+        .dark .sidebar-item:hover { background-color: rgba(34, 197, 94, 0.1); }
+        .sidebar-item.active { background-color: rgba(22, 163, 74, 0.12); color: #16a34a; border-right: 3px solid #16a34a; font-weight: 600; }
+        .dark .sidebar-item.active { background-color: rgba(34, 197, 94, 0.14); color: #4ade80; border-right: 3px solid #4ade80; font-weight: 600; }
+        html[dir="rtl"] .sidebar-item.active { border-right: none; border-left: 3px solid #16a34a; }
+        html[dir="rtl"] .dark .sidebar-item.active { border-left: 3px solid #4ade80; }
         
         /* Loading Overlay */
         #loading-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             backdrop-filter: blur(8px);
             z-index: 9999;
             display: none;
@@ -140,29 +152,100 @@
         .loading-spinner {
             width: 60px;
             height: 60px;
-            border: 4px solid rgba(250, 204, 21, 0.2);
-            border-top-color: #FACC15;
+            border: 4px solid rgba(22, 163, 74, 0.2);
+            border-top-color: #16a34a;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
+        .dark .loading-spinner {
+            border: 4px solid rgba(34, 197, 94, 0.2);
+            border-top-color: #4ade80;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
-        #loading-status { color: white; margin-top: 20px; font-weight: 500; }
+        #loading-status { color: white; margin-top: 20px; font-weight: 600; letter-spacing: 0.02em; }
         #loading-progress {
             width: 300px;
             max-width: 80%;
-            height: 4px;
+            height: 6px;
             background: rgba(255,255,255,0.2);
-            border-radius: 2px;
+            border-radius: 3px;
             margin-top: 12px;
             overflow: hidden;
         }
         #loading-progress-bar {
             height: 100%;
             width: 0%;
-            background: #FACC15;
-            border-radius: 2px;
+            background: linear-gradient(90deg, #16a34a, #22c55e);
+            border-radius: 3px;
             transition: width 0.3s;
         }
+    
+/* custom.css – Desain Humanis & Interaktif untuk KiLat */
+
+/* Efek Hover Humanis pada Setiap Tombol */
+button:not(:disabled) {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.05);
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px) scale(0.97);
+}
+
+/* Sidebar Navigation Items */
+.sidebar-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-item:hover {
+  transform: translateX(4px);
+  background-color: rgba(22, 163, 74, 0.12);
+}
+
+/* Kartu Tools Interaktif */
+.card-hover {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.card-hover:hover {
+  transform: translateY(-6px) scale(1.02) !important;
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(22, 163, 74, 0.3) !important;
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(22, 163, 74, 0.4) !important;
+}
+
+/* Dropzone Hover */
+.premium-dropzone {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.premium-dropzone:hover {
+  transform: scale(1.01);
+  border-color: #16a34a;
+}
+
+/* Signature Pad Canvas Styling */
+#sig-pad-canvas {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* Badge pulse animation */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+.student-badge-pulse {
+  animation: softPulse 2.5s infinite ease-in-out;
+}
+
     </style>
 </head>
 
@@ -171,7 +254,7 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-white dark:bg-brand-sidebar">
         <div class="flex flex-col items-center gap-4">
-            <div class="text-7xl text-brand-yellow drop-shadow-[0_0_30px_rgba(250,204,21,0.6)] animate-pulse">
+            <div class="text-7xl text-brand-green drop-shadow-[0_0_30px_rgba(22,163,74,0.6)] animate-pulse">
                 <i class="fas fa-bolt"></i>
             </div>
             <h1 class="font-heading font-extrabold text-5xl text-slate-900 dark:text-white tracking-tight">Ki<span class="font-light">Lat</span></h1>
@@ -197,7 +280,7 @@
         <!-- Sidebar Header / Logo -->
         <div class="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-800/50 cursor-pointer group" onclick="handleEasterEgg(event)">
             <div class="flex items-center gap-3">
-                <div class="text-brand-yellow text-2xl group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]">
+                <div class="text-brand-green text-2xl group-hover:scale-110 transition-transform drop-shadow-[0_0_10px_rgba(22,163,74,0.4)]">
                     <i class="fas fa-bolt"></i>
                 </div>
                 <span class="font-heading font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">Ki<span class="font-light">Lat</span></span>
@@ -215,8 +298,11 @@
             
             <p class="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-6" data-i18n="navTools">ALAT</p>
             
+            <a href="javascript:void(0)" onclick="filterView('student', this)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                <i class="fas fa-graduation-cap w-5 text-center text-emerald-500"></i> <span data-i18n="navStudent">Zona Mahasiswa</span>
+            </a>
             <a href="javascript:void(0)" onclick="filterView('compress', this)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50">
-                <i class="fas fa-compress-alt w-5 text-center text-brand-orange"></i> <span data-i18n="navCompress">Kompresi</span>
+                <i class="fas fa-compress-alt w-5 text-center text-brand-teal"></i> <span data-i18n="navCompress">Kompresi</span>
             </a>
             <a href="javascript:void(0)" onclick="filterView('pdf', this)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50">
                 <i class="fas fa-file-pdf w-5 text-center text-red-500"></i> <span data-i18n="navPdf">Alat PDF</span>
@@ -229,7 +315,7 @@
         <!-- Sidebar Footer / Settings Info -->
         <div class="p-4 border-t border-slate-100 dark:border-slate-800/50">
             <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700/50">
-                <div class="flex items-center gap-3 mb-2 text-brand-yellow">
+                <div class="flex items-center gap-3 mb-2 text-brand-green">
                     <i class="fas fa-shield-halved"></i>
                     <span class="text-xs font-bold tracking-wide" data-i18n="privacyMode">PRIVACY MODE</span>
                 </div>
@@ -268,8 +354,8 @@
                 
                 <!-- HERO SECTION (Only visible on 'all' view) -->
                 <div id="hero-section" class="hero-bg rounded-3xl p-8 sm:p-12 mb-10 border border-slate-200 dark:border-slate-800/50 shadow-sm dark:shadow-none overflow-hidden relative text-center">
-                    <div class="absolute -top-24 -left-24 w-64 h-64 bg-brand-yellow/20 blur-[80px] rounded-full pointer-events-none"></div>
-                    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+                    <div class="absolute -top-24 -left-24 w-64 h-64 bg-brand-green/20 blur-[80px] rounded-full pointer-events-none"></div>
+                    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-teal-500/15 blur-[80px] rounded-full pointer-events-none"></div>
                     
                     <div class="relative z-10">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 mb-6">
@@ -277,7 +363,7 @@
                         </div>
                         <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
                             <span data-i18n="heroTitle1">Semua alat pemrosesan file,</span><br>
-                            <span class="text-brand-yellow glow-text" data-i18n="heroTitle2">cepat, aman, dan lokal.</span>
+                            <span class="text-brand-green glow-text" data-i18n="heroTitle2">cepat, aman, dan lokal.</span>
                         </h1>
                         <p class="text-base sm:text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium mb-8" data-i18n="heroDesc">
                             Kompresi gambar, manipulasi PDF, dan ekstraksi media tanpa perlu mengunggah file Anda ke server internet.
@@ -288,10 +374,25 @@
                 <!-- GRID CONTAINERS FOR TOOLS -->
                 <div id="tools-grid-area" class="space-y-12">
                     
+                    <!-- STUDENT GRID -->
+                    <div class="tool-group" data-group="student">
+                        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 dark:border-slate-800/50 pb-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center"><i class="fas fa-graduation-cap"></i></div>
+                            <div>
+                                <h3 class="font-heading text-xl font-bold text-slate-800 dark:text-white" data-i18n="navStudent">Zona Mahasiswa & Dokumen</h3>
+                                <p class="text-xs text-slate-400 font-medium hidden sm:block">Alat cepat untuk skripsi, berkas beasiswa, magang MSIB, dan portal kampus.</p>
+                            </div>
+                            <span class="hidden sm:inline-flex items-center gap-1.5 text-xs bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold px-3 py-1 rounded-full ml-auto student-badge-pulse">
+                                <i class="fas fa-shield-alt"></i> 100% Bebas Server
+                            </span>
+                        </div>
+                        <div id="student-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+
                     <!-- COMPRESS GRID -->
                     <div class="tool-group" data-group="compress">
                         <div class="flex items-center gap-3 mb-6 border-b border-slate-200 dark:border-slate-800/50 pb-3">
-                            <div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-brand-orange/20 text-brand-orange flex items-center justify-center"><i class="fas fa-compress-alt"></i></div>
+                            <div class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center"><i class="fas fa-compress-alt"></i></div>
                             <h3 class="font-heading text-xl font-bold text-slate-800 dark:text-white" data-i18n="navCompress">Kompresi</h3>
                         </div>
                         <div id="compress-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
@@ -339,7 +440,7 @@
                     <!-- Input / Dropzone -->
                     <input type="file" id="ws-file-input" class="hidden" multiple>
                     <div id="ws-dropzone" class="premium-dropzone p-10 sm:p-14 text-center bg-slate-50 dark:bg-slate-900/40 cursor-pointer group" onclick="document.getElementById('ws-file-input').click()">
-                        <div class="w-16 h-16 bg-white dark:bg-brand-card rounded-full flex items-center justify-center mx-auto mb-4 shadow-md text-brand-yellow group-hover:-translate-y-2 transition-transform duration-300">
+                        <div class="w-16 h-16 bg-white dark:bg-brand-card rounded-full flex items-center justify-center mx-auto mb-4 shadow-md text-brand-green group-hover:-translate-y-2 transition-transform duration-300">
                             <i class="fas fa-cloud-upload-alt text-2xl"></i>
                         </div>
                         <h3 class="font-heading text-xl font-bold text-slate-800 dark:text-white mb-1" id="ws-dropzone-title">Pilih File</h3>
@@ -354,7 +455,7 @@
 
                     <!-- Action Button -->
                     <div class="mt-8 flex justify-center gap-4">
-                        <button id="ws-action-btn" onclick="executeTool()" class="hidden bg-brand-yellow hover:bg-yellow-400 text-slate-900 font-bold text-base px-8 py-3.5 rounded-xl transition-all shadow-lg active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed min-w-[200px] flex items-center justify-center gap-2">
+                        <button id="ws-action-btn" onclick="executeTool()" class="hidden bg-brand-green hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-base px-8 py-3.5 rounded-2xl transition-all shadow-lg shadow-emerald-600/25 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed min-w-[200px] flex items-center justify-center gap-2">
                             <span id="ws-action-text">Proses</span>
                         </button>
                         <button id="ws-cancel-btn" onclick="cancelProcess()" class="hidden bg-red-500 hover:bg-red-600 text-white font-bold text-base px-8 py-3.5 rounded-xl transition-all shadow-lg active:scale-95">
@@ -378,14 +479,14 @@
             <button onclick="document.getElementById('settings-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white"><i class="fas fa-times text-xl"></i></button>
             
             <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
-                <i class="fas fa-cog text-brand-yellow"></i> <span data-i18n="btnSettings">Pengaturan</span>
+                <i class="fas fa-cog text-brand-green"></i> <span data-i18n="btnSettings">Pengaturan</span>
             </h3>
             
             <!-- Language Selection -->
             <div class="mb-6">
                 <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2" data-i18n="lblLanguage">Bahasa</label>
                 <div class="relative">
-                    <select id="lang-select" onchange="changeLanguage(this.value)" class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl appearance-none outline-none focus:ring-2 focus:ring-brand-yellow dark:text-white text-sm font-bold shadow-sm cursor-pointer">
+                    <select id="lang-select" onchange="changeLanguage(this.value)" class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl appearance-none outline-none focus:ring-2 focus:ring-brand-green dark:text-white text-sm font-bold shadow-sm cursor-pointer">
                         <option value="id">🇮🇩 Indonesia (Default)</option>
                         <option value="en">🇬🇧 English</option>
                         <option value="ja">🇯🇵 日本語 (Japanese)</option>
@@ -401,10 +502,12 @@
             <!-- Theme Selection -->
             <div>
                 <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2" data-i18n="lblTheme">Tema Tampilan</label>
-                <div class="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <button onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center gap-2"><i class="fas fa-sun"></i> Terang</button>
-                    <button onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-white transition-colors flex items-center justify-center gap-2"><i class="fas fa-moon"></i> Gelap</button>
+                <div class="flex bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200 dark:border-slate-700/60 gap-1">
+                    <button type="button" onclick="setTheme('system')" id="btn-theme-system" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"><i class="fas fa-desktop"></i> <span data-i18n="themeAuto">Sistem</span></button>
+                    <button type="button" onclick="setTheme('light')" id="btn-theme-light" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"><i class="fas fa-sun"></i> <span data-i18n="themeLight">Terang</span></button>
+                    <button type="button" onclick="setTheme('dark')" id="btn-theme-dark" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"><i class="fas fa-moon"></i> <span data-i18n="themeDark">Gelap</span></button>
                 </div>
+                <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-2 text-center" data-i18n="themeHint">Mode sistem otomatis mengikuti tema browser Anda.</p>
             </div>
         </div>
     </div>
@@ -421,11 +524,11 @@
         // --- 1. DICTIONARY (MULTI-LANGUAGE) ---
         const i18n = {
             id: {
-                navMenu: "MENU", navTools: "ALAT", navHome: "Beranda", navCompress: "Kompresi", navPdf: "Alat PDF", navExtract: "Ekstraksi",
+                navMenu: "MENU", navTools: "ALAT", navHome: "Beranda", navStudent: "Zona Mahasiswa", navCompress: "Kompresi", navPdf: "Alat PDF", navExtract: "Ekstraksi",
                 privacyMode: "PRIVACY MODE", privacyDesc: "100% proses berjalan di perangkat Anda secara lokal. Aman.",
                 heroBadge: "Offline Ready", heroTitle1: "Semua alat pemrosesan file,", heroTitle2: "cepat, aman, dan lokal.",
                 heroDesc: "Kompresi gambar, manipulasi PDF, dan ekstraksi media tanpa perlu mengunggah file Anda ke server internet.",
-                btnSettings: "Pengaturan", lblLanguage: "Bahasa Aplikasi", lblTheme: "Tema Tampilan",
+                btnSettings: "Pengaturan", lblLanguage: "Bahasa Aplikasi", lblTheme: "Tema Tampilan", themeAuto: "Sistem", themeLight: "Terang", themeDark: "Gelap", themeHint: "Otomatis mengikuti preferensi tema browser Anda.",
                 btnBack: "Kembali", dropzoneDesc: "atau tarik file ke sini (Bisa pilih banyak sekaligus)", btnProcess: "Proses Sekarang",
                 lblTargetSize: "Target Ukuran Maks (Opsional)", lblQuality: "Atur kualitas manual",
                 txtLoading: "Memproses...", txtDone: "Selesai", errEmpty: "Pilih file terlebih dahulu",
@@ -438,11 +541,11 @@
                 lblSeparateFiles: "File Terpisah", lblSingleFile: "Satu File"
             },
             en: {
-                navMenu: "MENU", navTools: "TOOLS", navHome: "Home", navCompress: "Compress", navPdf: "PDF Tools", navExtract: "Extract",
+                navMenu: "MENU", navTools: "TOOLS", navHome: "Home", navStudent: "Student Zone", navCompress: "Compress", navPdf: "PDF Tools", navExtract: "Extract",
                 privacyMode: "PRIVACY MODE", privacyDesc: "100% processing runs locally on your device. Secure.",
                 heroBadge: "Offline Ready", heroTitle1: "All your file processing tools,", heroTitle2: "fast, secure, and local.",
                 heroDesc: "Image compression, PDF manipulation, and media extraction without uploading to internet servers.",
-                btnSettings: "Settings", lblLanguage: "App Language", lblTheme: "App Theme",
+                btnSettings: "Settings", lblLanguage: "App Language", lblTheme: "App Theme", themeAuto: "System", themeLight: "Light", themeDark: "Dark", themeHint: "Automatically adapts to your browser theme.",
                 btnBack: "Back", dropzoneDesc: "or drag files here (Select multiple)", btnProcess: "Process Now",
                 lblTargetSize: "Max Target Size (Optional)", lblQuality: "Manual quality",
                 txtLoading: "Processing...", txtDone: "Done", errEmpty: "Select a file first",
@@ -455,11 +558,11 @@
                 lblSeparateFiles: "Separate Files", lblSingleFile: "Single File"
             },
             ja: {
-                navMenu: "メニュー", navTools: "ツール", navHome: "ホーム", navCompress: "圧縮", navPdf: "PDFツール", navExtract: "抽出",
+                navMenu: "メニュー", navTools: "ツール", navHome: "ホーム", navStudent: "学生ゾーン", navCompress: "圧縮", navPdf: "PDFツール", navExtract: "抽出",
                 privacyMode: "プライバシーモード", privacyDesc: "100%デバイス上でローカル処理されます。安全です。",
                 heroBadge: "オフライン対応", heroTitle1: "すべてのファイル処理ツール、", heroTitle2: "高速、安全、ローカル。",
                 heroDesc: "インターネットサーバーにアップロードすることなく、画像圧縮、PDF操作、メディア抽出を実行。",
-                btnSettings: "設定", lblLanguage: "言語", lblTheme: "テーマ",
+                btnSettings: "設定", lblLanguage: "言語", lblTheme: "テーマ", themeAuto: "システム", themeLight: "ライト", themeDark: "ダーク", themeHint: "ブラウザのテーマ設定に自動で合わせます。",
                 btnBack: "戻る", dropzoneDesc: "またはここにドラッグ（複数選択可）", btnProcess: "処理開始",
                 lblTargetSize: "目標サイズ (任意)", lblQuality: "手動品質",
                 txtLoading: "処理中...", txtDone: "完了", errEmpty: "ファイルを選択してください",
@@ -472,11 +575,11 @@
                 lblSeparateFiles: "個別ファイル", lblSingleFile: "単一ファイル"
             },
             ar: {
-                navMenu: "القائمة", navTools: "أدوات", navHome: "الرئيسية", navCompress: "ضغط", navPdf: "أدوات PDF", navExtract: "استخراج",
+                navMenu: "القائمة", navTools: "أدوات", navHome: "الرئيسية", navStudent: "منطقة الطلاب", navCompress: "ضغط", navPdf: "أدوات PDF", navExtract: "استخراج",
                 privacyMode: "وضع الخصوصية", privacyDesc: "100% من المعالجة تتم محلياً على جهازك. آمن.",
                 heroBadge: "جاهز بدون انترنت", heroTitle1: "جميع أدوات معالجة الملفات،", heroTitle2: "سريعة، آمنة، ومحلية.",
                 heroDesc: "ضغط الصور، معالجة PDF، واستخراج الوسائط دون رفع الملفات لخوادم الإنترنت.",
-                btnSettings: "إعدادات", lblLanguage: "لغة التطبيق", lblTheme: "مظهر التطبيق",
+                btnSettings: "إعدادات", lblLanguage: "لغة التطبيق", lblTheme: "مظهر التطبيق", themeAuto: "النظام", themeLight: "فاتح", themeDark: "داكن", themeHint: "يتكيف تلقائياً مع مظهر المتصفح الخاص بك.",
                 btnBack: "رجوع", dropzoneDesc: "أو اسحب الملفات هنا (تحديد متعدد)", btnProcess: "معالجة الآن",
                 lblTargetSize: "الحجم المستهدف (اختياري)", lblQuality: "الجودة يدوياً",
                 txtLoading: "جاري المعالجة...", txtDone: "تم", errEmpty: "اختر ملفاً أولاً",
@@ -489,11 +592,11 @@
                 lblSeparateFiles: "ملفات منفصلة", lblSingleFile: "ملف واحد"
             },
             th: {
-                navMenu: "เมนู", navTools: "เครื่องมือ", navHome: "หน้าแรก", navCompress: "บีบอัด", navPdf: "เครื่องมือ PDF", navExtract: "แยกไฟล์",
+                navMenu: "เมนู", navTools: "เครื่องมือ", navHome: "หน้าแรก", navStudent: "โซนนักศึกษา", navCompress: "บีบอัด", navPdf: "เครื่องมือ PDF", navExtract: "แยกไฟล์",
                 privacyMode: "โหมดความเป็นส่วนตัว", privacyDesc: "ประมวลผลบนอุปกรณ์ของคุณ 100% ปลอดภัย",
                 heroBadge: "ออฟไลน์", heroTitle1: "เครื่องมือจัดการไฟล์ทั้งหมด", heroTitle2: "เร็ว ปลอดภัย ภายในเครื่อง",
                 heroDesc: "บีบอัดรูปภาพ จัดการ PDF และแยกสื่อโดยไม่ต้องอัปโหลด",
-                btnSettings: "ตั้งค่า", lblLanguage: "ภาษา", lblTheme: "ธีม",
+                btnSettings: "ตั้งค่า", lblLanguage: "ภาษา", lblTheme: "ธีม", themeAuto: "ตามระบบ", themeLight: "สว่าง", themeDark: "มืด", themeHint: "ปรับตามธีมของเบราว์เซอร์โดยอัตโนมัติ",
                 btnBack: "กลับ", dropzoneDesc: "หรือลากไฟล์มาที่นี่ (เลือกได้หลายไฟล์)", btnProcess: "ดำเนินการทันที",
                 lblTargetSize: "ขนาดเป้าหมาย (ทางเลือก)", lblQuality: "คุณภาพ",
                 txtLoading: "กำลังประมวลผล...", txtDone: "เสร็จสิ้น", errEmpty: "กรุณาเลือกไฟล์ก่อน",
@@ -506,11 +609,11 @@
                 lblSeparateFiles: "ไฟล์แยก", lblSingleFile: "ไฟล์เดียว"
             },
             zh: {
-                navMenu: "菜单", navTools: "工具", navHome: "首页", navCompress: "压缩", navPdf: "PDF 工具", navExtract: "提取",
+                navMenu: "菜单", navTools: "工具", navHome: "首页", navStudent: "学生专区", navCompress: "压缩", navPdf: "PDF 工具", navExtract: "提取",
                 privacyMode: "隐私模式", privacyDesc: "100%在您的设备上本地处理。安全。",
                 heroBadge: "支持离线", heroTitle1: "所有文件处理工具，", heroTitle2: "快速、安全、本地化。",
                 heroDesc: "无需上传至互联网服务器即可进行图像压缩、PDF 操作和媒体提取。",
-                btnSettings: "设置", lblLanguage: "语言", lblTheme: "主题",
+                btnSettings: "设置", lblLanguage: "语言", lblTheme: "主题", themeAuto: "跟随系统", themeLight: "浅色", themeDark: "深色", themeHint: "自动跟随您的浏览器主题设置。",
                 btnBack: "返回", dropzoneDesc: "或拖拽文件到这里（可多选）", btnProcess: "立即处理",
                 lblTargetSize: "目标大小 (可选)", lblQuality: "手动质量",
                 txtLoading: "处理中...", txtDone: "完成", errEmpty: "请先选择文件",
@@ -527,11 +630,20 @@
         let currentLang = 'id';
 
         // --- 2. DATA CONFIGURATION ---
+        const studentData = [
+            { id: 'compress_pdf_target', title: 'Kompres PDF Target Ukuran', icon: 'fas fa-file-invoice', type: 'student_action', accept: '.pdf', multiple: false, needsInput: 'pdf_target_options', inputLabel: 'Pilih File PDF untuk Dikecilkan', desc: 'Atur target ukuran persis (misal <500 KB / <1 MB) agar lolos portal kampus/beasiswa.', colorClass: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-500/20' },
+            { id: 'pdf_signature', title: 'Tanda Tangan Dokumen', icon: 'fas fa-signature', type: 'student_action', accept: '.pdf', multiple: false, needsInput: 'signature_options', inputLabel: 'Pilih PDF Lembar Pengesahan / Surat', desc: 'Gambar tanda tangan langsung atau upload PNG untuk ditempel di halaman PDF.', colorClass: 'text-indigo-500 bg-indigo-100 dark:bg-indigo-500/20' },
+            { id: 'thesis_page_num', title: 'Nomor Halaman Skripsi', icon: 'fas fa-book-open', type: 'student_action', accept: '.pdf', multiple: false, needsInput: 'thesis_num_options', inputLabel: 'Pilih File Naskah / Skripsi PDF', desc: 'Format otomatis: Romawi (i, ii) lembar awal + Angka Arab (1, 2) untuk Bab isi.', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
+            { id: 'id_watermark', title: 'Watermark KTP & Dokumen', icon: 'fas fa-id-card', type: 'student_action', accept: 'image/jpeg, image/png, image/webp, .pdf', multiple: true, needsInput: 'id_watermark_options', inputLabel: 'Pilih Foto/Scan KTP, KTM, atau Dokumen', desc: 'Cap pelindung diagonal anti-pinjol / anti-salah guna untuk verifikasi beasiswa/magang.', colorClass: 'text-rose-500 bg-rose-100 dark:bg-rose-500/20' },
+            { id: 'doc_scanner', title: 'Scanner Dokumen (Foto HP)', icon: 'fas fa-camera-retro', type: 'student_action', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'scanner_options', inputLabel: 'Pilih Foto Kertas / Tugas Tulisan Tangan', desc: 'Bersihkan bayangan gelap & jadikan hitam-putih tajam/grayscale ala CamScanner.', colorClass: 'text-amber-500 bg-amber-100 dark:bg-amber-500/20' },
+            { id: 'ocr_tool', title: 'OCR Gambar ke Teks', icon: 'fas fa-font', type: 'student_action', accept: 'image/jpeg, image/png, image/webp, .pdf', multiple: false, needsInput: 'ocr_options', inputLabel: 'Pilih Scan Halaman Buku / Jurnal', desc: 'Ekstrak dan salin teks bahasa Indonesia/Inggris secara lokal tanpa kirim ke server.', colorClass: 'text-cyan-500 bg-cyan-100 dark:bg-cyan-500/20' }
+        ];
+
         const compressData = [
-            { id: 'compress_image', title: 'Kompres Gambar', icon: 'fas fa-images', type: 'real_image', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih Gambar', desc: 'Batch kompresi berbagai format foto.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' },
-            { id: 'compress_jpg', title: 'Kompres JPG', icon: 'fas fa-file-image', type: 'real_image', accept: 'image/jpeg', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih File JPG', desc: 'Optimasi ukuran khusus JPEG.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' },
-            { id: 'compress_png', title: 'Kompres PNG', icon: 'fas fa-image', type: 'real_image', accept: 'image/png', multiple: true, needsInput: 'png_options', inputLabel: 'Pilih File PNG', desc: 'Kompresi lossy/lossless untuk PNG.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' },
-            { id: 'compress_webp', title: 'Kompres WebP', icon: 'fas fa-file-image', type: 'real_image', accept: 'image/webp', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih File WebP', desc: 'Kompresi format WebP.', colorClass: 'text-brand-orange bg-orange-100 dark:bg-orange-500/20' }
+            { id: 'compress_image', title: 'Kompres Gambar', icon: 'fas fa-images', type: 'real_image', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih Gambar', desc: 'Batch kompresi berbagai format foto.', colorClass: 'text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-500/20' },
+            { id: 'compress_jpg', title: 'Kompres JPG', icon: 'fas fa-file-image', type: 'real_image', accept: 'image/jpeg', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih File JPG', desc: 'Optimasi ukuran khusus JPEG.', colorClass: 'text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-500/20' },
+            { id: 'compress_png', title: 'Kompres PNG', icon: 'fas fa-image', type: 'real_image', accept: 'image/png', multiple: true, needsInput: 'png_options', inputLabel: 'Pilih File PNG', desc: 'Kompresi lossy/lossless untuk PNG.', colorClass: 'text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-500/20' },
+            { id: 'compress_webp', title: 'Kompres WebP', icon: 'fas fa-file-image', type: 'real_image', accept: 'image/webp', multiple: true, needsInput: 'slider_and_target', inputLabel: 'Pilih File WebP', desc: 'Kompresi format WebP.', colorClass: 'text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-500/20' }
         ];
 
         const extractData = [
@@ -551,7 +663,7 @@
         ];
 
         // System Maps
-        const allTools = [...compressData, ...pdfData, ...extractData];
+        const allTools = [...studentData, ...compressData, ...pdfData, ...extractData];
         const toolMap = {};
         allTools.forEach(t => toolMap[t.id] = t);
 
@@ -563,12 +675,13 @@
 
         // --- 3. UI INITIALIZATION ---
         function initApp() {
+            renderGrid('student-grid', studentData);
             renderGrid('compress-grid', compressData);
             renderGrid('pdf-grid', pdfData);
             renderGrid('extract-grid', extractData);
 
             // Apply saved theme UI
-            updateThemeUI(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeUI(localStorage.theme || 'system');
             
             // Drag and Drop
             const dropzone = document.getElementById('ws-dropzone');
@@ -634,16 +747,50 @@
         // --- THEME ---
         function setTheme(theme) {
             const html = document.documentElement;
-            if (theme === 'dark') { html.classList.add('dark'); localStorage.theme = 'dark'; } 
-            else { html.classList.remove('dark'); localStorage.theme = 'light'; }
+            if (theme === 'system') {
+                localStorage.removeItem('theme');
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+            } else if (theme === 'dark') {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+            } else {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+            }
             updateThemeUI(theme);
         }
 
         function updateThemeUI(theme) {
-            const l = document.getElementById('btn-theme-light'), d = document.getElementById('btn-theme-dark');
-            l.className = `flex-1 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 ${theme==='light' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-800'}`;
-            d.className = `flex-1 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 ${theme==='dark' ? 'bg-slate-700 shadow-sm text-white' : 'text-slate-500 hover:text-slate-800'}`;
+            const currentTheme = theme || localStorage.theme || 'system';
+            const s = document.getElementById('btn-theme-system');
+            const l = document.getElementById('btn-theme-light');
+            const d = document.getElementById('btn-theme-dark');
+            
+            const activeStyle = 'bg-brand-green text-white shadow-sm font-bold';
+            const inactiveStyle = 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white font-medium';
+            
+            if (s) s.className = `flex-1 py-2 rounded-lg text-xs transition-all flex items-center justify-center gap-1 ${currentTheme === 'system' ? activeStyle : inactiveStyle}`;
+            if (l) l.className = `flex-1 py-2 rounded-lg text-xs transition-all flex items-center justify-center gap-1 ${currentTheme === 'light' ? activeStyle : inactiveStyle}`;
+            if (d) d.className = `flex-1 py-2 rounded-lg text-xs transition-all flex items-center justify-center gap-1 ${currentTheme === 'dark' ? activeStyle : inactiveStyle}`;
         }
+
+        // Live system theme change listener
+        try {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (!localStorage.theme || localStorage.theme === 'system') {
+                    if (e.matches) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                    updateThemeUI('system');
+                }
+            });
+        } catch (e) {}
 
         // --- NAVIGATION ---
         function toggleSidebar() {
@@ -675,6 +822,7 @@
             // Set Page Title
             const t = i18n[currentLang];
             let title = t.navHome;
+            if(viewId==='student') title = t.navStudent;
             if(viewId==='compress') title = t.navCompress;
             if(viewId==='pdf') title = t.navPdf;
             if(viewId==='extract') title = t.navExtract;
@@ -869,7 +1017,7 @@
                     <div class="flex-grow min-w-0">
                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate mb-1" dir="ltr">${file.name}</p>
                         <div class="flex items-center gap-2">
-                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5"><div id="prog-bar-${i}" class="bg-brand-yellow h-full rounded-full w-0 transition-all duration-300"></div></div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5"><div id="prog-bar-${i}" class="bg-brand-green h-full rounded-full w-0 transition-all duration-300"></div></div>
                             <span id="prog-text-${i}" class="text-[10px] font-bold text-slate-500 whitespace-nowrap">${formatBytes(file.size)}</span>
                         </div>
                     </div>
@@ -914,15 +1062,15 @@
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblTargetSize}</label>
                         <div class="flex gap-2 max-w-sm" dir="ltr">
-                            <input type="number" id="opt-target-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="Ex: 500" min="0">
-                            <select id="opt-target-unit" class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm font-bold dark:text-white cursor-pointer">
+                            <input type="number" id="opt-target-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="Ex: 500" min="0">
+                            <select id="opt-target-unit" class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm font-bold dark:text-white cursor-pointer">
                                 <option value="KB">KB</option><option value="MB">MB</option>
                             </select>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQuality} <span id="opt-slider-val" class="text-brand-yellow ml-2">70%</span></label>
-                        <input type="range" id="opt-slider" min="10" max="100" value="70" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQuality} <span id="opt-slider-val" class="text-brand-green ml-2">70%</span></label>
+                        <input type="range" id="opt-slider" min="10" max="100" value="70" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
                     </div>
                 </div>`;
             } else if (currentTool.needsInput === 'png_options') {
@@ -931,15 +1079,15 @@
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblTargetSize}</label>
                         <div class="flex gap-2 max-w-sm" dir="ltr">
-                            <input type="number" id="opt-target-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="Ex: 500" min="0">
-                            <select id="opt-target-unit" class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm font-bold dark:text-white cursor-pointer">
+                            <input type="number" id="opt-target-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="Ex: 500" min="0">
+                            <select id="opt-target-unit" class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm font-bold dark:text-white cursor-pointer">
                                 <option value="KB">KB</option><option value="MB">MB</option>
                             </select>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQuality} (Warna) <span id="opt-png-colors-val" class="text-brand-yellow ml-2">256</span></label>
-                        <input type="range" id="opt-png-colors" min="2" max="256" value="256" step="2" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQuality} (Warna) <span id="opt-png-colors-val" class="text-brand-green ml-2">256</span></label>
+                        <input type="range" id="opt-png-colors" min="2" max="256" value="256" step="2" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
                         <p class="text-xs text-slate-400 mt-1">256 = lossless, 64-128 = kompresi baik, 2-16 = sangat kecil</p>
                     </div>
                 </div>`;
@@ -949,18 +1097,18 @@
                 html += `
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50">
                     <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${lbl}</label>
-                    <input type="text" id="opt-text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="${placeholder}" dir="ltr">
+                    <input type="text" id="opt-text" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="${placeholder}" dir="ltr">
                 </div>`;
             } else if (currentTool.needsInput === 'split_options') {
                 html += `
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPages}</label>
-                        <input type="text" id="opt-split-pages" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="1, 3, 5-7" dir="ltr">
+                        <input type="text" id="opt-split-pages" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="1, 3, 5-7" dir="ltr">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblSplitInto}</label>
-                        <select id="opt-split-mode" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-split-mode" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="separate">${t.lblSeparateFiles}</option>
                             <option value="single">${t.lblSingleFile}</option>
                         </select>
@@ -972,7 +1120,7 @@
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblRotation}</label>
-                        <select id="opt-rotate-angle" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-rotate-angle" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="90">90°</option>
                             <option value="180">180°</option>
                             <option value="270">270°</option>
@@ -980,7 +1128,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPageRange}</label>
-                        <input type="text" id="opt-rotate-pages" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="${t.lblAllPages}" dir="ltr">
+                        <input type="text" id="opt-rotate-pages" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="${t.lblAllPages}" dir="ltr">
                         <p class="text-xs text-slate-400 mt-1">Kosongkan untuk semua halaman</p>
                     </div>
                 </div>`;
@@ -989,23 +1137,23 @@
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblText}</label>
-                        <input type="text" id="opt-watermark-text" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="Masukkan teks watermark..." dir="ltr">
+                        <input type="text" id="opt-watermark-text" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="Masukkan teks watermark..." dir="ltr">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFontSize}</label>
-                            <input type="number" id="opt-watermark-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" value="40" min="10" max="200">
+                            <input type="number" id="opt-watermark-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" value="40" min="10" max="200">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblOpacity}</label>
-                            <input type="range" id="opt-watermark-opacity" min="10" max="100" value="30" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                            <input type="range" id="opt-watermark-opacity" min="10" max="100" value="30" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
                             <span id="opt-watermark-opacity-val" class="text-xs text-slate-400">30%</span>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblRotation}</label>
-                            <select id="opt-watermark-rotate" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                            <select id="opt-watermark-rotate" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                                 <option value="0">0°</option>
                                 <option value="45">45°</option>
                                 <option value="-45">-45°</option>
@@ -1014,7 +1162,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblColor}</label>
-                            <input type="color" id="opt-watermark-color" class="w-full h-10 px-2 py-1 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow cursor-pointer" value="#888888">
+                            <input type="color" id="opt-watermark-color" class="w-full h-10 px-2 py-1 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green cursor-pointer" value="#888888">
                         </div>
                     </div>
                 </div>`;
@@ -1023,7 +1171,7 @@
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFormat}</label>
-                        <select id="opt-pagenum-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-pagenum-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="simple">1, 2, 3</option>
                             <option value="total">1/10, 2/10</option>
                             <option value="page">Page 1, Page 2</option>
@@ -1032,14 +1180,14 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPosition}</label>
-                        <select id="opt-pagenum-pos" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-pagenum-pos" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="footer">Footer (Bawah)</option>
                             <option value="header">Header (Atas)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFontSize}</label>
-                        <input type="number" id="opt-pagenum-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" value="12" min="8" max="30">
+                        <input type="number" id="opt-pagenum-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" value="12" min="8" max="30">
                     </div>
                 </div>`;
             } else if (currentTool.needsInput === 'pdf2image_options') {
@@ -1047,7 +1195,7 @@
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblDPI}</label>
-                        <select id="opt-pdf2image-dpi" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-pdf2image-dpi" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="72">72 DPI</option>
                             <option value="150" selected>150 DPI</option>
                             <option value="300">300 DPI</option>
@@ -1056,19 +1204,19 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQualityLabel}</label>
-                        <input type="range" id="opt-pdf2image-quality" min="50" max="100" value="90" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <input type="range" id="opt-pdf2image-quality" min="50" max="100" value="90" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
                         <span id="opt-pdf2image-quality-val" class="text-xs text-slate-400">90%</span>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFormat}</label>
-                        <select id="opt-pdf2image-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-pdf2image-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="jpeg">JPEG</option>
                             <option value="png">PNG</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPageRange}</label>
-                        <input type="text" id="opt-pdf2image-pages" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white" placeholder="${t.lblAllPages}" dir="ltr">
+                        <input type="text" id="opt-pdf2image-pages" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="${t.lblAllPages}" dir="ltr">
                         <p class="text-xs text-slate-400 mt-1">Kosongkan untuk semua halaman</p>
                     </div>
                 </div>`;
@@ -1077,7 +1225,7 @@
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblPaperSize}</label>
-                        <select id="opt-jpg2pdf-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-jpg2pdf-size" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="A4">A4</option>
                             <option value="Letter">Letter</option>
                             <option value="Legal">Legal</option>
@@ -1086,7 +1234,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblOrientation}</label>
-                        <select id="opt-jpg2pdf-orient" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-jpg2pdf-orient" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="portrait">Potrait</option>
                             <option value="landscape">Landscape</option>
                             <option value="auto">Auto</option>
@@ -1094,7 +1242,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblMargin}</label>
-                        <input type="range" id="opt-jpg2pdf-margin" min="0" max="50" value="10" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <input type="range" id="opt-jpg2pdf-margin" min="0" max="50" value="10" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
                         <span id="opt-jpg2pdf-margin-val" class="text-xs text-slate-400">10 px</span>
                     </div>
                 </div>`;
@@ -1103,7 +1251,7 @@
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFormat}</label>
-                        <select id="opt-audio-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-audio-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="wav">WAV</option>
                             <option value="mp3">MP3</option>
                             <option value="aac">AAC</option>
@@ -1111,12 +1259,12 @@
                         </select>
                     </div>
                     <div id="audio-bitrate-container">
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQualityLabel} (Bitrate) <span id="opt-audio-bitrate-val" class="text-brand-yellow ml-2">192 kbps</span></label>
-                        <input type="range" id="opt-audio-bitrate" min="64" max="320" value="192" step="8" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-yellow">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQualityLabel} (Bitrate) <span id="opt-audio-bitrate-val" class="text-brand-green ml-2">192 kbps</span></label>
+                        <input type="range" id="opt-audio-bitrate" min="64" max="320" value="192" step="8" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Sample Rate</label>
-                        <select id="opt-audio-samplerate" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-yellow text-sm dark:text-white cursor-pointer">
+                        <select id="opt-audio-samplerate" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
                             <option value="44100">44.1 kHz</option>
                             <option value="48000">48 kHz</option>
                             <option value="22050">22.05 kHz</option>
@@ -1124,8 +1272,334 @@
                         </select>
                     </div>
                 </div>`;
+            } else if (currentTool.needsInput === 'pdf_target_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Target Ukuran File Maksimal <span class="text-xs font-normal text-emerald-500">(Wajib untuk lolos upload)</span></label>
+                        <p class="text-xs text-slate-400 mb-2">Pilih preset portal kampus atau ketik angka sendiri:</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <button type="button" onclick="setTargetPdfPreset(300, 'KB')" class="px-3 py-1 text-xs font-bold bg-slate-100 hover:bg-emerald-50 dark:bg-slate-700 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 rounded-lg transition-colors">300 KB (SIAKAD)</button>
+                            <button type="button" onclick="setTargetPdfPreset(500, 'KB')" class="px-3 py-1 text-xs font-bold bg-slate-100 hover:bg-emerald-50 dark:bg-slate-700 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 rounded-lg transition-colors">500 KB (Beasiswa/CPNS)</button>
+                            <button type="button" onclick="setTargetPdfPreset(1, 'MB')" class="px-3 py-1 text-xs font-bold bg-slate-100 hover:bg-emerald-50 dark:bg-slate-700 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 rounded-lg transition-colors">1 MB (MSIB/Magang)</button>
+                            <button type="button" onclick="setTargetPdfPreset(2, 'MB')" class="px-3 py-1 text-xs font-bold bg-slate-100 hover:bg-emerald-50 dark:bg-slate-700 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 rounded-lg transition-colors">2 MB (Google Classroom)</button>
+                        </div>
+                        <div class="flex gap-2 max-w-sm" dir="ltr">
+                            <input type="number" id="opt-pdf-target-val" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm font-bold dark:text-white" value="500" min="50">
+                            <select id="opt-pdf-target-unit" class="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm font-bold dark:text-white cursor-pointer">
+                                <option value="KB" selected>KB</option>
+                                <option value="MB">MB</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700/40">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Ketajaman / Resolusi</label>
+                            <select id="opt-pdf-dpi-mode" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium dark:text-white outline-none">
+                                <option value="auto" selected>Otomatis (Seimbang & Tajam)</option>
+                                <option value="high">Kualitas Tinggi (DPI 150)</option>
+                                <option value="low">Kompres Agresif (DPI 96 - Dokumen Tebal)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Mode Warna Halaman</label>
+                            <select id="opt-pdf-color-mode" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium dark:text-white outline-none">
+                                <option value="color" selected>Warna Asli (Color)</option>
+                                <option value="grayscale">Grayscale (Lebih Hemat Ukuran)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'signature_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">1. Buat Tanda Tangan Anda</label>
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" id="tab-sig-draw" onclick="switchSigTab('draw')" class="flex-1 py-2 text-xs font-bold bg-brand-green text-white rounded-lg shadow-sm">
+                                <i class="fas fa-pen-nib mr-1"></i> Gambar di Layar
+                            </button>
+                            <button type="button" id="tab-sig-upload" onclick="switchSigTab('upload')" class="flex-1 py-2 text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg">
+                                <i class="fas fa-upload mr-1"></i> Upload File PNG TTD
+                            </button>
+                        </div>
+                        <div id="sig-draw-container" class="space-y-2">
+                            <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-white relative overflow-hidden" style="touch-action: none;">
+                                <canvas id="sig-pad-canvas" width="460" height="150" class="w-full h-36 cursor-crosshair bg-white"></canvas>
+                                <div class="absolute top-2 right-2 flex gap-1">
+                                    <button type="button" onclick="clearSignaturePad()" class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-md border border-slate-200 shadow-sm">
+                                        <i class="fas fa-redo"></i> Bersihkan
+                                    </button>
+                                </div>
+                                <div class="absolute bottom-2 left-3 pointer-events-none text-[11px] text-slate-400 font-medium">
+                                    Goreskan tanda tangan di sini
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs text-slate-500">
+                                <span class="font-bold">Warna Tinta:</span>
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sig-ink" value="#0f172a" checked onchange="setSigColor('#0f172a')"> Hitam
+                                </label>
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input type="radio" name="sig-ink" value="#1e40af" onchange="setSigColor('#1e40af')"> Biru Dokumen
+                                </label>
+                            </div>
+                        </div>
+                        <div id="sig-upload-container" class="hidden space-y-2">
+                            <input type="file" id="sig-file-upload" accept="image/png, image/jpeg" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-green file:text-white cursor-pointer">
+                            <p class="text-[11px] text-slate-400">Gunakan foto tanda tangan berlatar putih atau PNG transparan.</p>
+                            <div id="sig-upload-preview" class="hidden h-20 p-2 bg-slate-100 dark:bg-slate-700/50 rounded-lg flex items-center justify-center">
+                                <img id="sig-preview-img" class="max-h-full max-w-full object-contain">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-700/40 space-y-3">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">2. Posisi pada PDF</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Tempel di Halaman:</label>
+                                <select id="opt-sig-page" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                    <option value="last" selected>Halaman Terakhir (Lembar Pengesahan)</option>
+                                    <option value="1">Halaman 1 (Pertama)</option>
+                                    <option value="custom">Tentukan Halaman...</option>
+                                </select>
+                                <input type="number" id="opt-sig-page-custom" class="hidden mt-2 w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white" placeholder="Nomor halaman (cth: 2)" min="1">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Posisi / Penempatan:</label>
+                                <select id="opt-sig-pos" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                    <option value="bottom-right" selected>Bawah Kanan (Mahasiswa / Pemohon)</option>
+                                    <option value="bottom-left">Bawah Kiri (Dosen / Mengetahui)</option>
+                                    <option value="bottom-center">Bawah Tengah</option>
+                                    <option value="mid-right">Tengah Kanan</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Lebar TTD: <span id="sig-width-val" class="text-brand-green font-bold">140 px</span></label>
+                                <input type="range" id="opt-sig-width" min="80" max="250" value="140" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Jarak Bawah: <span id="sig-margin-val" class="text-brand-green font-bold">80 px</span></label>
+                                <input type="range" id="opt-sig-margin" min="20" max="300" value="80" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'thesis_num_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div class="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-900/50 text-xs text-blue-700 dark:text-blue-300">
+                        <i class="fas fa-info-circle mr-1"></i> Standar Skripsi: Halaman Awal berformat Romawi (i, ii..), dan Bab Isi berformat Angka (1, 2..).
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-slate-800 dark:text-slate-200">1. Bagian Awal (Judul, Pengantar, Daftar Isi)</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-slate-500 font-bold block mb-1">Rentang Halaman:</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" id="opt-thesis-rom-start" value="1" min="1" class="w-16 px-2 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white text-center">
+                                    <span class="text-xs text-slate-400">s/d</span>
+                                    <input type="number" id="opt-thesis-rom-end" value="4" min="1" class="w-16 px-2 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white text-center">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 font-bold block mb-1">Gaya Romawi:</label>
+                                <select id="opt-thesis-rom-style" class="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                    <option value="lower" selected>Romawi Kecil (i, ii, iii..)</option>
+                                    <option value="upper">Romawi Besar (I, II, III..)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 font-bold block mb-1">Posisi Romawi:</label>
+                                <select id="opt-thesis-rom-pos" class="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                    <option value="bottom-center" selected>Bawah Tengah</option>
+                                    <option value="top-right">Atas Kanan</option>
+                                </select>
+                            </div>
+                        </div>
+                        <label class="flex items-center gap-2 cursor-pointer mt-1">
+                            <input type="checkbox" id="opt-thesis-skip-cover" checked class="rounded text-brand-green focus:ring-brand-green">
+                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Jangan beri nomor pada Halaman 1 (Cover / Sampul)</span>
+                        </label>
+                    </div>
+                    <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-700/40">
+                        <label class="block text-sm font-bold text-slate-800 dark:text-slate-200">2. Bagian Isi & Bab (Bab I s/d Selesai)</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-slate-500 font-bold block mb-1">Mulai Dari Halaman:</label>
+                                <input type="number" id="opt-thesis-num-start" value="5" min="1" class="w-24 px-2 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white text-center">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 font-bold block mb-1">Nomor Awal:</label>
+                                <input type="number" id="opt-thesis-num-val" value="1" min="1" class="w-24 px-2 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white text-center">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 font-bold block mb-1">Posisi Angka:</label>
+                                <select id="opt-thesis-num-pos" class="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                    <option value="bottom-center" selected>Bawah Tengah</option>
+                                    <option value="top-right">Atas Kanan (Standar Skripsi)</option>
+                                    <option value="bottom-right">Bawah Kanan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700/40">
+                        <div>
+                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1">Ukuran Font:</label>
+                            <input type="number" id="opt-thesis-font-size" value="11" min="8" max="24" class="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white font-bold">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1">Jenis Font:</label>
+                            <select id="opt-thesis-font-fam" class="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white font-bold outline-none">
+                                <option value="TimesRoman" selected>Times New Roman</option>
+                                <option value="Helvetica">Helvetica / Arial</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'id_watermark_options') {
+                const today = new Date();
+                const dStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth()+1).padStart(2, '0')}/${today.getFullYear()}`;
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Teks Keperluan Dokumen</label>
+                        <div class="flex flex-wrap gap-1.5 mb-2">
+                            <button type="button" onclick="setWatermarkPreset('HANYA UNTUK PERSYARATAN BEASISWA')" class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-rose-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg">Beasiswa</button>
+                            <button type="button" onclick="setWatermarkPreset('HANYA UNTUK VERIFIKASI MAGANG / MSIB')" class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-rose-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg">Magang / MSIB</button>
+                            <button type="button" onclick="setWatermarkPreset('HANYA UNTUK PENDAFTARAN KAMPUS')" class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-rose-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg">Pendaftaran Kampus</button>
+                            <button type="button" onclick="setWatermarkPreset('HANYA UNTUK PEMBUKAAN REKENING BANK')" class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-rose-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg">Rekening Bank</button>
+                        </div>
+                        <input type="text" id="opt-id-wm-text" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm font-bold dark:text-white" value="HANYA UNTUK PERSYARATAN BEASISWA">
+                    </div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="opt-id-wm-date" checked class="rounded text-brand-green focus:ring-brand-green">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Cantumkan Tanggal Otomatis (<span class="text-rose-500 font-semibold">${dStr}</span>)</span>
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700/40">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Gaya Penempatan Cap:</label>
+                            <select id="opt-id-wm-style" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                <option value="diagonal" selected>1 Cap Diagonal Besar di Tengah</option>
+                                <option value="tiled">Pola Penuh Berulang (Sulit Di-crop)</option>
+                                <option value="bottom-bar">Garis Pita Bawah</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Warna Cap:</label>
+                            <select id="opt-id-wm-color" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                <option value="#dc2626" selected>Merah Tegas (Standar Proteksi)</option>
+                                <option value="#1d4ed8">Biru Resmi</option>
+                                <option value="#334155">Abu-abu Gelap</option>
+                                <option value="#000000">Hitam Pekat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Transparansi / Opacity: <span id="id-wm-opacity-val" class="text-brand-green font-bold">35%</span></label>
+                        <input type="range" id="opt-id-wm-opacity" min="15" max="75" value="35" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'scanner_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Preset Filter Pembersih Dokumen</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button type="button" onclick="setScannerPreset('magic_bw')" id="btn-scan-magic" class="p-3 text-left border-2 border-brand-green bg-green-50/50 dark:bg-green-950/20 rounded-xl transition-all">
+                                <p class="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5"><i class="fas fa-magic text-brand-green"></i> Magic B&W</p>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Kertas putih bersih, tulisan hitam tajam ala CamScanner.</p>
+                            </button>
+                            <button type="button" onclick="setScannerPreset('grayscale')" id="btn-scan-gray" class="p-3 text-left border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-xl transition-all">
+                                <p class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5"><i class="fas fa-adjust text-slate-400"></i> Grayscale</p>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Abu-abu halus dengan kontras tinggi tanpa pecah.</p>
+                            </button>
+                            <button type="button" onclick="setScannerPreset('color_boost')" id="btn-scan-color" class="p-3 text-left border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-xl transition-all">
+                                <p class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5"><i class="fas fa-palette text-blue-500"></i> Warna Tajam</p>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Pertahankan stempel/tanda tangan berwarna, hilangkan bayangan.</p>
+                            </button>
+                        </div>
+                        <input type="hidden" id="opt-scanner-filter" value="magic_bw">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700/40">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Format Dokumen Output:</label>
+                            <select id="opt-scanner-output" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                <option value="pdf" selected>Satukan ke Dokumen PDF (Siap Cetak)</option>
+                                <option value="jpg">Gambar Bersih JPG / ZIP</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Ukuran Kertas PDF:</label>
+                            <select id="opt-scanner-paper" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
+                                <option value="A4" selected>A4 (210 x 297 mm)</option>
+                                <option value="Letter">Letter</option>
+                                <option value="auto">Auto (Sesuai Ukuran Foto)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'ocr_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Bahasa Naskah / Dokumen</label>
+                        <select id="opt-ocr-lang" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold dark:text-white outline-none">
+                            <option value="ind+eng" selected>Bahasa Indonesia + English (Rekomendasi Skripsi/Jurnal)</option>
+                            <option value="ind">Bahasa Indonesia Saja</option>
+                            <option value="eng">English Only</option>
+                        </select>
+                        <p class="text-xs text-slate-400 mt-1.5"><i class="fas fa-lock text-green-500 mr-1"></i> 100% diproses lokal di browser via WebAssembly. Data tidak pernah meninggalkan perangkat Anda.</p>
+                    </div>
+                    <div id="ocr-result-box" class="hidden space-y-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                                <i class="fas fa-check-circle"></i> Teks Berhasil Diekstrak:
+                            </span>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="copyOcrResult()" class="px-3 py-1.5 text-xs font-bold bg-brand-green hover:bg-emerald-600 text-white rounded-lg shadow-sm transition-all flex items-center gap-1">
+                                    <i class="fas fa-copy"></i> Salin Teks
+                                </button>
+                                <button type="button" onclick="downloadOcrResult()" class="px-3 py-1.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg transition-all flex items-center gap-1">
+                                    <i class="fas fa-download"></i> Unduh .txt
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="ocr-extracted-text" rows="8" class="w-full p-4 bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono dark:text-slate-200 leading-relaxed outline-none focus:ring-2 focus:ring-brand-green" placeholder="Teks hasil scan akan muncul di sini..."></textarea>
+                    </div>
+                </div>`;
             }
             area.innerHTML = html;
+            
+            // Setup signature pad if needed
+            if (currentTool.needsInput === 'signature_options') {
+                setTimeout(() => { if (typeof initSignaturePad === 'function') initSignaturePad(); }, 50);
+                const sigPageSel = document.getElementById('opt-sig-page');
+                const sigCustomInp = document.getElementById('opt-sig-page-custom');
+                if (sigPageSel && sigCustomInp) {
+                    sigPageSel.addEventListener('change', function() {
+                        sigCustomInp.classList.toggle('hidden', this.value !== 'custom');
+                    });
+                }
+                const sigWSlider = document.getElementById('opt-sig-width');
+                if (sigWSlider) sigWSlider.addEventListener('input', e => {
+                    const el = document.getElementById('sig-width-val');
+                    if (el) el.textContent = e.target.value + ' px';
+                });
+                const sigMSlider = document.getElementById('opt-sig-margin');
+                if (sigMSlider) sigMSlider.addEventListener('input', e => {
+                    const el = document.getElementById('sig-margin-val');
+                    if (el) el.textContent = e.target.value + ' px';
+                });
+            }
+            
+            const idWmOp = document.getElementById('opt-id-wm-opacity');
+            if (idWmOp) idWmOp.addEventListener('input', e => {
+                const el = document.getElementById('id-wm-opacity-val');
+                if (el) el.textContent = e.target.value + '%';
+            });
             
             // Setup event listeners for sliders
             const sl = document.getElementById('opt-slider');
@@ -1194,7 +1668,8 @@
                     if(el) el.style.display = 'none'; 
                 });
 
-                if (currentTool.id.startsWith('compress_')) await processImageBatch();
+                if (currentTool.type === 'student_action') await processStudentTool();
+                else if (currentTool.id.startsWith('compress_')) await processImageBatch();
                 else if (currentTool.id === 'extract_audio') await processAudioBatch();
                 else if (currentTool.type.includes('pdf') || currentTool.type === 'real_pdf2image') await processPdfAction();
                 else {
@@ -2213,18 +2688,976 @@
             if (cc >= 4) {
                 cc = 0;
                 const overlay = document.getElementById('lightning-overlay');
-                overlay.classList.remove('hidden');
+                overlay.classList.remove('hidden', 'opacity-0');
                 overlay.classList.add('super-lightning');
+                // Mainkan suara gledek
+                try { playThunderSound(); } catch (e) {}
                 setTimeout(() => {
                     overlay.classList.remove('super-lightning');
-                    overlay.classList.add('hidden');
+                    overlay.classList.add('hidden', 'opacity-0');
                 }, 800);
                 setTimeout(() => window.location.reload(), 900);
             }
             ct = setTimeout(() => { cc = 0; }, 1000);
         }
 
+        
+/**
+ * studentEngine.js - Mesin Pemrosesan Fitur Mahasiswa & Dokumen untuk KiLat
+ * 100% Client-Side Processing di Browser (Offline & Aman)
+ */
+
+// --- PRESET HELPERS ---
+function setTargetPdfPreset(val, unit) {
+    const inp = document.getElementById('opt-pdf-target-val');
+    const u = document.getElementById('opt-pdf-target-unit');
+    if (inp) inp.value = val;
+    if (u) u.value = unit;
+}
+
+function switchSigTab(tab) {
+    const drawC = document.getElementById('sig-draw-container');
+    const uploadC = document.getElementById('sig-upload-container');
+    const tabDraw = document.getElementById('tab-sig-draw');
+    const tabUpload = document.getElementById('tab-sig-upload');
+    if (tab === 'draw') {
+        if (drawC) drawC.classList.remove('hidden');
+        if (uploadC) uploadC.classList.add('hidden');
+        if (tabDraw) { tabDraw.className = "flex-1 py-2 text-xs font-bold bg-brand-green text-white rounded-lg shadow-sm"; }
+        if (tabUpload) { tabUpload.className = "flex-1 py-2 text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg"; }
+    } else {
+        if (drawC) drawC.classList.add('hidden');
+        if (uploadC) uploadC.classList.remove('hidden');
+        if (tabUpload) { tabUpload.className = "flex-1 py-2 text-xs font-bold bg-brand-green text-white rounded-lg shadow-sm"; }
+        if (tabDraw) { tabDraw.className = "flex-1 py-2 text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg"; }
+    }
+}
+
+let sigPadState = {
+    canvas: null,
+    ctx: null,
+    drawing: false,
+    color: '#0f172a',
+    hasDrawn: false,
+    uploadedBlob: null
+};
+
+function initSignaturePad() {
+    const canvas = document.getElementById('sig-pad-canvas');
+    if (!canvas) return;
+    
+    // Set actual resolution
+    canvas.width = canvas.parentElement.clientWidth || 460;
+    canvas.height = 160;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = sigPadState.color;
+    
+    sigPadState.canvas = canvas;
+    sigPadState.ctx = ctx;
+    sigPadState.hasDrawn = false;
+    
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (canvas.width / rect.width),
+            y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+    
+    function startDraw(e) {
+        sigPadState.drawing = true;
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        sigPadState.hasDrawn = true;
+    }
+    
+    function moveDraw(e) {
+        if (!sigPadState.drawing) return;
+        if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
+        const pos = getPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    }
+    
+    function stopDraw() {
+        if (!sigPadState.drawing) return;
+        sigPadState.drawing = false;
+        ctx.closePath();
+    }
+    
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', stopDraw);
+    
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', moveDraw, { passive: false });
+    window.addEventListener('touchend', stopDraw);
+    
+    // File upload handler
+    const fileInp = document.getElementById('sig-file-upload');
+    if (fileInp) {
+        fileInp.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                sigPadState.uploadedBlob = file;
+                const prevBox = document.getElementById('sig-upload-preview');
+                const prevImg = document.getElementById('sig-preview-img');
+                if (prevBox && prevImg) {
+                    prevImg.src = URL.createObjectURL(file);
+                    prevBox.classList.remove('hidden');
+                }
+            }
+        });
+    }
+}
+
+function clearSignaturePad() {
+    if (!sigPadState.canvas || !sigPadState.ctx) return;
+    sigPadState.ctx.clearRect(0, 0, sigPadState.canvas.width, sigPadState.canvas.height);
+    sigPadState.hasDrawn = false;
+}
+
+function setSigColor(c) {
+    sigPadState.color = c;
+    if (sigPadState.ctx) sigPadState.ctx.strokeStyle = c;
+}
+
+function setWatermarkPreset(text) {
+    const el = document.getElementById('opt-id-wm-text');
+    if (el) el.value = text;
+}
+
+function setScannerPreset(preset) {
+    const hid = document.getElementById('opt-scanner-filter');
+    if (hid) hid.value = preset;
+    
+    const bMagic = document.getElementById('btn-scan-magic');
+    const bGray = document.getElementById('btn-scan-gray');
+    const bColor = document.getElementById('btn-scan-color');
+    
+    [bMagic, bGray, bColor].forEach(b => {
+        if (!b) return;
+        b.className = "p-3 text-left border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-xl transition-all";
+    });
+    
+    if (preset === 'magic_bw' && bMagic) {
+        bMagic.className = "p-3 text-left border-2 border-brand-green bg-green-50/50 dark:bg-green-950/20 rounded-xl transition-all";
+    } else if (preset === 'grayscale' && bGray) {
+        bGray.className = "p-3 text-left border-2 border-brand-green bg-green-50/50 dark:bg-green-950/20 rounded-xl transition-all";
+    } else if (preset === 'color_boost' && bColor) {
+        bColor.className = "p-3 text-left border-2 border-brand-green bg-green-50/50 dark:bg-green-950/20 rounded-xl transition-all";
+    }
+}
+
+function toRoman(num, lower = true) {
+    if (!num || num < 1) return '';
+    const lookup = { m:1000, cm:900, d:500, cd:400, c:100, xc:90, l:50, xl:40, x:10, ix:9, v:5, iv:4, i:1 };
+    let roman = '';
+    for (let i in lookup) {
+        while (num >= lookup[i]) {
+            roman += i;
+            num -= lookup[i];
+        }
+    }
+    return lower ? roman : roman.toUpperCase();
+}
+
+function copyOcrResult() {
+    const txtArea = document.getElementById('ocr-extracted-text');
+    if (!txtArea || !txtArea.value.trim()) {
+        showToast('Tidak ada teks untuk disalin', 'error');
+        return;
+    }
+    navigator.clipboard.writeText(txtArea.value).then(() => {
+        showToast('Teks berhasil disalin ke clipboard!', 'success');
+    }).catch(() => {
+        txtArea.select();
+        document.execCommand('copy');
+        showToast('Teks berhasil disalin!', 'success');
+    });
+}
+
+function downloadOcrResult() {
+    const txtArea = document.getElementById('ocr-extracted-text');
+    if (!txtArea || !txtArea.value.trim()) {
+        showToast('Tidak ada teks untuk diunduh', 'error');
+        return;
+    }
+    const blob = new Blob([txtArea.value], { type: 'text/plain;charset=utf-8' });
+    downloadBlob(blob, 'KiLat_OCR_Hasil.txt');
+}
+
+// --- STUDENT DISPATCHER ---
+async function processStudentTool() {
+    const cid = currentTool.id;
+    if (cid === 'compress_pdf_target') {
+        await executeTargetPdfCompression();
+    } else if (cid === 'pdf_signature') {
+        await executePdfSignature();
+    } else if (cid === 'thesis_page_num') {
+        await executeThesisPageNum();
+    } else if (cid === 'id_watermark') {
+        await executeIdWatermark();
+    } else if (cid === 'doc_scanner') {
+        await executeDocScanner();
+    } else if (cid === 'ocr_tool') {
+        await executeOcrTool();
+    } else {
+        showToast('Fitur mahasiswa belum didukung', 'error');
+    }
+}
+
+// -------------------------------------------------------------
+// 1. TARGET SIZE PDF COMPRESSOR
+// -------------------------------------------------------------
+async function executeTargetPdfCompression() {
+    const f = currentFiles[0];
+    if (!f) return;
+    
+    const targetVal = parseFloat(document.getElementById('opt-pdf-target-val')?.value || '500');
+    const targetUnit = document.getElementById('opt-pdf-target-unit')?.value || 'KB';
+    const targetBytes = targetUnit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
+    const dpiMode = document.getElementById('opt-pdf-dpi-mode')?.value || 'auto';
+    const colorMode = document.getElementById('opt-pdf-color-mode')?.value || 'color';
+
+    updateGlobalProgress(15, 'Membaca struktur PDF...');
+    updateProgress(0, 15, 'Membaca dokumen...');
+    
+    const bytes = await f.arrayBuffer();
+    const pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+    const numPages = pdfDoc.numPages;
+    
+    // Estimate initial rendering scale and quality based on per-page budget
+    const budgetPerPage = targetBytes / numPages;
+    let baseScale = 1.25;
+    let baseQuality = 0.65;
+    
+    if (dpiMode === 'high') {
+        baseScale = 1.5;
+        baseQuality = 0.75;
+    } else if (dpiMode === 'low' || budgetPerPage < 50 * 1024) {
+        baseScale = 1.0;
+        baseQuality = 0.45;
+    } else if (budgetPerPage < 100 * 1024) {
+        baseScale = 1.15;
+        baseQuality = 0.55;
+    }
+
+    const { PDFDocument } = PDFLib;
+    let newDoc = await PDFDocument.create();
+    
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        if (cancelRequested) return;
+        
+        const pct = Math.floor(15 + (pageNum / numPages) * 75);
+        updateGlobalProgress(pct, `Mengompres halaman ${pageNum} dari ${numPages}...`);
+        updateProgress(0, pct, `Halaman ${pageNum}/${numPages}`);
+        
+        const page = await pdfDoc.getPage(pageNum);
+        const origViewport = page.getViewport({ scale: 1.0 });
+        const viewport = page.getViewport({ scale: baseScale });
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+        
+        // Grayscale conversion if requested
+        if (colorMode === 'grayscale') {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                const y = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+                d[i] = d[i+1] = d[i+2] = y;
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+        
+        // Convert to compressed JPEG blob
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', baseQuality));
+        const imgBuffer = await blob.arrayBuffer();
+        const embeddedImg = await newDoc.embedJpg(imgBuffer);
+        
+        const newPage = newDoc.addPage([origViewport.width, origViewport.height]);
+        newPage.drawImage(embeddedImg, {
+            x: 0,
+            y: 0,
+            width: origViewport.width,
+            height: origViewport.height
+        });
+    }
+    
+    if (cancelRequested) return;
+    
+    updateGlobalProgress(92, 'Menyusun hasil akhir...');
+    let finalBytes = await newDoc.save({ useObjectStreams: true });
+    
+    // If still exceeds target and we can lower quality, run a fast pass
+    if (finalBytes.length > targetBytes && baseQuality > 0.35) {
+        updateGlobalProgress(94, 'Menyesuaikan agar pas target...');
+        // Try re-encoding with lower quality
+        const reducedQuality = Math.max(0.25, baseQuality * 0.65);
+        newDoc = await PDFDocument.create();
+        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+            const page = await pdfDoc.getPage(pageNum);
+            const origViewport = page.getViewport({ scale: 1.0 });
+            const viewport = page.getViewport({ scale: baseScale * 0.85 });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            if (colorMode === 'grayscale') {
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const d = imgData.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    const y = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+                    d[i] = d[i+1] = d[i+2] = y;
+                }
+                ctx.putImageData(imgData, 0, 0);
+            }
+            const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', reducedQuality));
+            const imgBuffer = await blob.arrayBuffer();
+            const embeddedImg = await newDoc.embedJpg(imgBuffer);
+            const newPage = newDoc.addPage([origViewport.width, origViewport.height]);
+            newPage.drawImage(embeddedImg, {
+                x: 0, y: 0,
+                width: origViewport.width, height: origViewport.height
+            });
+        }
+        finalBytes = await newDoc.save({ useObjectStreams: true });
+    }
+    
+    const finalBlob = new Blob([finalBytes], { type: 'application/pdf' });
+    const savedPercent = ((1 - finalBlob.size / f.size) * 100).toFixed(1);
+    updateProgress(0, 100, `${formatBytes(f.size)} ➔ ${formatBytes(finalBlob.size)} (${savedPercent}%)`);
+    updateGlobalProgress(100, 'Selesai!');
+    
+    downloadBlob(finalBlob, `KiLat_Target_${targetVal}${targetUnit}_${f.name}`);
+    showToast(`PDF berhasil dikompres ke ${formatBytes(finalBlob.size)}!`, 'success');
+}
+
+// -------------------------------------------------------------
+// 2. PDF SIGNATURE (TEMPEL TANDA TANGAN DIGITAL)
+// -------------------------------------------------------------
+async function executePdfSignature() {
+    const f = currentFiles[0];
+    if (!f) return;
+    
+    // Obtain PNG buffer of signature
+    let sigBuffer = null;
+    const isUploadTab = !document.getElementById('sig-upload-container').classList.contains('hidden');
+    
+    if (isUploadTab && sigPadState.uploadedBlob) {
+        // Read uploaded image and ensure it has transparency or render onto canvas
+        const img = new Image();
+        const url = URL.createObjectURL(sigPadState.uploadedBlob);
+        await new Promise((res, rej) => {
+            img.onload = res;
+            img.onerror = rej;
+            img.src = url;
+        });
+        const c = document.createElement('canvas');
+        c.width = img.width;
+        c.height = img.height;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        // Optional: auto-whiten background if not transparent
+        const imgData = ctx.getImageData(0, 0, c.width, c.height);
+        const d = imgData.data;
+        for (let i = 0; i < d.length; i += 4) {
+            // If near white, make transparent
+            if (d[i] > 220 && d[i+1] > 220 && d[i+2] > 220) {
+                d[i+3] = 0;
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        
+        const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+        sigBuffer = await blob.arrayBuffer();
+        URL.revokeObjectURL(url);
+    } else if (sigPadState.hasDrawn && sigPadState.canvas) {
+        const blob = await new Promise(r => sigPadState.canvas.toBlob(r, 'image/png'));
+        sigBuffer = await blob.arrayBuffer();
+    } else {
+        showToast('Silakan gambar tanda tangan atau upload file PNG tanda tangan terlebih dahulu', 'error');
+        return;
+    }
+    
+    updateGlobalProgress(30, 'Memuat dokumen PDF...');
+    const bytes = await f.arrayBuffer();
+    const { PDFDocument } = PDFLib;
+    const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    const pages = doc.getPages();
+    const totalPages = pages.length;
+    
+    // Determine page
+    const pageChoice = document.getElementById('opt-sig-page')?.value || 'last';
+    let targetPageIdx = totalPages - 1;
+    if (pageChoice === '1') targetPageIdx = 0;
+    else if (pageChoice === 'custom') {
+        const customP = parseInt(document.getElementById('opt-sig-page-custom')?.value || '1');
+        targetPageIdx = Math.max(0, Math.min(totalPages - 1, customP - 1));
+    }
+    
+    const targetPage = pages[targetPageIdx];
+    const { width: pageWidth, height: pageHeight } = targetPage.getSize();
+    
+    // Embed signature
+    updateGlobalProgress(60, 'Menempelkan tanda tangan...');
+    const sigImg = await doc.embedPng(sigBuffer);
+    
+    const sigW = parseInt(document.getElementById('opt-sig-width')?.value || '140');
+    const aspect = sigImg.height / sigImg.width;
+    const sigH = sigW * aspect;
+    const margin = parseInt(document.getElementById('opt-sig-margin')?.value || '80');
+    const posPreset = document.getElementById('opt-sig-pos')?.value || 'bottom-right';
+    
+    let x = pageWidth - sigW - 60;
+    let y = margin;
+    
+    if (posPreset === 'bottom-left') {
+        x = 60;
+        y = margin;
+    } else if (posPreset === 'bottom-center') {
+        x = (pageWidth - sigW) / 2;
+        y = margin;
+    } else if (posPreset === 'mid-right') {
+        x = pageWidth - sigW - 60;
+        y = (pageHeight / 2) - (sigH / 2);
+    }
+    
+    targetPage.drawImage(sigImg, {
+        x: x,
+        y: y,
+        width: sigW,
+        height: sigH
+    });
+    
+    updateGlobalProgress(90, 'Menyimpan PDF...');
+    const finalBytes = await doc.save();
+    const outBlob = new Blob([finalBytes], { type: 'application/pdf' });
+    
+    updateProgress(0, 100, 'Tanda tangan tertempel!');
+    updateGlobalProgress(100, 'Selesai!');
+    downloadBlob(outBlob, `KiLat_Signed_${f.name}`);
+    showToast('Tanda tangan berhasil ditempel ke PDF!', 'success');
+}
+
+// -------------------------------------------------------------
+// 3. THESIS PAGE NUMBERING (ROMAWI + ARAB GABUNGAN)
+// -------------------------------------------------------------
+async function executeThesisPageNum() {
+    const f = currentFiles[0];
+    if (!f) return;
+    
+    const romStart = parseInt(document.getElementById('opt-thesis-rom-start')?.value || '1');
+    const romEnd = parseInt(document.getElementById('opt-thesis-rom-end')?.value || '4');
+    const romStyle = document.getElementById('opt-thesis-rom-style')?.value || 'lower';
+    const romPos = document.getElementById('opt-thesis-rom-pos')?.value || 'bottom-center';
+    const skipCover = document.getElementById('opt-thesis-skip-cover')?.checked ?? true;
+    
+    const numStart = parseInt(document.getElementById('opt-thesis-num-start')?.value || '5');
+    const numValInit = parseInt(document.getElementById('opt-thesis-num-val')?.value || '1');
+    const numPos = document.getElementById('opt-thesis-num-pos')?.value || 'bottom-center';
+    
+    const fontSize = parseInt(document.getElementById('opt-thesis-font-size')?.value || '11');
+    const fontFam = document.getElementById('opt-thesis-font-fam')?.value || 'TimesRoman';
+    
+    updateGlobalProgress(30, 'Membaca dokumen naskah...');
+    const bytes = await f.arrayBuffer();
+    const { PDFDocument, StandardFonts, rgb } = PDFLib;
+    const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    const font = await doc.embedFont(fontFam === 'TimesRoman' ? StandardFonts.TimesRoman : StandardFonts.Helvetica);
+    
+    const pages = doc.getPages();
+    const totalPages = pages.length;
+    
+    updateGlobalProgress(60, 'Membubuhkan nomor halaman skripsi...');
+    
+    for (let i = 0; i < totalPages; i++) {
+        const pageNum = i + 1;
+        const page = pages[i];
+        const { width, height } = page.getSize();
+        
+        let textToDraw = '';
+        let posChoice = 'bottom-center';
+        
+        // Section 1: Roman
+        if (pageNum >= romStart && pageNum <= romEnd) {
+            if (skipCover && pageNum === 1) {
+                continue; // Skip cover
+            }
+            textToDraw = toRoman(pageNum, romStyle === 'lower');
+            posChoice = romPos;
+        } 
+        // Section 2: Arabic
+        else if (pageNum >= numStart) {
+            const currentNum = numValInit + (pageNum - numStart);
+            textToDraw = String(currentNum);
+            posChoice = numPos;
+        }
+        
+        if (textToDraw) {
+            const textWidth = font.widthOfTextAtSize(textToDraw, fontSize);
+            let x = (width - textWidth) / 2;
+            let y = 30; // default bottom
+            
+            if (posChoice === 'top-right') {
+                x = width - textWidth - 50;
+                y = height - 35;
+            } else if (posChoice === 'bottom-right') {
+                x = width - textWidth - 50;
+                y = 30;
+            } else if (posChoice === 'bottom-center') {
+                x = (width - textWidth) / 2;
+                y = 30;
+            }
+            
+            page.drawText(textToDraw, {
+                x, y,
+                size: fontSize,
+                font: font,
+                color: rgb(0.1, 0.1, 0.1)
+            });
+        }
+    }
+    
+    updateGlobalProgress(90, 'Menyimpan hasil penomoran...');
+    const finalBytes = await doc.save();
+    const outBlob = new Blob([finalBytes], { type: 'application/pdf' });
+    
+    updateProgress(0, 100, 'Selesai!');
+    updateGlobalProgress(100, 'Selesai!');
+    downloadBlob(outBlob, `KiLat_Skripsi_Numbered_${f.name}`);
+    showToast('Nomor halaman skripsi berhasil disisipkan rapi!', 'success');
+}
+
+// -------------------------------------------------------------
+// 4. WATERMARK PROTEKSI DOKUMEN (KTP/KTM/BERKAS)
+// -------------------------------------------------------------
+async function executeIdWatermark() {
+    let text = document.getElementById('opt-id-wm-text')?.value || 'HANYA UNTUK VERIFIKASI';
+    const addDate = document.getElementById('opt-id-wm-date')?.checked ?? true;
+    if (addDate) {
+        const now = new Date();
+        const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()}`;
+        text += ` - ${dateStr}`;
+    }
+    
+    const style = document.getElementById('opt-id-wm-style')?.value || 'diagonal';
+    const colorHex = document.getElementById('opt-id-wm-color')?.value || '#dc2626';
+    const opacity = parseInt(document.getElementById('opt-id-wm-opacity')?.value || '35') / 100;
+    
+    const hexToRgb = (hex) => {
+        const res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return res ? {
+            r: parseInt(res[1], 16) / 255,
+            g: parseInt(res[2], 16) / 255,
+            b: parseInt(res[3], 16) / 255
+        } : { r: 0.86, g: 0.15, b: 0.15 };
+    };
+    const rgbColor = hexToRgb(colorHex);
+    
+    let processedFiles = [];
+    const totalFiles = currentFiles.length;
+    
+    for (let i = 0; i < totalFiles; i++) {
+        if (cancelRequested) break;
+        const f = currentFiles[i];
+        updateGlobalProgress((i / totalFiles) * 80, `Memberi cap pada ${f.name}...`);
+        
+        if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+            // PDF processing
+            const { PDFDocument, StandardFonts, rgb, degrees } = PDFLib;
+            const bytes = await f.arrayBuffer();
+            const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+            const font = await doc.embedFont(StandardFonts.HelveticaBold);
+            const pages = doc.getPages();
+            
+            pages.forEach(page => {
+                const { width, height } = page.getSize();
+                
+                if (style === 'diagonal') {
+                    const fontSize = Math.max(16, Math.min(32, Math.floor(width / (text.length * 0.45))));
+                    const textWidth = font.widthOfTextAtSize(text, fontSize);
+                    page.drawText(text, {
+                        x: (width - textWidth * 0.7) / 2,
+                        y: height / 2,
+                        size: fontSize,
+                        font,
+                        color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+                        opacity,
+                        rotate: degrees(35)
+                    });
+                } else if (style === 'tiled') {
+                    const fontSize = 14;
+                    for (let x = -width; x < width * 2; x += 220) {
+                        for (let y = -height; y < height * 2; y += 120) {
+                            page.drawText(text, {
+                                x, y,
+                                size: fontSize,
+                                font,
+                                color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+                                opacity,
+                                rotate: degrees(30)
+                            });
+                        }
+                    }
+                } else if (style === 'bottom-bar') {
+                    const fontSize = 12;
+                    page.drawRectangle({
+                        x: 0, y: 0,
+                        width: width, height: 35,
+                        color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+                        opacity: 0.15
+                    });
+                    page.drawText(text, {
+                        x: 20, y: 12,
+                        size: fontSize,
+                        font,
+                        color: rgb(rgbColor.r, rgbColor.g, rgbColor.b),
+                        opacity: Math.min(1.0, opacity + 0.3)
+                    });
+                }
+            });
+            
+            const outBytes = await doc.save();
+            processedFiles.push({
+                name: `KiLat_Protected_${f.name}`,
+                blob: new Blob([outBytes], { type: 'application/pdf' })
+            });
+            
+        } else {
+            // Image processing (Canvas)
+            const img = new Image();
+            const url = URL.createObjectURL(f);
+            await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = colorHex;
+            
+            if (style === 'diagonal') {
+                const fontSize = Math.max(20, Math.min(60, Math.floor(canvas.width / (text.length * 0.5))));
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(-35 * Math.PI / 180);
+                ctx.textAlign = 'center';
+                ctx.fillText(text, 0, 0);
+            } else if (style === 'tiled') {
+                const fontSize = Math.max(14, Math.floor(canvas.width / 35));
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                ctx.rotate(-25 * Math.PI / 180);
+                for (let x = -canvas.width; x < canvas.width * 2; x += fontSize * 14) {
+                    for (let y = -canvas.height; y < canvas.height * 2; y += fontSize * 4) {
+                        ctx.fillText(text, x, y);
+                    }
+                }
+            } else if (style === 'bottom-bar') {
+                ctx.restore();
+                ctx.save();
+                const barH = Math.max(40, canvas.height * 0.08);
+                ctx.fillStyle = colorHex;
+                ctx.globalAlpha = 0.2;
+                ctx.fillRect(0, canvas.height - barH, canvas.width, barH);
+                ctx.globalAlpha = Math.min(1.0, opacity + 0.4);
+                const fontSize = Math.max(14, Math.floor(barH * 0.4));
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText(text, canvas.width / 2, canvas.height - barH / 2 + fontSize / 3);
+            }
+            ctx.restore();
+            URL.revokeObjectURL(url);
+            
+            const outBlob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+            processedFiles.push({
+                name: `KiLat_Protected_${f.name.replace(/\.[^/.]+$/, "")}.jpg`,
+                blob: outBlob
+            });
+        }
+        updateProgress(i, 100, 'Cap selesai');
+    }
+    
+    if (processedFiles.length > 0) {
+        updateGlobalProgress(95, 'Menyimpan file hasil...');
+        await createZipDownload(processedFiles, 'KiLat_Protected_Documents.zip');
+        showToast('Dokumen berhasil diberi watermark proteksi!', 'success');
+    }
+}
+
+// -------------------------------------------------------------
+// 5. DOCUMENT SCANNER FILTER (FOTO HP KE DOKUMEN BERSIH)
+// -------------------------------------------------------------
+async function executeDocScanner() {
+    const filter = document.getElementById('opt-scanner-filter')?.value || 'magic_bw';
+    const outputFormat = document.getElementById('opt-scanner-output')?.value || 'pdf';
+    const paperSize = document.getElementById('opt-scanner-paper')?.value || 'A4';
+    
+    const { PDFDocument } = PDFLib;
+    let pdfDoc = outputFormat === 'pdf' ? await PDFDocument.create() : null;
+    let processedImages = [];
+    const totalFiles = currentFiles.length;
+    
+    for (let i = 0; i < totalFiles; i++) {
+        if (cancelRequested) break;
+        const f = currentFiles[i];
+        
+        updateGlobalProgress((i / totalFiles) * 80, `Memfilter foto ${f.name}...`);
+        updateProgress(i, 30, 'Memproses scan...');
+        
+        const img = new Image();
+        const url = URL.createObjectURL(f);
+        await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = imgData.data;
+        const len = d.length;
+        
+        if (filter === 'magic_bw') {
+            // Adaptive threshold & background whitening
+            for (let j = 0; j < len; j += 4) {
+                const lum = 0.299 * d[j] + 0.587 * d[j+1] + 0.114 * d[j+2];
+                if (lum > 175) {
+                    // Make paper background pure white
+                    d[j] = d[j+1] = d[j+2] = 255;
+                } else {
+                    // Darken text with high contrast
+                    const dark = Math.max(0, Math.min(255, (lum - 35) * 1.6));
+                    d[j] = d[j+1] = d[j+2] = dark;
+                }
+            }
+        } else if (filter === 'grayscale') {
+            // High contrast smooth grayscale
+            for (let j = 0; j < len; j += 4) {
+                const lum = 0.299 * d[j] + 0.587 * d[j+1] + 0.114 * d[j+2];
+                const enhanced = Math.max(0, Math.min(255, (lum - 20) * 1.25));
+                d[j] = d[j+1] = d[j+2] = enhanced;
+            }
+        } else if (filter === 'color_boost') {
+            // Color scan: whiten background while preserving colors
+            for (let j = 0; j < len; j += 4) {
+                const r = d[j], g = d[j+1], b = d[j+2];
+                const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
+                if (lum > 185 && maxDiff < 25) {
+                    // Neutral background
+                    d[j] = d[j+1] = d[j+2] = 255;
+                } else {
+                    // Boost saturation
+                    d[j] = Math.min(255, r * 1.15);
+                    d[j+1] = Math.min(255, g * 1.15);
+                    d[j+2] = Math.min(255, b * 1.15);
+                }
+            }
+        }
+        
+        ctx.putImageData(imgData, 0, 0);
+        URL.revokeObjectURL(url);
+        
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.90));
+        
+        if (outputFormat === 'pdf') {
+            const imgBuffer = await blob.arrayBuffer();
+            const embedded = await pdfDoc.embedJpg(imgBuffer);
+            
+            let pWidth = embedded.width;
+            let pHeight = embedded.height;
+            
+            if (paperSize === 'A4') {
+                pWidth = 595.28;
+                pHeight = 841.89;
+                const scale = Math.min((pWidth - 40) / embedded.width, (pHeight - 40) / embedded.height);
+                const drawW = embedded.width * scale;
+                const drawH = embedded.height * scale;
+                const page = pdfDoc.addPage([pWidth, pHeight]);
+                page.drawImage(embedded, {
+                    x: (pWidth - drawW) / 2,
+                    y: (pHeight - drawH) / 2,
+                    width: drawW,
+                    height: drawH
+                });
+            } else {
+                const page = pdfDoc.addPage([pWidth, pHeight]);
+                page.drawImage(embedded, { x: 0, y: 0, width: pWidth, height: pHeight });
+            }
+        } else {
+            processedImages.push({
+                name: `KiLat_Scan_${f.name.replace(/\.[^/.]+$/, "")}.jpg`,
+                blob: blob
+            });
+        }
+        
+        updateProgress(i, 100, 'Terscan jernih');
+    }
+    
+    updateGlobalProgress(95, 'Menyimpan dokumen scan...');
+    if (outputFormat === 'pdf' && pdfDoc) {
+        const finalBytes = await pdfDoc.save();
+        downloadBlob(new Blob([finalBytes], { type: 'application/pdf' }), 'KiLat_Scanned_Document.pdf');
+        showToast('Dokumen scan berhasil dibuat ke format PDF rapi!', 'success');
+    } else if (processedImages.length > 0) {
+        await createZipDownload(processedImages, 'KiLat_Scanned_Images.zip');
+        showToast('Foto dokumen berhasil dibersihkan!', 'success');
+    }
+}
+
+// -------------------------------------------------------------
+// 6. OCR LOCAL (GAMBAR KE TEKS)
+// -------------------------------------------------------------
+async function executeOcrTool() {
+    const f = currentFiles[0];
+    if (!f) return;
+    
+    if (typeof Tesseract === 'undefined') {
+        showToast('Memuat mesin OCR Tesseract...', 'info');
+        // Dynamic load fallback
+        await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+            s.onload = res;
+            s.onerror = () => rej(new Error('Gagal memuat pustaka OCR'));
+            document.head.appendChild(s);
+        });
+    }
+    
+    const lang = document.getElementById('opt-ocr-lang')?.value || 'ind+eng';
+    updateGlobalProgress(15, 'Mempersiapkan OCR lokal di browser...');
+    updateProgress(0, 15, 'Membaca file...');
+    
+    let imageSource = null;
+    let urlToRevoke = null;
+    
+    if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+        updateGlobalProgress(25, 'Merender halaman 1 PDF ke gambar...');
+        const bytes = await f.arrayBuffer();
+        const pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+        const page = await pdfDoc.getPage(1);
+        const vp = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        imageSource = canvas;
+    } else {
+        urlToRevoke = URL.createObjectURL(f);
+        imageSource = urlToRevoke;
+    }
+    
+    try {
+        updateGlobalProgress(40, 'Menjalankan pengenalan teks...');
+        
+        const worker = await Tesseract.createWorker(lang, 1, {
+            logger: m => {
+                if (m.status === 'recognizing text') {
+                    const pct = Math.floor(m.progress * 100);
+                    updateProgress(0, Math.min(95, 30 + Math.floor(pct * 0.65)), `Membaca: ${pct}%`);
+                    updateGlobalProgress(Math.min(95, 30 + Math.floor(pct * 0.65)), `Mengenali teks: ${pct}%`);
+                }
+            }
+        });
+        
+        const ret = await worker.recognize(imageSource);
+        await worker.terminate();
+        
+        if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
+        
+        const resultText = ret.data.text;
+        
+        // Populate and reveal result area
+        const resultBox = document.getElementById('ocr-result-box');
+        const txtArea = document.getElementById('ocr-extracted-text');
+        if (resultBox && txtArea) {
+            txtArea.value = resultText;
+            resultBox.classList.remove('hidden');
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        updateProgress(0, 100, `Selesai (${resultText.length} karakter)`);
+        updateGlobalProgress(100, 'Ekstraksi teks selesai!');
+        showToast('Teks berhasil diekstrak! Anda bisa langsung menyalinnya.', 'success');
+        
+    } catch (err) {
+        if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
+        console.error(err);
+        throw err;
+    }
+}
+
+// Export to window
+window.processStudentTool = processStudentTool;
+window.setTargetPdfPreset = setTargetPdfPreset;
+window.switchSigTab = switchSigTab;
+window.initSignaturePad = initSignaturePad;
+window.clearSignaturePad = clearSignaturePad;
+window.setSigColor = setSigColor;
+window.setWatermarkPreset = setWatermarkPreset;
+window.setScannerPreset = setScannerPreset;
+window.copyOcrResult = copyOcrResult;
+window.downloadOcrResult = downloadOcrResult;
+
+
+        function playThunderSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const bufferSize = Math.floor(ctx.sampleRate * 1.5);
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                let lastOut = 0.0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    data[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = data[i];
+                    data[i] *= 3.5;
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(380, ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 1.2);
+                
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.01, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                noise.start();
+                noise.stop(ctx.currentTime + 1.5);
+            } catch (e) {
+                console.warn('Audio error', e);
+            }
+        }
+
         window.onload = initApp;
     </script>
+
 </body>
 </html>

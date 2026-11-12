@@ -1,0 +1,73 @@
+/* custom.css – Desain Humanis & Interaktif untuk KiLat (Tema Hijau Harmonis) */
+
+/* Efek Hover Humanis pada Setiap Tombol */
+button:not(:disabled) {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.05);
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px) scale(0.97);
+}
+
+/* Sidebar Navigation Items */
+.sidebar-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-item:hover {
+  transform: translateX(3px);
+  background-color: rgba(22, 163, 74, 0.08);
+}
+
+.dark .sidebar-item:hover {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+/* Kartu Tools Interaktif */
+.card-hover {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px) scale(1.015) !important;
+  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(22, 163, 74, 0.25) !important;
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(34, 197, 94, 0.35) !important;
+}
+
+/* Dropzone Hover */
+.premium-dropzone {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.premium-dropzone:hover {
+  transform: scale(1.01);
+  border-color: #16a34a;
+}
+
+.dark .premium-dropzone:hover {
+  border-color: #4ade80;
+}
+
+/* Signature Pad Canvas Styling */
+#sig-pad-canvas {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* Badge pulse animation */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+.student-badge-pulse {
+  animation: softPulse 2.5s infinite ease-in-out;
+}

@@ -36,6 +36,16 @@ Bayangkan memiliki studio pemrosesan file lengkap yang berjalan di browser Anda,
 
 ## 🎯 Fitur Unggulan
 
+### 🎓 Zona Mahasiswa & Dokumen Kampus (Baru!)
+| Fitur | Detail |
+|-------|--------|
+| **Kompres PDF Target Ukuran** | Preset 300KB (SIAKAD), 500KB (Beasiswa/CPNS), 1MB (MSIB), 2MB (Classroom), atau custom |
+| **Tanda Tangan Dokumen** | Gambar tanda tangan di layar atau upload PNG untuk ditempel di lembar pengesahan/surat |
+| **Nomor Halaman Skripsi** | Format gabungan otomatis: Romawi (`i, ii..`) lembar awal + Angka Arab (`1, 2..`) untuk Bab isi |
+| **Watermark Proteksi KTP/KTM** | Cap diagonal / pola berulang anti-pinjol ("HANYA UNTUK PERSYARATAN BEASISWA") + auto tanggal |
+| **Scanner Dokumen (Foto HP)** | Filter cerdas Magic B&W & Grayscale untuk membersihkan bayangan kertas foto kamera |
+| **OCR Gambar ke Teks** | Ekstrak teks bahasa Indonesia & Inggris 100% lokal via WebAssembly Tesseract.js |
+
 ### 📸 Kompresi Gambar
 | Fitur | Detail |
 |-------|--------|
@@ -101,7 +111,8 @@ Bayangkan memiliki studio pemrosesan file lengkap yang berjalan di browser Anda,
 
 ### Library & API
 - **[pdf-lib](https://pdf-lib.js.org/)** — Manipulasi PDF lengkap
-- **[pdf.js](https://mozilla.github.io/pdf.js/)** — Render PDF ke gambar
+- **[pdf.js](https://mozilla.github.io/pdf.js/)** — Render PDF ke gambar & kompresi target
+- **[Tesseract.js](https://tesseract.projectnaptha.com/)** — Optical Character Recognition (OCR) 100% lokal di browser
 - **[JSZip](https://stuk.github.io/jszip/)** — Kompresi batch ke ZIP
 - **[UPNG.js](https://github.com/photopea/UPNG.js)** — Kompresi PNG lossless/lossy
 - **[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)** — Ekstraksi & konversi audio
