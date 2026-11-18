@@ -185,3 +185,11 @@ Tailwind dibangun lokal: dari folder `tools/` jalankan
 - **Hapus Tema Gelap:** Menghapus mode gelap dan pengalih tema di pengaturan; antarmuka kini memakai satu tema terang yang konsisten.
 - **Palet Warna Humanis:** Latar hangat alabaster (`#f6f7f2`), sidebar sage lembut (`#eef2ea`), border batu hangat (`#dfe4d8`), dan aksen hijau hutan organik (`#15803d`) dengan kontras teks tinggi.
 - **Optimalisasi Tampilan Mobile:** Memperbaiki ukuran target sentuh (`44×44 px` pada layar sentuh), dukungan `safe-area-inset-*` dan `100dvh`/`100svh`, tipografi `clamp()` & `text-wrap: balance/pretty`, header mobile dengan branding, serta tombol aksi responsif penuh.
+
+---
+
+## 💖 Dukung Proyek Ini
+
+Jika **KiLat** bermanfaat bagi Anda, dukungan Anda melalui **Saweria** akan sangat membantu pengembangan dan pemeliharaan proyek ini:
+
+[![Dukung via Saweria](https://img.shields.io/badge/💖%20Dukung%20via-Saweria-FAAD14?style=for-the-badge)](https://saweria.co/jaizlana)
