@@ -1,5 +1,5 @@
 /* KiLat service worker — cache-first untuk aset lokal agar aplikasi bisa dipakai offline. */
-const VERSION = 'kilat-v2.2.0';
+const VERSION = 'kilat-v2.3.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'icon.svg',
   'vendor/tailwind.css', 'vendor/fa/css/all.min.css',

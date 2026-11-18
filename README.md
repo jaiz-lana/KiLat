@@ -1,7 +1,7 @@
 # KiLat
 
 <div align="center">
-  <img src="https://img.shields.io/badge/version-2.2.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.3.0-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
   <img src="https://img.shields.io/badge/Offline-Ready-FFD700.svg" alt="Offline Ready">
@@ -176,3 +176,12 @@ Tailwind dibangun lokal: dari folder `tools/` jalankan
 - **DOCX ↔ PDF (`docx2pdf`, `pdf2docx`):** Konversi `.docx` ke PDF (via `mammoth` + `html2canvas` + `jsPDF`) dan PDF ke `.docx` yang dapat diedit (via `pdf.js` + `docx`), lengkap dengan fallback gambar untuk halaman hasil scan.
 - **Drag & Drop Tanda Tangan:** Pratinjau interaktif halaman PDF dengan kotak tanda tangan yang dapat digeser dan diubah ukurannya (mouse & sentuh).
 - **Pemrosesan Batch Penuh:** Seluruh alat kini mendukung unggah banyak file sekaligus (`multiple: true`) dengan unduhan arsip ZIP otomatis untuk hasil jamak.
+
+
+---
+
+## 🆕 Changelog v2.3.0
+
+- **Hapus Tema Gelap:** Menghapus mode gelap dan pengalih tema di pengaturan; antarmuka kini memakai satu tema terang yang konsisten.
+- **Palet Warna Humanis:** Latar hangat alabaster (`#f6f7f2`), sidebar sage lembut (`#eef2ea`), border batu hangat (`#dfe4d8`), dan aksen hijau hutan organik (`#15803d`) dengan kontras teks tinggi.
+- **Optimalisasi Tampilan Mobile:** Memperbaiki ukuran target sentuh (`44×44 px` pada layar sentuh), dukungan `safe-area-inset-*` dan `100dvh`/`100svh`, tipografi `clamp()` & `text-wrap: balance/pretty`, header mobile dengan branding, serta tombol aksi responsif penuh.
