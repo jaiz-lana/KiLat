@@ -1,0 +1,14 @@
+{
+  "name": "KiLat - Alat Pemrosesan Lokal",
+  "short_name": "KiLat",
+  "description": "Kompres, edit, dan konversi PDF, gambar, serta audio 100% di browser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#08140c",
+  "theme_color": "#16a34a",
+  "lang": "id",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

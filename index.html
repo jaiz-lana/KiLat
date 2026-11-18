@@ -18,12 +18,18 @@
         })();
     </script>
 
-    <!-- Tailwind CSS V3 -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-    
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#16a34a">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icon.svg">
+
+    <!-- Tailwind CSS V3 (dibangun lokal, lihat tools/) -->
+    <link rel="stylesheet" href="vendor/tailwind.css">
+
+    <!-- FontAwesome (lokal) -->
+    <link rel="stylesheet" href="vendor/fa/css/all.min.css">
+
     <!-- Humanistic Styles -->
     
     
@@ -33,39 +39,18 @@
     <!-- ========================= -->
     <!-- CORE LIBRARIES (ENGINE)   -->
     <!-- ========================= -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script src="https://unpkg.com/upng-js@2.1.0/UPNG.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="vendor/pdf-lib.min.js"></script>
+    <script src="vendor/jszip.min.js"></script>
+    <script src="vendor/pdf.min.js"></script>
+    <script src="vendor/pako.min.js"></script>
+    <script src="vendor/UPNG.js"></script>
+    <script src="vendor/tesseract/tesseract.min.js"></script>
 
     <!-- ========================= -->
     <!-- CONFIGURATION & STYLES    -->
     <!-- ========================= -->
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Plus Jakarta Sans', 'sans-serif']
-                    },
-                    colors: {
-                        brand: { 
-                            green: '#16a34a', 
-                            greenLight: '#22c55e',
-                            teal: '#0d9488',
-                            dark: '#08140c', 
-                            sidebar: '#040a06', 
-                            card: '#0e1f14', 
-                            cardLight: '#ffffff' 
-                        }
-                    }
-                }
-            }
-        }
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
     </script>
 
     <style>
@@ -257,7 +242,7 @@ button:not(:disabled):active {
             <div class="text-7xl text-brand-green drop-shadow-[0_0_30px_rgba(22,163,74,0.6)] animate-pulse">
                 <i class="fas fa-bolt"></i>
             </div>
-            <h1 class="font-heading font-extrabold text-5xl text-slate-900 dark:text-white tracking-tight">Ki<span class="font-light">Lat</span></h1>
+            <div class="font-heading font-extrabold text-5xl text-slate-900 dark:text-white tracking-tight" role="presentation">Ki<span class="font-light">Lat</span></div>
         </div>
     </div>
 
@@ -285,7 +270,7 @@ button:not(:disabled):active {
                 </div>
                 <span class="font-heading font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">Ki<span class="font-light">Lat</span></span>
             </div>
-            <button class="ml-auto lg:hidden text-slate-500" onclick="toggleSidebar()"><i class="fas fa-times text-xl"></i></button>
+            <button class="ml-auto lg:hidden text-slate-500" aria-label="Tutup menu" onclick="toggleSidebar()"><i class="fas fa-times text-xl"></i></button>
         </div>
 
         <!-- Sidebar Navigation -->
@@ -332,7 +317,7 @@ button:not(:disabled):active {
         <!-- Top Navbar -->
         <header class="h-20 flex items-center justify-between px-4 lg:px-8 bg-white/80 dark:bg-brand-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/50 z-30">
             <div class="flex items-center gap-4">
-                <button class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300" onclick="toggleSidebar()">
+                <button class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300" aria-label="Buka menu" aria-controls="sidebar" onclick="toggleSidebar()">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h2 id="page-title" class="font-heading text-xl font-bold text-slate-800 dark:text-white hidden sm:block" data-i18n="navHome">Beranda</h2>
@@ -476,7 +461,7 @@ button:not(:disabled):active {
     <!-- SETTINGS MODAL (Language & Theme) -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 relative">
-            <button onclick="document.getElementById('settings-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            <button onclick="document.getElementById('settings-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white" aria-label="Tutup pengaturan"><i class="fas fa-times text-xl"></i></button>
             
             <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                 <i class="fas fa-cog text-brand-green"></i> <span data-i18n="btnSettings">Pengaturan</span>
@@ -636,6 +621,7 @@ button:not(:disabled):active {
             { id: 'thesis_page_num', title: 'Nomor Halaman Skripsi', icon: 'fas fa-book-open', type: 'student_action', accept: '.pdf', multiple: false, needsInput: 'thesis_num_options', inputLabel: 'Pilih File Naskah / Skripsi PDF', desc: 'Format otomatis: Romawi (i, ii) lembar awal + Angka Arab (1, 2) untuk Bab isi.', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
             { id: 'id_watermark', title: 'Watermark KTP & Dokumen', icon: 'fas fa-id-card', type: 'student_action', accept: 'image/jpeg, image/png, image/webp, .pdf', multiple: true, needsInput: 'id_watermark_options', inputLabel: 'Pilih Foto/Scan KTP, KTM, atau Dokumen', desc: 'Cap pelindung diagonal anti-pinjol / anti-salah guna untuk verifikasi beasiswa/magang.', colorClass: 'text-rose-500 bg-rose-100 dark:bg-rose-500/20' },
             { id: 'doc_scanner', title: 'Scanner Dokumen (Foto HP)', icon: 'fas fa-camera-retro', type: 'student_action', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'scanner_options', inputLabel: 'Pilih Foto Kertas / Tugas Tulisan Tangan', desc: 'Bersihkan bayangan gelap & jadikan hitam-putih tajam/grayscale ala CamScanner.', colorClass: 'text-amber-500 bg-amber-100 dark:bg-amber-500/20' },
+            { id: 'photo_resize', title: 'Ubah Ukuran & Potong Foto', icon: 'fas fa-crop-alt', type: 'student_action', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'photo_options', inputLabel: 'Pilih Pas Foto / Foto Dokumen', desc: 'Preset 2x3, 3x4, 4x6 cm (300 DPI) + batas ukuran KB untuk SIAKAD/CPNS/beasiswa.', colorClass: 'text-pink-500 bg-pink-100 dark:bg-pink-500/20' },
             { id: 'ocr_tool', title: 'OCR Gambar ke Teks', icon: 'fas fa-font', type: 'student_action', accept: 'image/jpeg, image/png, image/webp, .pdf', multiple: false, needsInput: 'ocr_options', inputLabel: 'Pilih Scan Halaman Buku / Jurnal', desc: 'Ekstrak dan salin teks bahasa Indonesia/Inggris secara lokal tanpa kirim ke server.', colorClass: 'text-cyan-500 bg-cyan-100 dark:bg-cyan-500/20' }
         ];
 
@@ -647,7 +633,7 @@ button:not(:disabled):active {
         ];
 
         const extractData = [
-            { id: 'extract_audio', title: 'Ekstrak Audio', icon: 'fas fa-file-audio', type: 'extract_real', accept: 'video/mp4, video/avi, video/webm, video/mov, video/quicktime', multiple: true, needsInput: 'audio_options', inputLabel: 'Pilih File Video', desc: 'Ambil suara dari video (WAV, MP3, AAC, FLAC).', colorClass: 'text-purple-500 bg-purple-100 dark:bg-purple-500/20' }
+            { id: 'extract_audio', title: 'Ekstrak Audio', icon: 'fas fa-file-audio', type: 'extract_real', accept: 'video/mp4, video/avi, video/webm, video/mov, video/quicktime', multiple: true, needsInput: 'audio_options', inputLabel: 'Pilih File Video', desc: 'Ambil suara dari video (WAV, M4A/AAC, WebM/Opus).', colorClass: 'text-purple-500 bg-purple-100 dark:bg-purple-500/20' }
         ];
 
         const pdfData = [
@@ -659,7 +645,7 @@ button:not(:disabled):active {
             { id: 'add_page_num', title: 'Nomor Halaman', icon: 'fas fa-list-ol', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'pagenum_options', inputLabel: 'Pilih File PDF', desc: 'Sisipkan nomor otomatis', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
             { id: 'pdf2jpg', title: 'PDF ke JPG', icon: 'fas fa-file-image', type: 'real_pdf2image', accept: '.pdf', multiple: false, needsInput: 'pdf2image_options', inputLabel: 'Pilih File PDF', desc: 'Render PDF menjadi gambar HD', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
             { id: 'jpg2pdf', title: 'JPG ke PDF', icon: 'fas fa-images', type: 'real_pdf', accept: 'image/jpeg, image/png', multiple: true, needsInput: 'jpg2pdf_options', inputLabel: 'Pilih File Gambar', desc: 'Ubah foto jadi dokumen', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
-            { id: 'compress_pdf', title: 'Kompres PDF', icon: 'fas fa-compress', type: 'real_pdf', accept: '.pdf', multiple: true, inputLabel: 'Pilih File PDF', desc: 'Optimasi ukuran file PDF', colorClass: 'text-green-500 bg-green-100 dark:bg-green-500/20' }
+            { id: 'compress_pdf', title: 'Kompres PDF', icon: 'fas fa-compress', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'pdf_compress_options', inputLabel: 'Pilih File PDF', desc: 'Optimasi ukuran file PDF', colorClass: 'text-green-500 bg-green-100 dark:bg-green-500/20' }
         ];
 
         // System Maps
@@ -672,6 +658,8 @@ button:not(:disabled):active {
         let isProcessing = false;
         let cancelRequested = false;
         let abortController = null;
+        let runFailed = false;
+        let lastInputSize = 0;
 
         // --- 3. UI INITIALIZATION ---
         function initApp() {
@@ -710,6 +698,17 @@ button:not(:disabled):active {
             
             // Setup initial view
             filterView('all', document.querySelector('.sidebar-item.active'));
+            closeSidebar();
+            const fromHash = () => {
+                const id = location.hash.replace(/^#\/?/, '');
+                if (id && toolMap[id]) { if (!isProcessing) openWorkspace(id); }
+                else if (currentTool && !isProcessing) closeWorkspace();
+            };
+            window.addEventListener('hashchange', fromHash);
+            if (location.hash) fromHash();
+            if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+                navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW gagal', err));
+            }
         }
 
         function prevDef(e) { e.preventDefault(); e.stopPropagation(); }
@@ -793,6 +792,11 @@ button:not(:disabled):active {
         } catch (e) {}
 
         // --- NAVIGATION ---
+        function closeSidebar() {
+            const sb = document.getElementById('sidebar'), ov = document.getElementById('mobile-overlay');
+            sb.classList.add('-translate-x-full'); ov.classList.add('hidden');
+        }
+
         function toggleSidebar() {
             const sb = document.getElementById('sidebar'), ov = document.getElementById('mobile-overlay');
             if (sb.classList.contains('-translate-x-full')) {
@@ -829,7 +833,7 @@ button:not(:disabled):active {
             document.getElementById('page-title').textContent = title;
 
             // Close sidebar on mobile
-            if(window.innerWidth < 1024) toggleSidebar();
+            if(window.innerWidth < 1024) closeSidebar();
         }
 
         // --- RENDER GRID ---
@@ -859,8 +863,20 @@ button:not(:disabled):active {
                 return;
             }
             
+            const rm = document.getElementById('result-modal'); if (rm) rm.querySelector('#result-close').click();
             currentTool = tool; 
             currentFiles = [];
+            fileNamesSet.clear();
+            runFailed = false;
+            // Reset total state alat sebelumnya (opsi, tanda tangan, tombol batal)
+            document.getElementById('ws-options-area').innerHTML = '';
+            if (typeof sigPadState !== 'undefined') {
+                sigPadState.canvas = null; sigPadState.ctx = null; sigPadState.drawing = false;
+                sigPadState.hasDrawn = false; sigPadState.uploadedBlob = null;
+            }
+            const cb = document.getElementById('ws-cancel-btn'); cb.disabled = false;
+            document.getElementById('ws-action-btn').disabled = false;
+            if (location.hash !== '#/' + toolId) history.pushState(null, '', '#/' + toolId);
             
             document.getElementById('hero-section').style.display = 'none';
             document.querySelectorAll('.tool-group').forEach(el => el.style.display = 'none');
@@ -895,6 +911,7 @@ button:not(:disabled):active {
             document.getElementById('workspace-container').classList.add('hidden');
             
             // Return to active filter
+            if (location.hash.startsWith('#/')) history.replaceState(null, '', location.pathname + location.search);
             const activeSidebar = document.querySelector('.sidebar-item.active');
             if(activeSidebar) {
                 const viewId = activeSidebar.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all';
@@ -905,6 +922,8 @@ button:not(:disabled):active {
             
             currentTool = null; 
             currentFiles = [];
+            fileNamesSet.clear();
+            document.getElementById('ws-options-area').innerHTML = '';
             isProcessing = false;
             cancelRequested = false;
             document.getElementById('loading-overlay').classList.remove('active');
@@ -975,10 +994,13 @@ button:not(:disabled):active {
             
             updateFileListUI();
             document.getElementById('ws-action-btn').classList.remove('hidden');
-            // Only render options if not rendered yet or if options area is empty
+            // Render opsi bila belum ada (area dikosongkan setiap alat dibuka)
             if (!document.getElementById('ws-options-area').innerHTML.trim()) {
                 renderOptions();
+            } else {
+                document.getElementById('ws-options-area').style.display = currentTool.needsInput ? 'block' : 'none';
             }
+            if (document.getElementById('page-thumbs')) loadPageThumbs();
         }
 
         function removeFile(index) {
@@ -990,6 +1012,7 @@ button:not(:disabled):active {
             if (currentFiles.length === 0) {
                 document.getElementById('ws-action-btn').classList.add('hidden');
                 document.getElementById('ws-options-area').style.display = 'none';
+                document.getElementById('ws-options-area').innerHTML = '';
                 document.getElementById('ws-file-list').classList.add('hidden');
                 fileNamesSet.clear();
             }
@@ -1021,7 +1044,7 @@ button:not(:disabled):active {
                             <span id="prog-text-${i}" class="text-[10px] font-bold text-slate-500 whitespace-nowrap">${formatBytes(file.size)}</span>
                         </div>
                     </div>
-                    <button onclick="removeFile(${i})" id="btn-remove-${i}" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg shrink-0"><i class="fas fa-times"></i></button>
+                    <button onclick="removeFile(${i})" aria-label="Hapus ${file.name.replace(/"/g, '&quot;')}" id="btn-remove-${i}" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg shrink-0"><i class="fas fa-times"></i></button>
                 </div>`).join('');
         }
 
@@ -1235,7 +1258,7 @@ button:not(:disabled):active {
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblOrientation}</label>
                         <select id="opt-jpg2pdf-orient" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
-                            <option value="portrait">Potrait</option>
+                            <option value="portrait">Potret</option>
                             <option value="landscape">Landscape</option>
                             <option value="auto">Auto</option>
                         </select>
@@ -1252,11 +1275,11 @@ button:not(:disabled):active {
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblFormat}</label>
                         <select id="opt-audio-format" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
-                            <option value="wav">WAV</option>
-                            <option value="mp3">MP3</option>
-                            <option value="aac">AAC</option>
-                            <option value="flac">FLAC</option>
+                            <option value="wav">WAV (tanpa kompresi, paling kompatibel)</option>
+                            <option value="m4a">M4A / AAC (jika didukung browser)</option>
+                            <option value="webm">WebM / Opus (jika didukung browser)</option>
                         </select>
+                        <p class="text-xs text-slate-400 mt-1">Browser tidak dapat membuat MP3/FLAC asli, jadi hanya format yang benar-benar dihasilkan yang ditawarkan. M4A/WebM direkam waktu nyata (selama durasi video).</p>
                     </div>
                     <div id="audio-bitrate-container">
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">${t.lblQualityLabel} (Bitrate) <span id="opt-audio-bitrate-val" class="text-brand-green ml-2">192 kbps</span></label>
@@ -1327,7 +1350,7 @@ button:not(:disabled):active {
                             <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-white relative overflow-hidden" style="touch-action: none;">
                                 <canvas id="sig-pad-canvas" width="460" height="150" class="w-full h-36 cursor-crosshair bg-white"></canvas>
                                 <div class="absolute top-2 right-2 flex gap-1">
-                                    <button type="button" onclick="clearSignaturePad()" class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-md border border-slate-200 shadow-sm">
+                                    <button type="button" aria-label="Hapus tanda tangan" onclick="clearSignaturePad()" class="px-2.5 py-1 text-[11px] font-bold bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-md border border-slate-200 shadow-sm">
                                         <i class="fas fa-redo"></i> Bersihkan
                                     </button>
                                 </div>
@@ -1525,6 +1548,16 @@ button:not(:disabled):active {
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700/40">
                         <div>
+                            <label for="opt-scanner-contrast" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Kontras: <span id="scanner-con-val" class="text-brand-green">100%</span></label>
+                            <input type="range" id="opt-scanner-contrast" min="60" max="180" value="100" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
+                        </div>
+                        <div>
+                            <label for="opt-scanner-threshold" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Ambang putih kertas (Magic B&amp;W): <span id="scanner-thr-val" class="text-brand-green">175</span></label>
+                            <input type="range" id="opt-scanner-threshold" min="110" max="230" value="175" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-700/40">
+                        <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Format Dokumen Output:</label>
                             <select id="opt-scanner-output" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold dark:text-white outline-none">
                                 <option value="pdf" selected>Satukan ke Dokumen PDF (Siap Cetak)</option>
@@ -1571,7 +1604,76 @@ button:not(:disabled):active {
                     </div>
                 </div>`;
             }
+            if (currentTool.needsInput === 'pdf_compress_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label for="opt-pdfc-mode" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Mode Kompresi</label>
+                        <select id="opt-pdfc-mode" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
+                            <option value="light" selected>Ringan — optimasi struktur (teks tetap bisa diseleksi)</option>
+                            <option value="strong">Kuat — halaman dirender ulang jadi gambar (jauh lebih kecil)</option>
+                        </select>
+                    </div>
+                    <div id="pdfc-level-box" class="hidden">
+                        <label for="opt-pdfc-level" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Tingkat Kualitas</label>
+                        <select id="opt-pdfc-level" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
+                            <option value="low">Kualitas tinggi (kompresi lebih sedikit)</option>
+                            <option value="medium" selected>Seimbang</option>
+                            <option value="high">Kecil maksimal (kompresi agresif)</option>
+                        </select>
+                    </div>
+                    <p class="text-xs text-slate-400">Hasil tidak akan lebih besar dari file asli. Jika tidak bisa dikecilkan, Anda akan diberi tahu.</p>
+                </div>`;
+            } else if (currentTool.needsInput === 'photo_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label for="opt-photo-preset" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Ukuran Foto</label>
+                        <select id="opt-photo-preset" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
+                            <option value="354x472" selected>3 × 4 cm (354 × 472 px, 300 DPI)</option>
+                            <option value="472x709">4 × 6 cm (472 × 709 px, 300 DPI)</option>
+                            <option value="236x354">2 × 3 cm (236 × 354 px, 300 DPI)</option>
+                            <option value="custom">Kustom (piksel)</option>
+                        </select>
+                    </div>
+                    <div id="photo-custom-box" class="hidden grid grid-cols-2 gap-3" dir="ltr">
+                        <div><label for="opt-photo-w" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Lebar (px)</label><input type="number" id="opt-photo-w" min="16" max="8000" value="600" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white"></div>
+                        <div><label for="opt-photo-h" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Tinggi (px)</label><input type="number" id="opt-photo-h" min="16" max="8000" value="800" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white"></div>
+                    </div>
+                    <div>
+                        <label for="opt-photo-focus" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Fokus potong vertikal: <span id="photo-focus-val" class="text-brand-green">35%</span> dari atas</label>
+                        <input type="range" id="opt-photo-focus" min="0" max="100" value="35" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
+                        <p class="text-xs text-slate-400 mt-1">35% cocok untuk pas foto (wajah tidak terpotong). Foto dipotong otomatis sesuai rasio.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3" dir="ltr">
+                        <div><label for="opt-photo-bg" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Ubah latar belakang transparan menjadi</label>
+                            <select id="opt-photo-bg" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white"><option value="#ffffff">Putih</option><option value="#dc2626">Merah</option><option value="#2563eb">Biru</option></select></div>
+                        <div><label for="opt-photo-maxkb" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Maks. ukuran file (KB, opsional)</label>
+                            <input type="number" id="opt-photo-maxkb" min="5" placeholder="mis. 100" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white"></div>
+                    </div>
+                </div>`;
+            }
+            if (currentTool.id === 'delete' || currentTool.id === 'rotate') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 mt-4">
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Pilih halaman dari thumbnail</p>
+                    <p class="text-xs text-slate-400 mb-3">Klik halaman untuk memilih/membatalkan. Kolom teks di atas ikut terisi.</p>
+                    <div id="page-thumbs" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-3 max-h-96 overflow-y-auto" role="group" aria-label="Thumbnail halaman"></div>
+                </div>`;
+            }
             area.innerHTML = html;
+            
+            const pdfcMode = document.getElementById('opt-pdfc-mode');
+            if (pdfcMode) pdfcMode.addEventListener('change', e => document.getElementById('pdfc-level-box').classList.toggle('hidden', e.target.value !== 'strong'));
+            const phPreset = document.getElementById('opt-photo-preset');
+            if (phPreset) phPreset.addEventListener('change', e => document.getElementById('photo-custom-box').classList.toggle('hidden', e.target.value !== 'custom'));
+            const phFocus = document.getElementById('opt-photo-focus');
+            if (phFocus) phFocus.addEventListener('input', e => document.getElementById('photo-focus-val').textContent = e.target.value + '%');
+            const scT = document.getElementById('opt-scanner-threshold');
+            if (scT) scT.addEventListener('input', e => document.getElementById('scanner-thr-val').textContent = e.target.value);
+            const scC = document.getElementById('opt-scanner-contrast');
+            if (scC) scC.addEventListener('input', e => document.getElementById('scanner-con-val').textContent = e.target.value + '%');
+            if (document.getElementById('page-thumbs') && currentFiles.length) loadPageThumbs();
             
             // Setup signature pad if needed
             if (currentTool.needsInput === 'signature_options') {
@@ -1645,6 +1747,10 @@ button:not(:disabled):active {
                 showToast(i18n[currentLang].errEmpty, 'error');
                 return;
             }
+            if (currentTool.id === 'merge' && currentFiles.length < 2) {
+                showToast('Pilih minimal 2 file PDF untuk digabungkan', 'error');
+                return;
+            }
             
             const btn = document.getElementById('ws-action-btn');
             const cancelBtn = document.getElementById('ws-cancel-btn');
@@ -1653,6 +1759,8 @@ button:not(:disabled):active {
             
             isProcessing = true;
             cancelRequested = false;
+            runFailed = false;
+            lastInputSize = currentFiles.reduce((a, f) => a + f.size, 0);
             abortController = new AbortController();
             
             btn.disabled = true;
@@ -1669,21 +1777,22 @@ button:not(:disabled):active {
                 });
 
                 if (currentTool.type === 'student_action') await processStudentTool();
-                else if (currentTool.id.startsWith('compress_')) await processImageBatch();
+                else if (currentTool.type === 'real_image') await processImageBatch();
                 else if (currentTool.id === 'extract_audio') await processAudioBatch();
                 else if (currentTool.type.includes('pdf') || currentTool.type === 'real_pdf2image') await processPdfAction();
                 else {
                     showToast('Fungsi belum didukung', 'error');
                 }
                 
-                if (!cancelRequested) {
+                if (!cancelRequested && !runFailed) {
                     showToast(i18n[currentLang].txtDone, 'success');
                 }
                 
             } catch (err) {
                 if (!cancelRequested) {
                     console.error(err);
-                    showToast("Error: " + (err.message || 'Terjadi kesalahan'), "error");
+                    showToast((err.message || 'Terjadi kesalahan'), "error");
+                    currentFiles.forEach((_, i) => updateProgress(i, 0, 'Gagal'));
                 }
             } finally {
                 isProcessing = false;
@@ -1713,7 +1822,7 @@ button:not(:disabled):active {
         }
 
         // --- DOWNLOAD UTILS ---
-        function downloadBlob(blob, filename) {
+        function triggerDownload(blob, filename) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1722,6 +1831,43 @@ button:not(:disabled):active {
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+
+        // Tampilkan pratinjau hasil + tombol unduh (tidak lagi mengunduh otomatis)
+        function downloadBlob(blob, filename) { showResultPreview(blob, filename); }
+
+        function showResultPreview(blob, filename) {
+            const old = document.getElementById('result-modal');
+            if (old) { if (old._url) URL.revokeObjectURL(old._url); old.remove(); }
+            const url = URL.createObjectURL(blob);
+            const m = document.createElement('div');
+            m.id = 'result-modal'; m._url = url;
+            m.className = 'fixed inset-0 z-[900] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm';
+            m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-labelledby', 'result-title');
+            const type = blob.type || '';
+            let preview = '';
+            if (type === 'application/pdf') preview = `<iframe src="${url}" title="Pratinjau PDF" class="w-full h-72 rounded-xl border border-slate-200 dark:border-slate-700 bg-white"></iframe>`;
+            else if (type.startsWith('image/')) preview = `<img src="${url}" alt="Pratinjau hasil" class="max-h-72 mx-auto rounded-xl border border-slate-200 dark:border-slate-700 object-contain">`;
+            else if (type.startsWith('audio/')) preview = `<audio controls src="${url}" class="w-full"></audio>`;
+            else preview = `<div class="py-8 text-center text-slate-400 text-sm"><i class="fas fa-file-archive text-4xl mb-2" aria-hidden="true"></i><p>Pratinjau tidak tersedia untuk tipe ini</p></div>`;
+            const cmp = lastInputSize ? `<p class="text-xs text-slate-500 mt-1">Ukuran: ${formatBytes(lastInputSize)} ➔ <b>${formatBytes(blob.size)}</b></p>` : `<p class="text-xs text-slate-500 mt-1">Ukuran: <b>${formatBytes(blob.size)}</b></p>`;
+            m.innerHTML = `<div class="bg-white dark:bg-brand-card rounded-2xl shadow-2xl w-full max-w-lg p-5 space-y-3 border border-slate-200 dark:border-slate-700">
+                <div><h3 id="result-title" class="font-heading font-bold text-lg text-slate-900 dark:text-white"><i class="fas fa-check-circle text-brand-green" aria-hidden="true"></i> Hasil siap</h3>
+                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate" dir="ltr"></p>${cmp}</div>
+                ${preview}
+                <div class="flex gap-2 justify-end pt-1">
+                    <button type="button" id="result-close" class="px-4 py-2 text-sm font-bold rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">Tutup</button>
+                    <button type="button" id="result-dl" class="px-5 py-2 text-sm font-bold rounded-xl bg-brand-green text-white"><i class="fas fa-download" aria-hidden="true"></i> Unduh</button>
+                </div></div>`;
+            m.querySelector('p.truncate').textContent = filename;
+            const close = () => { URL.revokeObjectURL(url); m.remove(); document.removeEventListener('keydown', esc); };
+            const esc = (e) => { if (e.key === 'Escape') close(); };
+            document.addEventListener('keydown', esc);
+            m.querySelector('#result-close').onclick = close;
+            m.querySelector('#result-dl').onclick = () => { triggerDownload(blob, filename); showToast('Mengunduh ' + filename, 'success'); };
+            m.addEventListener('click', e => { if (e.target === m) close(); });
+            document.body.appendChild(m);
+            m.querySelector('#result-dl').focus();
         }
         
         async function createZipDownload(filesArr, zipName) {
@@ -1987,100 +2133,44 @@ button:not(:disabled):active {
                     let blob;
                     if (audioFormat === 'wav') {
                         blob = bufferToWav(audioBuf);
-                    } else if (audioFormat === 'mp3' || audioFormat === 'aac') {
-                        // Use Web Audio API with MediaRecorder - fallback to WAV if not supported
-                        try {
-                            const mimeType = audioFormat === 'mp3' ? 'audio/mp3' : 'audio/aac';
-                            const audioCtx = new AudioContext({ sampleRate: sampleRate });
-                            const source = audioCtx.createBufferSource();
-                            source.buffer = audioBuf;
-                            const dest = audioCtx.createMediaStreamDestination();
-                            source.connect(dest);
-                            
-                            // Try different mime types
-                            let recorder;
-                            const mimeTypes = [mimeType, 'audio/mpeg', 'audio/mp4', 'audio/webm'];
-                            let supportedMime = null;
-                            for (const mt of mimeTypes) {
-                                if (MediaRecorder.isTypeSupported(mt)) {
-                                    supportedMime = mt;
-                                    break;
-                                }
-                            }
-                            
-                            if (supportedMime) {
-                                recorder = new MediaRecorder(dest.stream, { 
-                                    mimeType: supportedMime, 
-                                    audioBitsPerSecond: targetBitrate * 1000 
-                                });
-                            } else {
-                                // Fallback to WAV
-                                await audioCtx.close();
-                                blob = bufferToWav(audioBuf);
-                                // Use WAV but with proper extension
-                                const ext = audioFormat === 'mp3' ? 'mp3' : 'aac';
-                                // Continue with WAV but rename
-                                const wavBlob = blob;
-                                // We'll keep it as WAV
-                                blob = wavBlob;
-                                // Update progress
-                                updateProgress(i, progressBase + 50, "Menggunakan format WAV (MP3/AAC tidak didukung)");
-                            }
-                            
-                            if (recorder) {
+                    } else {
+                        const cands = audioFormat === 'm4a'
+                            ? ['audio/mp4;codecs=mp4a.40.2', 'audio/mp4']
+                            : ['audio/webm;codecs=opus', 'audio/webm'];
+                        const supported = (window.MediaRecorder && cands.find(m => MediaRecorder.isTypeSupported(m))) || null;
+                        if (!supported) {
+                            blob = bufferToWav(audioBuf);
+                            updateProgress(i, progressBase + 50, `Browser tidak mendukung ${audioFormat.toUpperCase()} — memakai WAV`);
+                            showToast(`Browser tidak mendukung ${audioFormat.toUpperCase()}; hasil disimpan sebagai WAV`, 'info');
+                        } else {
+                            const rctx = new AudioContext({ sampleRate: sampleRate });
+                            try {
+                                const source = rctx.createBufferSource();
+                                source.buffer = audioBuf;
+                                const dest = rctx.createMediaStreamDestination();
+                                source.connect(dest);
+                                const recorder = new MediaRecorder(dest.stream, { mimeType: supported, audioBitsPerSecond: targetBitrate * 1000 });
                                 const chunks = [];
+                                recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
                                 const done = new Promise(r => recorder.onstop = r);
-                                recorder.ondataavailable = e => {
-                                    if (e.data && e.data.size > 0) chunks.push(e.data);
-                                };
-                                recorder.start(100);
+                                const ended = new Promise(r => source.onended = r);
+                                recorder.start(250);
                                 source.start();
-                                
-                                // Wait for audio to finish playing
-                                const duration = audioBuf.duration * 1000 + 500;
-                                await new Promise(r => setTimeout(r, Math.min(duration, 30000)));
-                                
-                                source.stop();
+                                updateProgress(i, progressBase + 40, 'Merekam audio (waktu nyata)...');
+                                await Promise.race([ended, new Promise(r => { const t = setInterval(() => { if (cancelRequested) { clearInterval(t); r(); } }, 200); ended.then(() => clearInterval(t)); })]);
+                                try { source.stop(); } catch (_) {}
                                 recorder.stop();
                                 await done;
-                                
-                                const blobData = new Blob(chunks, { 
-                                    type: supportedMime || 'audio/webm' 
-                                });
-                                // Convert to proper format if needed
-                                if (supportedMime && supportedMime.includes('webm')) {
-                                    // It's WebM, not true MP3/AAC - we'll still use it
-                                    blob = blobData;
-                                } else {
-                                    blob = blobData;
-                                }
-                                await audioCtx.close();
-                            }
-                        } catch (e) {
-                            console.warn('MediaRecorder fallback:', e);
-                            // Fallback to WAV
-                            if (ctx) await ctx.close();
-                            ctx = new AudioContext({ sampleRate: sampleRate });
-                            const fallbackBuf = await ctx.decodeAudioData(buf);
-                            blob = bufferToWav(fallbackBuf);
-                            updateProgress(i, progressBase + 50, "Menggunakan format WAV (MP3/AAC tidak didukung)");
+                                blob = new Blob(chunks, { type: supported.split(';')[0] });
+                            } finally { await rctx.close().catch(() => {}); }
                         }
-                    } else if (audioFormat === 'flac') {
-                        // FLAC - use WAV as fallback since browser doesn't support FLAC encoding natively
-                        // But we'll use the WAV data with proper label
-                        const wavBlob = bufferToWav(audioBuf);
-                        // Create a proper FLAC using the WAV data (still WAV internally, but labeled as FLAC)
-                        // We'll use the WAV data as-is since browser can't encode FLAC
-                        blob = wavBlob;
-                        updateProgress(i, progressBase + 50, "Menggunakan format WAV (FLAC tidak didukung natively)");
-                    } else {
-                        blob = bufferToWav(audioBuf);
                     }
                     
                     const sizeInfo = `${formatBytes(currentFiles[i].size)} ➔ ${formatBytes(blob.size)}`;
                     updateProgress(i, 100, sizeInfo);
                     
-                    let extension = audioFormat;
+                    const mt = blob.type || '';
+                    let extension = mt.includes('wav') ? 'wav' : mt.includes('mp4') ? 'm4a' : mt.includes('webm') ? 'webm' : audioFormat;
                     // If we fell back to WAV but user wanted MP3/AAC, keep the extension
                     // but the content is actually WAV
                     processed.push({
@@ -2148,6 +2238,53 @@ button:not(:disabled):active {
             return new Blob([buffer], { type: "audio/wav" });
         }
 
+        // --- PDF HELPERS ---
+        function withTimeout(promise, ms, msg) {
+            let t;
+            return Promise.race([promise, new Promise((_, rej) => { t = setTimeout(() => rej(new Error(msg)), ms); })]).finally(() => clearTimeout(t));
+        }
+
+        async function openPdfJs(bytes) {
+            const task = pdfjsLib.getDocument({ data: bytes.slice(0) });
+            try {
+                return await withTimeout(task.promise, 20000, 'PDF rusak atau tidak dapat dibaca');
+            } catch (e) {
+                try { task.destroy(); } catch (_) {}
+                const n = (e && e.name) || '';
+                if (n === 'PasswordException') throw new Error('PDF diproteksi password');
+                if (n === 'InvalidPDFException' || n === 'MissingPDFException' || n === 'FormatError') throw new Error('File PDF rusak atau tidak valid');
+                throw e;
+            }
+        }
+
+        async function rasterizePdf(pdfDoc, { scale, quality, gray, label, onPage }) {
+            const { PDFDocument } = PDFLib;
+            const out = await PDFDocument.create();
+            for (let n = 1; n <= pdfDoc.numPages; n++) {
+                if (cancelRequested) return null;
+                if (onPage) onPage(n, pdfDoc.numPages, label);
+                const page = await pdfDoc.getPage(n);
+                const base = page.getViewport({ scale: 1.0 });
+                const vp = page.getViewport({ scale });
+                const c = document.createElement('canvas');
+                c.width = Math.max(1, Math.floor(vp.width)); c.height = Math.max(1, Math.floor(vp.height));
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+                await page.render({ canvasContext: ctx, viewport: vp }).promise;
+                if (gray) {
+                    const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
+                    for (let i = 0; i < d.length; i += 4) { const y = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]; d[i] = d[i+1] = d[i+2] = y; }
+                    ctx.putImageData(id, 0, 0);
+                }
+                const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', quality));
+                const img = await out.embedJpg(await blob.arrayBuffer());
+                const np = out.addPage([base.width, base.height]);
+                np.drawImage(img, { x: 0, y: 0, width: base.width, height: base.height });
+                c.width = c.height = 0;
+            }
+            return await out.save({ useObjectStreams: true });
+        }
+
         // --- PDF ENGINE ---
         async function processPdfAction() {
             const { PDFDocument, rgb, degrees } = PDFLib;
@@ -2158,6 +2295,8 @@ button:not(:disabled):active {
                 if (cid === 'merge' || cid === 'compress_pdf' || cid === 'jpg2pdf') {
                     let doc = null;
                     let processed = [];
+                    let skipped = 0;
+                    const failedMsgs = [];
                     
                     if (cid === 'merge' || cid === 'jpg2pdf') {
                         doc = await PDFDocument.create();
@@ -2240,27 +2379,35 @@ button:not(:disabled):active {
                             }
                         } else if (cid === 'compress_pdf') {
                             try {
-                                const p = await PDFDocument.load(bytes, { ignoreEncryption: true });
-                                // Remove metadata
-                                p.setTitle('');
-                                p.setAuthor('');
-                                p.setSubject('');
-                                p.setKeywords([]);
-                                
-                                // Try to compress images if possible
-                                // Note: pdf-lib doesn't support image compression directly,
-                                // but we can remove unused objects
-                                const out = await p.save({ 
-                                    useObjectStreams: true,
-                                    addDefaultPage: false
-                                });
-                                const b = new Blob([out], { type: 'application/pdf' });
-                                const savedPercent = ((1 - b.size / currentFiles[i].size) * 100).toFixed(1);
-                                updateProgress(i, 100, `${formatBytes(currentFiles[i].size)} ➔ ${formatBytes(b.size)} (${savedPercent}%)`);
-                                processed.push({ name: `KiLat_${currentFiles[i].name}`, blob: b });
+                                const mode = document.getElementById('opt-pdfc-mode')?.value || 'light';
+                                const orig = currentFiles[i];
+                                let outBytes;
+                                if (mode === 'strong') {
+                                    const level = document.getElementById('opt-pdfc-level')?.value || 'medium';
+                                    const prm = { low: [1.6, 0.8], medium: [1.25, 0.6], high: [1.0, 0.4] }[level] || [1.25, 0.6];
+                                    const pdfjsDoc = await openPdfJs(bytes);
+                                    outBytes = await rasterizePdf(pdfjsDoc, { scale: prm[0], quality: prm[1], gray: false,
+                                        onPage: (n, t) => updateProgress(i, Math.floor(progressBase + (n / t) * (80 / totalFiles)), `Halaman ${n}/${t}`) });
+                                    if (!outBytes) break;
+                                } else {
+                                    const p = await PDFDocument.load(bytes, { ignoreEncryption: true });
+                                    p.setTitle(''); p.setAuthor(''); p.setSubject(''); p.setKeywords([]);
+                                    p.setProducer('KiLat'); p.setCreator('KiLat');
+                                    outBytes = await p.save({ useObjectStreams: true, addDefaultPage: false });
+                                }
+                                if (outBytes.length >= orig.size) {
+                                    updateProgress(i, 100, `${formatBytes(orig.size)} — sudah optimal, tidak dikecilkan`);
+                                    skipped++;
+                                } else {
+                                    const b = new Blob([outBytes], { type: 'application/pdf' });
+                                    const savedPercent = ((1 - b.size / orig.size) * 100).toFixed(1);
+                                    updateProgress(i, 100, `${formatBytes(orig.size)} ➔ ${formatBytes(b.size)} (-${savedPercent}%)`);
+                                    processed.push({ name: `KiLat_${orig.name}`, blob: b });
+                                }
                             } catch (e) {
                                 console.error(e);
                                 updateProgress(i, 0, "Gagal: " + e.message);
+                                failedMsgs.push(`${currentFiles[i].name}: ${e.message}`);
                             }
                         }
                     }
@@ -2276,15 +2423,17 @@ button:not(:disabled):active {
                             const final = await doc.save();
                             downloadBlob(new Blob([final], { type: 'application/pdf' }), 
                                 cid === 'merge' ? "KiLat_Merged.pdf" : "KiLat_Doc.pdf");
-                            showToast(i18n[currentLang].txtDone, "success");
                         } else {
                             showToast("Tidak ada halaman yang berhasil digabung", "error");
                         }
                     } else if (processed.length > 0) {
                         updateGlobalProgress(95, 'Menyimpan hasil...');
+                        if (failedMsgs.length) showToast(`${failedMsgs.length} file gagal: ${failedMsgs[0]}`, 'error');
                         await createZipDownload(processed, "KiLat_Compressed_PDFs.zip");
+                    } else if (skipped > 0 && failedMsgs.length === 0) {
+                        showToast('PDF sudah optimal; coba mode "Kuat" untuk memperkecil ukuran (teks menjadi gambar).', 'info'); runFailed = true;
                     } else {
-                        showToast("Tidak ada PDF yang berhasil dikompres", "error");
+                        showToast("Gagal mengompres PDF: " + (failedMsgs[0] || 'tidak diketahui'), "error");
                     }
                     return;
                 }
@@ -2540,6 +2689,11 @@ button:not(:disabled):active {
                         return;
                     }
                     
+                    if (set.size >= totalPages) {
+                        showToast("Tidak bisa menghapus semua halaman — sisakan minimal 1 halaman", "error");
+                        return;
+                    }
+                    
                     const sorted = Array.from(set).sort((a, b) => b - a);
                     for (const idx of sorted) {
                         if (cancelRequested) break;
@@ -2668,10 +2822,20 @@ button:not(:disabled):active {
         // --- TOAST & UTILITIES ---
         function showToast(msg, type = 'info') {
             const area = document.getElementById('toast-area');
+            if (type === 'error') runFailed = true;
+            // Jangan tampilkan "sukses" hijau bila proses ini sudah gagal / jangan dobel
+            if (type === 'success' && runFailed) return;
+            const dupe = Array.from(area.children).some(c => c.dataset.msg === msg && c.dataset.type === type);
+            if (dupe) return;
+            if (type === 'success' && Array.from(area.children).some(c => c.dataset.type === 'success' && Date.now() - Number(c.dataset.t) < 1500)) return;
             const t = document.createElement('div');
             t.className = `toast ${type}`;
+            t.dataset.msg = msg; t.dataset.type = type; t.dataset.t = Date.now();
+            t.setAttribute('role', type === 'error' ? 'alert' : 'status');
             let icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
-            t.innerHTML = `<i class="fas ${icon}"></i> <span>${msg}</span>`;
+            const i = document.createElement('i'); i.className = `fas ${icon}`; i.setAttribute('aria-hidden', 'true');
+            const sp = document.createElement('span'); sp.textContent = msg;
+            t.append(i, ' ', sp);
             area.appendChild(t);
             setTimeout(() => { 
                 t.style.opacity = '0'; 
@@ -2818,6 +2982,13 @@ function initSignaturePad() {
     }
 }
 
+function canvasHasInk(canvas) {
+    const d = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+    let ink = 0;
+    for (let i = 3; i < d.length; i += 4) if (d[i] > 20 && ++ink > 30) return true;
+    return false;
+}
+
 function clearSignaturePad() {
     if (!sigPadState.canvas || !sigPadState.ctx) return;
     sigPadState.ctx.clearRect(0, 0, sigPadState.canvas.width, sigPadState.canvas.height);
@@ -2891,7 +3062,100 @@ function downloadOcrResult() {
         return;
     }
     const blob = new Blob([txtArea.value], { type: 'text/plain;charset=utf-8' });
-    downloadBlob(blob, 'KiLat_OCR_Hasil.txt');
+    triggerDownload(blob, 'KiLat_OCR_Hasil.txt');
+}
+
+// --- PAGE THUMBNAILS (Hapus / Putar) ---
+let thumbToken = 0;
+async function loadPageThumbs() {
+    const box = document.getElementById('page-thumbs');
+    const f = currentFiles[0];
+    if (!box || !f) return;
+    const token = ++thumbToken;
+    box.innerHTML = '<p class="col-span-full text-xs text-slate-400">Membuat thumbnail...</p>';
+    const input = document.getElementById(currentTool.id === 'delete' ? 'opt-text' : 'opt-rotate-pages');
+    const selected = new Set();
+    const sync = () => {
+        if (!input) return;
+        const arr = Array.from(selected).sort((a, b) => a - b), parts = [];
+        for (let i = 0; i < arr.length; i++) {
+            let j = i; while (j + 1 < arr.length && arr[j + 1] === arr[j] + 1) j++;
+            parts.push(j > i ? `${arr[i]}-${arr[j]}` : `${arr[i]}`); i = j;
+        }
+        input.value = parts.join(', ');
+    };
+    try {
+        const pdf = await openPdfJs(await f.arrayBuffer());
+        if (token !== thumbToken) return;
+        box.innerHTML = '';
+        const max = Math.min(pdf.numPages, 120);
+        for (let n = 1; n <= max; n++) {
+            if (token !== thumbToken) return;
+            const page = await pdf.getPage(n);
+            const vp = page.getViewport({ scale: 0.3 });
+            const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+            c.className = 'w-full h-auto bg-white block';
+            await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+            const b = document.createElement('button');
+            b.type = 'button'; b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Halaman ' + n);
+            b.className = 'relative rounded-lg overflow-hidden border-2 border-slate-200 dark:border-slate-700 text-left';
+            const tag = document.createElement('span');
+            tag.className = 'absolute bottom-0 inset-x-0 text-center text-[10px] font-bold bg-slate-900/70 text-white py-0.5';
+            tag.textContent = n;
+            b.append(c, tag);
+            b.onclick = () => {
+                const on = !selected.has(n);
+                on ? selected.add(n) : selected.delete(n);
+                b.setAttribute('aria-pressed', on);
+                b.classList.toggle('border-red-500', on); b.classList.toggle('border-slate-200', !on);
+                b.style.opacity = on ? '0.7' : '1';
+                sync();
+            };
+            box.appendChild(b);
+        }
+        if (pdf.numPages > max) { const p = document.createElement('p'); p.className = 'col-span-full text-xs text-slate-400'; p.textContent = `Menampilkan ${max} halaman pertama dari ${pdf.numPages}. Halaman lain bisa diketik manual.`; box.appendChild(p); }
+    } catch (e) {
+        box.innerHTML = '';
+        const p = document.createElement('p'); p.className = 'col-span-full text-xs text-red-500'; p.textContent = 'Thumbnail gagal dibuat: ' + e.message; box.appendChild(p);
+    }
+}
+
+// --- PHOTO RESIZE & CROP ---
+async function executePhotoResize() {
+    const presetV = document.getElementById('opt-photo-preset')?.value || '354x472';
+    let w, h;
+    if (presetV === 'custom') {
+        w = parseInt(document.getElementById('opt-photo-w')?.value); h = parseInt(document.getElementById('opt-photo-h')?.value);
+    } else { [w, h] = presetV.split('x').map(Number); }
+    if (!(w >= 16 && h >= 16 && w <= 8000 && h <= 8000)) { showToast('Ukuran piksel tidak valid (16–8000)', 'error'); return; }
+    const focus = (parseInt(document.getElementById('opt-photo-focus')?.value || '35')) / 100;
+    const bg = document.getElementById('opt-photo-bg')?.value || '#ffffff';
+    const maxKb = parseFloat(document.getElementById('opt-photo-maxkb')?.value || '');
+    const out = [];
+    for (let i = 0; i < currentFiles.length; i++) {
+        if (cancelRequested) return;
+        const f = currentFiles[i];
+        updateProgress(i, 30, 'Memotong...');
+        try {
+            const bmp = await new Promise((res, rej) => { const im = new Image(); const u = URL.createObjectURL(f); im.onload = () => { URL.revokeObjectURL(u); res(im); }; im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('Gagal memuat gambar')); }; im.src = u; });
+            const c = document.createElement('canvas'); c.width = w; c.height = h;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+            const k = Math.max(w / bmp.width, h / bmp.height);
+            const dw = bmp.width * k, dh = bmp.height * k;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(bmp, (w - dw) / 2, (h - dh) * focus, dw, dh);
+            let q = 0.92, blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q));
+            if (maxKb > 0) {
+                const limit = maxKb * 1024;
+                while (blob.size > limit && q > 0.1) { q -= 0.07; blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q)); }
+                if (blob.size > limit) { showToast(`${f.name}: tidak bisa mencapai ${maxKb} KB pada ukuran ${w}×${h}px`, 'error'); }
+            }
+            updateProgress(i, 100, `${w}×${h}px • ${formatBytes(blob.size)}`);
+            out.push({ name: `KiLat_${f.name.replace(/\.[^/.]+$/, '')}_${w}x${h}.jpg`, blob });
+        } catch (e) { updateProgress(i, 0, 'Gagal: ' + e.message); showToast(`${f.name}: ${e.message}`, 'error'); }
+    }
+    if (out.length) await createZipDownload(out, 'KiLat_Foto.zip');
 }
 
 // --- STUDENT DISPATCHER ---
@@ -2907,6 +3171,8 @@ async function processStudentTool() {
         await executeIdWatermark();
     } else if (cid === 'doc_scanner') {
         await executeDocScanner();
+    } else if (cid === 'photo_resize') {
+        await executePhotoResize();
     } else if (cid === 'ocr_tool') {
         await executeOcrTool();
     } else {
@@ -2921,129 +3187,62 @@ async function executeTargetPdfCompression() {
     const f = currentFiles[0];
     if (!f) return;
     
-    const targetVal = parseFloat(document.getElementById('opt-pdf-target-val')?.value || '500');
+    const targetVal = parseFloat(document.getElementById('opt-pdf-target-val')?.value);
     const targetUnit = document.getElementById('opt-pdf-target-unit')?.value || 'KB';
     const targetBytes = targetUnit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
+    if (!isFinite(targetVal) || targetVal <= 0 || targetBytes < 20 * 1024) {
+        showToast('Target ukuran tidak valid. Minimal 20 KB.', 'error');
+        return;
+    }
     const dpiMode = document.getElementById('opt-pdf-dpi-mode')?.value || 'auto';
-    const colorMode = document.getElementById('opt-pdf-color-mode')?.value || 'color';
+    const gray = (document.getElementById('opt-pdf-color-mode')?.value || 'color') === 'grayscale';
 
-    updateGlobalProgress(15, 'Membaca struktur PDF...');
-    updateProgress(0, 15, 'Membaca dokumen...');
+    if (f.size <= targetBytes) {
+        updateProgress(0, 100, `${formatBytes(f.size)} — sudah di bawah target`);
+        showToast(`File sudah ${formatBytes(f.size)}, lebih kecil dari target. Tidak perlu dikompres.`, 'info'); runFailed = true;
+        return;
+    }
+
+    updateGlobalProgress(10, 'Membaca struktur PDF...');
+    updateProgress(0, 10, 'Membaca dokumen...');
     
     const bytes = await f.arrayBuffer();
-    const pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+    const pdfDoc = await openPdfJs(bytes); // melempar error jelas bila rusak / password / timeout
     const numPages = pdfDoc.numPages;
-    
-    // Estimate initial rendering scale and quality based on per-page budget
     const budgetPerPage = targetBytes / numPages;
-    let baseScale = 1.25;
-    let baseQuality = 0.65;
     
-    if (dpiMode === 'high') {
-        baseScale = 1.5;
-        baseQuality = 0.75;
-    } else if (dpiMode === 'low' || budgetPerPage < 50 * 1024) {
-        baseScale = 1.0;
-        baseQuality = 0.45;
-    } else if (budgetPerPage < 100 * 1024) {
-        baseScale = 1.15;
-        baseQuality = 0.55;
-    }
-
-    const { PDFDocument } = PDFLib;
-    let newDoc = await PDFDocument.create();
+    let scale = dpiMode === 'high' ? 1.5 : (dpiMode === 'low' || budgetPerPage < 50 * 1024) ? 1.0 : budgetPerPage < 100 * 1024 ? 1.15 : 1.25;
+    let quality = dpiMode === 'high' ? 0.75 : (dpiMode === 'low' || budgetPerPage < 50 * 1024) ? 0.45 : budgetPerPage < 100 * 1024 ? 0.55 : 0.65;
     
-    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-        if (cancelRequested) return;
-        
-        const pct = Math.floor(15 + (pageNum / numPages) * 75);
-        updateGlobalProgress(pct, `Mengompres halaman ${pageNum} dari ${numPages}...`);
-        updateProgress(0, pct, `Halaman ${pageNum}/${numPages}`);
-        
-        const page = await pdfDoc.getPage(pageNum);
-        const origViewport = page.getViewport({ scale: 1.0 });
-        const viewport = page.getViewport({ scale: baseScale });
-        
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        
-        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-        
-        // Grayscale conversion if requested
-        if (colorMode === 'grayscale') {
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const d = imgData.data;
-            for (let i = 0; i < d.length; i += 4) {
-                const y = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-                d[i] = d[i+1] = d[i+2] = y;
-            }
-            ctx.putImageData(imgData, 0, 0);
-        }
-        
-        // Convert to compressed JPEG blob
-        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', baseQuality));
-        const imgBuffer = await blob.arrayBuffer();
-        const embeddedImg = await newDoc.embedJpg(imgBuffer);
-        
-        const newPage = newDoc.addPage([origViewport.width, origViewport.height]);
-        newPage.drawImage(embeddedImg, {
-            x: 0,
-            y: 0,
-            width: origViewport.width,
-            height: origViewport.height
-        });
+    let best = null;
+    for (let pass = 1; pass <= 5; pass++) {
+        const res = await rasterizePdf(pdfDoc, { scale, quality, gray, onPage: (n, t) => {
+            const pct = Math.floor(10 + ((pass - 1) / 5 + n / t / 5) * 82);
+            updateGlobalProgress(pct, `Percobaan ${pass}/5 • halaman ${n}/${t}`);
+            updateProgress(0, pct, `Percobaan ${pass} • ${n}/${t}`);
+        }});
+        if (!res) return;
+        if (!best || res.length < best.length) best = res;
+        if (res.length <= targetBytes) { best = res; break; }
+        quality = Math.max(0.2, quality * 0.75);
+        scale = Math.max(0.6, scale * 0.85);
     }
     
-    if (cancelRequested) return;
-    
-    updateGlobalProgress(92, 'Menyusun hasil akhir...');
-    let finalBytes = await newDoc.save({ useObjectStreams: true });
-    
-    // If still exceeds target and we can lower quality, run a fast pass
-    if (finalBytes.length > targetBytes && baseQuality > 0.35) {
-        updateGlobalProgress(94, 'Menyesuaikan agar pas target...');
-        // Try re-encoding with lower quality
-        const reducedQuality = Math.max(0.25, baseQuality * 0.65);
-        newDoc = await PDFDocument.create();
-        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-            const page = await pdfDoc.getPage(pageNum);
-            const origViewport = page.getViewport({ scale: 1.0 });
-            const viewport = page.getViewport({ scale: baseScale * 0.85 });
-            const canvas = document.createElement('canvas');
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            const ctx = canvas.getContext('2d');
-            await page.render({ canvasContext: ctx, viewport }).promise;
-            if (colorMode === 'grayscale') {
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const d = imgData.data;
-                for (let i = 0; i < d.length; i += 4) {
-                    const y = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-                    d[i] = d[i+1] = d[i+2] = y;
-                }
-                ctx.putImageData(imgData, 0, 0);
-            }
-            const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', reducedQuality));
-            const imgBuffer = await blob.arrayBuffer();
-            const embeddedImg = await newDoc.embedJpg(imgBuffer);
-            const newPage = newDoc.addPage([origViewport.width, origViewport.height]);
-            newPage.drawImage(embeddedImg, {
-                x: 0, y: 0,
-                width: origViewport.width, height: origViewport.height
-            });
-        }
-        finalBytes = await newDoc.save({ useObjectStreams: true });
+    if (best.length >= f.size) {
+        updateProgress(0, 0, 'Tidak bisa dikecilkan');
+        showToast('PDF ini sudah efisien (berisi teks/vektor); merender ulang justru membuatnya lebih besar. File asli dipertahankan.', 'error');
+        return;
     }
     
-    const finalBlob = new Blob([finalBytes], { type: 'application/pdf' });
+    const finalBlob = new Blob([best], { type: 'application/pdf' });
     const savedPercent = ((1 - finalBlob.size / f.size) * 100).toFixed(1);
-    updateProgress(0, 100, `${formatBytes(f.size)} ➔ ${formatBytes(finalBlob.size)} (${savedPercent}%)`);
+    updateProgress(0, 100, `${formatBytes(f.size)} ➔ ${formatBytes(finalBlob.size)} (-${savedPercent}%)`);
     updateGlobalProgress(100, 'Selesai!');
-    
+    if (finalBlob.size > targetBytes) {
+        showToast(`Hasil ${formatBytes(finalBlob.size)} masih di atas target ${targetVal} ${targetUnit}. Coba mode "Kompres Agresif" atau Grayscale.`, 'error');
+    }
     downloadBlob(finalBlob, `KiLat_Target_${targetVal}${targetUnit}_${f.name}`);
-    showToast(`PDF berhasil dikompres ke ${formatBytes(finalBlob.size)}!`, 'success');
+    if (finalBlob.size <= targetBytes) showToast(`PDF berhasil dikompres ke ${formatBytes(finalBlob.size)}!`, 'success');
 }
 
 // -------------------------------------------------------------
@@ -3055,7 +3254,9 @@ async function executePdfSignature() {
     
     // Obtain PNG buffer of signature
     let sigBuffer = null;
-    const isUploadTab = !document.getElementById('sig-upload-container').classList.contains('hidden');
+    const upC = document.getElementById('sig-upload-container');
+    if (!upC) { showToast('Opsi tanda tangan belum siap, buka ulang alat ini', 'error'); return; }
+    const isUploadTab = !upC.classList.contains('hidden');
     
     if (isUploadTab && sigPadState.uploadedBlob) {
         // Read uploaded image and ensure it has transparency or render onto canvas
@@ -3086,7 +3287,7 @@ async function executePdfSignature() {
         const blob = await new Promise(r => c.toBlob(r, 'image/png'));
         sigBuffer = await blob.arrayBuffer();
         URL.revokeObjectURL(url);
-    } else if (sigPadState.hasDrawn && sigPadState.canvas) {
+    } else if (sigPadState.hasDrawn && sigPadState.canvas && canvasHasInk(sigPadState.canvas)) {
         const blob = await new Promise(r => sigPadState.canvas.toBlob(r, 'image/png'));
         sigBuffer = await blob.arrayBuffer();
     } else {
@@ -3409,6 +3610,8 @@ async function executeDocScanner() {
     const filter = document.getElementById('opt-scanner-filter')?.value || 'magic_bw';
     const outputFormat = document.getElementById('opt-scanner-output')?.value || 'pdf';
     const paperSize = document.getElementById('opt-scanner-paper')?.value || 'A4';
+    const contrastK = (parseInt(document.getElementById('opt-scanner-contrast')?.value || '100') || 100) / 100;
+    const whiteThr = parseInt(document.getElementById('opt-scanner-threshold')?.value || '175') || 175;
     
     const { PDFDocument } = PDFLib;
     let pdfDoc = outputFormat === 'pdf' ? await PDFDocument.create() : null;
@@ -3440,12 +3643,12 @@ async function executeDocScanner() {
             // Adaptive threshold & background whitening
             for (let j = 0; j < len; j += 4) {
                 const lum = 0.299 * d[j] + 0.587 * d[j+1] + 0.114 * d[j+2];
-                if (lum > 175) {
+                if (lum > whiteThr) {
                     // Make paper background pure white
                     d[j] = d[j+1] = d[j+2] = 255;
                 } else {
                     // Darken text with high contrast
-                    const dark = Math.max(0, Math.min(255, (lum - 35) * 1.6));
+                    const dark = Math.max(0, Math.min(255, (lum - 35) * 1.6 * contrastK));
                     d[j] = d[j+1] = d[j+2] = dark;
                 }
             }
@@ -3453,7 +3656,7 @@ async function executeDocScanner() {
             // High contrast smooth grayscale
             for (let j = 0; j < len; j += 4) {
                 const lum = 0.299 * d[j] + 0.587 * d[j+1] + 0.114 * d[j+2];
-                const enhanced = Math.max(0, Math.min(255, (lum - 20) * 1.25));
+                const enhanced = Math.max(0, Math.min(255, (lum - 20) * 1.25 * contrastK));
                 d[j] = d[j+1] = d[j+2] = enhanced;
             }
         } else if (filter === 'color_boost') {
@@ -3467,9 +3670,9 @@ async function executeDocScanner() {
                     d[j] = d[j+1] = d[j+2] = 255;
                 } else {
                     // Boost saturation
-                    d[j] = Math.min(255, r * 1.15);
-                    d[j+1] = Math.min(255, g * 1.15);
-                    d[j+2] = Math.min(255, b * 1.15);
+                    d[j] = Math.min(255, r * 1.15 * contrastK);
+                    d[j+1] = Math.min(255, g * 1.15 * contrastK);
+                    d[j+2] = Math.min(255, b * 1.15 * contrastK);
                 }
             }
         }
@@ -3570,6 +3773,8 @@ async function executeOcrTool() {
         updateGlobalProgress(40, 'Menjalankan pengenalan teks...');
         
         const worker = await Tesseract.createWorker(lang, 1, {
+            workerPath: new URL('vendor/tesseract/worker.min.js', location.href).href,
+            corePath: new URL('vendor/tesseract/', location.href).href,
             logger: m => {
                 if (m.status === 'recognizing text') {
                     const pct = Math.floor(m.progress * 100);
@@ -3579,12 +3784,13 @@ async function executeOcrTool() {
             }
         });
         
-        const ret = await worker.recognize(imageSource);
-        await worker.terminate();
+        let ret;
+        try { ret = await worker.recognize(imageSource); } finally { await worker.terminate(); }
         
         if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
         
         const resultText = ret.data.text;
+        if (!resultText.trim()) { showToast('Tidak ada teks yang terdeteksi pada gambar ini', 'error'); }
         
         // Populate and reveal result area
         const resultBox = document.getElementById('ocr-result-box');
@@ -3597,17 +3803,18 @@ async function executeOcrTool() {
         
         updateProgress(0, 100, `Selesai (${resultText.length} karakter)`);
         updateGlobalProgress(100, 'Ekstraksi teks selesai!');
-        showToast('Teks berhasil diekstrak! Anda bisa langsung menyalinnya.', 'success');
+        if (resultText.trim()) showToast('Teks berhasil diekstrak! Salin atau unduh dari kotak hasil di bawah.', 'success');
         
     } catch (err) {
         if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
         console.error(err);
-        throw err;
+        throw new Error('OCR gagal: ' + (err && err.message ? err.message : err) + ' (data bahasa perlu koneksi internet saat pertama kali dipakai)');
     }
 }
 
 // Export to window
 window.processStudentTool = processStudentTool;
+window.loadPageThumbs = loadPageThumbs;
 window.setTargetPdfPreset = setTargetPdfPreset;
 window.switchSigTab = switchSigTab;
 window.initSignaturePad = initSignaturePad;

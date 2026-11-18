@@ -1,7 +1,7 @@
 # KiLat
 
 <div align="center">
-  <img src="https://img.shields.io/badge/version-2.0.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.1.0-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
   <img src="https://img.shields.io/badge/Offline-Ready-FFD700.svg" alt="Offline Ready">
@@ -39,6 +39,7 @@ Bayangkan memiliki studio pemrosesan file lengkap yang berjalan di browser Anda,
 ### 🎓 Zona Mahasiswa & Dokumen Kampus (Baru!)
 | Fitur | Detail |
 |-------|--------|
+| **Ubah Ukuran & Potong Foto** | Preset 2x3, 3x4, 4x6 cm (300 DPI) / kustom, fokus potong, latar, batas KB |
 | **Kompres PDF Target Ukuran** | Preset 300KB (SIAKAD), 500KB (Beasiswa/CPNS), 1MB (MSIB), 2MB (Classroom), atau custom |
 | **Tanda Tangan Dokumen** | Gambar tanda tangan di layar atau upload PNG untuk ditempel di lembar pengesahan/surat |
 | **Nomor Halaman Skripsi** | Format gabungan otomatis: Romawi (`i, ii..`) lembar awal + Angka Arab (`1, 2..`) untuk Bab isi |
@@ -66,12 +67,12 @@ Bayangkan memiliki studio pemrosesan file lengkap yang berjalan di browser Anda,
 | **Nomor Halaman** | Otomatis dengan berbagai format dan posisi |
 | **PDF → JPG/PNG** | Render PDF ke gambar dengan DPI hingga 600 |
 | **JPG/PNG → PDF** | Buat PDF dari gambar dengan ukuran kertas dan margin |
-| **Kompres PDF** | Optimasi struktur dan metadata PDF |
+| **Kompres PDF** | Mode Ringan (struktur, teks tetap) atau Kuat (render ulang halaman); hasil tidak pernah lebih besar dari aslinya |
 
 ### 🎵 Ekstraksi Audio
 | Fitur | Detail |
 |-------|--------|
-| **Multi-Format** | WAV · MP3 · AAC · FLAC |
+| **Multi-Format** | WAV · M4A/AAC · WebM/Opus (sesuai dukungan browser; ekstensi selalu sesuai isi file) |
 | **Bitrate Control** | 64-320 kbps adjustable |
 | **Sample Rate** | 16kHz · 22.05kHz · 44.1kHz · 48kHz |
 | **Batch Processing** | Ekstrak audio dari banyak video sekaligus |
@@ -84,7 +85,7 @@ Bayangkan memiliki studio pemrosesan file lengkap yang berjalan di browser Anda,
 |-------|--------|
 | **🌐 100% Lokal** | Tidak ada file yang meninggalkan perangkat Anda |
 | **🔒 Zero Upload** | Tidak ada upload ke server manapun |
-| **📁 Offline Ready** | Bekerja tanpa koneksi internet setelah dimuat |
+| **📁 Offline Ready (PWA)** | Semua library dibundel di folder `vendor/` + service worker. Bisa di-install & dipakai tanpa internet setelah kunjungan pertama (OCR butuh internet sekali untuk mengunduh data bahasa; font Google bersifat opsional) |
 | **🧹 Auto Cleanup** | File sementara dihapus setelah proses selesai |
 | **🔐 Encrypted** | Semua proses di dalam sandbox browser Anda |
 
@@ -116,7 +117,7 @@ Bayangkan memiliki studio pemrosesan file lengkap yang berjalan di browser Anda,
 - **[JSZip](https://stuk.github.io/jszip/)** — Kompresi batch ke ZIP
 - **[UPNG.js](https://github.com/photopea/UPNG.js)** — Kompresi PNG lossless/lossy
 - **[Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)** — Ekstraksi & konversi audio
-- **[MediaRecorder API](https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder)** — Enkoding MP3/AAC
+- **[MediaRecorder API](https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder)** — Enkoding M4A/WebM
 
 ---
 
@@ -133,3 +134,34 @@ cd KiLat
 open index.html
 # atau
 start index.html  # Windows
+
+
+---
+
+## 🆕 Changelog v2.1.0
+
+**Perbaikan**
+- Kompres PNG: `pako` dimuat sehingga `UPNG` berfungsi.
+- Kompres PDF (Alat PDF) kini memakai mesin PDF, bukan kompresor gambar; ada mode Ringan/Kuat.
+- OCR: hasil tampil di kotak teks dengan tombol Salin & Unduh `.txt`; mendukung PDF multi-halaman; error jelas.
+- Kompres PDF Target Ukuran: validasi target (min 20 KB), PDF rusak/password tidak lagi macet (timeout + pesan), hasil tidak pernah lebih besar dari file asli, beberapa percobaan otomatis menuju target.
+- State alat direset saat berpindah alat/tombol "Kembali" (memperbaiki crash `classList of null`).
+- Menu mobile tertutup secara default.
+- Toast tidak lagi menampilkan "Selesai" bersamaan dengan error atau ganda.
+- Validasi: Hapus Halaman tidak boleh menghapus semua halaman, Gabungkan PDF butuh ≥ 2 file, tanda tangan kosong ditolak.
+- Ekstrak Audio: hanya menawarkan format yang benar-benar dihasilkan; ekstensi mengikuti isi file.
+- Aksesibilitas: satu `<h1>`, `aria-label` pada tombol ikon, toast `role=status/alert`, dialog hasil dengan fokus & Esc; typo "Potrait" → "Potret".
+- URL per alat (`#/merge`, `#/ocr_tool`, dst.) dan tombol Back browser.
+
+**Baru**
+- PWA offline sungguhan: `manifest.webmanifest`, `sw.js`, library & Tailwind dibundel lokal (`vendor/`).
+- Pratinjau hasil (PDF/gambar/audio) + perbandingan ukuran sebelum unduh.
+- Thumbnail halaman klik-untuk-pilih pada Hapus & Putar PDF.
+- Scanner Dokumen: slider kontras & ambang putih kertas.
+- Alat baru: Ubah Ukuran & Potong Foto (2x3 / 3x4 / 4x6).
+
+**Belum ada (roadmap):** kunci/buka kunci PDF dengan password, DOCX↔PDF, penempatan tanda tangan drag-and-drop.
+
+## 🔧 Membangun ulang CSS
+Tailwind dibangun lokal: dari folder `tools/` jalankan  
+`npx tailwindcss@3 -c tailwind.config.js -i tailwind.input.css -o ../vendor/tailwind.css --minify` (butuh plugin `@tailwindcss/forms`, `typography`, `aspect-ratio`).
