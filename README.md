@@ -1,7 +1,7 @@
 # KiLat
 
 <div align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.2.0-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
   <img src="https://img.shields.io/badge/Offline-Ready-FFD700.svg" alt="Offline Ready">
@@ -67,6 +67,8 @@ Bayangkan memiliki studio pemrosesan file lengkap yang berjalan di browser Anda,
 | **Nomor Halaman** | Otomatis dengan berbagai format dan posisi |
 | **PDF → JPG/PNG** | Render PDF ke gambar dengan DPI hingga 600 |
 | **JPG/PNG → PDF** | Buat PDF dari gambar dengan ukuran kertas dan margin |
+| **Kunci & Buka Kunci PDF** | Proteksi PDF dengan password & izin dokumen, atau buka kunci PDF terproteksi |
+| **DOCX ↔ PDF** | Konversi Word (.docx) ke PDF dan PDF ke Word (.docx) 100% lokal |
 | **Kompres PDF** | Mode Ringan (struktur, teks tetap) atau Kuat (render ulang halaman); hasil tidak pernah lebih besar dari aslinya |
 
 ### 🎵 Ekstraksi Audio
@@ -160,8 +162,17 @@ start index.html  # Windows
 - Scanner Dokumen: slider kontras & ambang putih kertas.
 - Alat baru: Ubah Ukuran & Potong Foto (2x3 / 3x4 / 4x6).
 
-**Belum ada (roadmap):** kunci/buka kunci PDF dengan password, DOCX↔PDF, penempatan tanda tangan drag-and-drop.
 
 ## 🔧 Membangun ulang CSS
 Tailwind dibangun lokal: dari folder `tools/` jalankan  
 `npx tailwindcss@3 -c tailwind.config.js -i tailwind.input.css -o ../vendor/tailwind.css --minify` (butuh plugin `@tailwindcss/forms`, `typography`, `aspect-ratio`).
+
+
+---
+
+## 🆕 Changelog v2.2.0
+
+- **Kunci & Buka Kunci PDF (`pdf_lock`, `pdf_unlock`):** Enkripsi PDF dengan password serta pengaturan izin cetak/salin/modifikasi, dan dekripsi PDF berpassword menggunakan `@cantoo/pdf-lib` lokal.
+- **DOCX ↔ PDF (`docx2pdf`, `pdf2docx`):** Konversi `.docx` ke PDF (via `mammoth` + `html2canvas` + `jsPDF`) dan PDF ke `.docx` yang dapat diedit (via `pdf.js` + `docx`), lengkap dengan fallback gambar untuk halaman hasil scan.
+- **Drag & Drop Tanda Tangan:** Pratinjau interaktif halaman PDF dengan kotak tanda tangan yang dapat digeser dan diubah ukurannya (mouse & sentuh).
+- **Pemrosesan Batch Penuh:** Seluruh alat kini mendukung unggah banyak file sekaligus (`multiple: true`) dengan unduhan arsip ZIP otomatis untuk hasil jamak.

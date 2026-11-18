@@ -45,6 +45,10 @@
     <script src="vendor/pako.min.js"></script>
     <script src="vendor/UPNG.js"></script>
     <script src="vendor/tesseract/tesseract.min.js"></script>
+    <script src="vendor/mammoth.browser.min.js"></script>
+    <script src="vendor/docx.iife.js"></script>
+    <script src="vendor/jspdf.umd.min.js"></script>
+    <script src="vendor/html2canvas.min.js"></script>
 
     <!-- ========================= -->
     <!-- CONFIGURATION & STYLES    -->
@@ -616,13 +620,13 @@ button:not(:disabled):active {
 
         // --- 2. DATA CONFIGURATION ---
         const studentData = [
-            { id: 'compress_pdf_target', title: 'Kompres PDF Target Ukuran', icon: 'fas fa-file-invoice', type: 'student_action', accept: '.pdf', multiple: false, needsInput: 'pdf_target_options', inputLabel: 'Pilih File PDF untuk Dikecilkan', desc: 'Atur target ukuran persis (misal <500 KB / <1 MB) agar lolos portal kampus/beasiswa.', colorClass: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-500/20' },
-            { id: 'pdf_signature', title: 'Tanda Tangan Dokumen', icon: 'fas fa-signature', type: 'student_action', accept: '.pdf', multiple: false, needsInput: 'signature_options', inputLabel: 'Pilih PDF Lembar Pengesahan / Surat', desc: 'Gambar tanda tangan langsung atau upload PNG untuk ditempel di halaman PDF.', colorClass: 'text-indigo-500 bg-indigo-100 dark:bg-indigo-500/20' },
-            { id: 'thesis_page_num', title: 'Nomor Halaman Skripsi', icon: 'fas fa-book-open', type: 'student_action', accept: '.pdf', multiple: false, needsInput: 'thesis_num_options', inputLabel: 'Pilih File Naskah / Skripsi PDF', desc: 'Format otomatis: Romawi (i, ii) lembar awal + Angka Arab (1, 2) untuk Bab isi.', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
+            { id: 'compress_pdf_target', title: 'Kompres PDF Target Ukuran', icon: 'fas fa-file-invoice', type: 'student_action', accept: '.pdf', multiple: true, needsInput: 'pdf_target_options', inputLabel: 'Pilih File PDF untuk Dikecilkan', desc: 'Atur target ukuran persis (misal <500 KB / <1 MB) agar lolos portal kampus/beasiswa.', colorClass: 'text-emerald-500 bg-emerald-100 dark:bg-emerald-500/20' },
+            { id: 'pdf_signature', title: 'Tanda Tangan Dokumen', icon: 'fas fa-signature', type: 'student_action', accept: '.pdf', multiple: true, needsInput: 'signature_options', inputLabel: 'Pilih PDF Lembar Pengesahan / Surat', desc: 'Gambar tanda tangan langsung atau upload PNG untuk ditempel di halaman PDF.', colorClass: 'text-indigo-500 bg-indigo-100 dark:bg-indigo-500/20' },
+            { id: 'thesis_page_num', title: 'Nomor Halaman Skripsi', icon: 'fas fa-book-open', type: 'student_action', accept: '.pdf', multiple: true, needsInput: 'thesis_num_options', inputLabel: 'Pilih File Naskah / Skripsi PDF', desc: 'Format otomatis: Romawi (i, ii) lembar awal + Angka Arab (1, 2) untuk Bab isi.', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
             { id: 'id_watermark', title: 'Watermark KTP & Dokumen', icon: 'fas fa-id-card', type: 'student_action', accept: 'image/jpeg, image/png, image/webp, .pdf', multiple: true, needsInput: 'id_watermark_options', inputLabel: 'Pilih Foto/Scan KTP, KTM, atau Dokumen', desc: 'Cap pelindung diagonal anti-pinjol / anti-salah guna untuk verifikasi beasiswa/magang.', colorClass: 'text-rose-500 bg-rose-100 dark:bg-rose-500/20' },
             { id: 'doc_scanner', title: 'Scanner Dokumen (Foto HP)', icon: 'fas fa-camera-retro', type: 'student_action', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'scanner_options', inputLabel: 'Pilih Foto Kertas / Tugas Tulisan Tangan', desc: 'Bersihkan bayangan gelap & jadikan hitam-putih tajam/grayscale ala CamScanner.', colorClass: 'text-amber-500 bg-amber-100 dark:bg-amber-500/20' },
             { id: 'photo_resize', title: 'Ubah Ukuran & Potong Foto', icon: 'fas fa-crop-alt', type: 'student_action', accept: 'image/jpeg, image/png, image/webp', multiple: true, needsInput: 'photo_options', inputLabel: 'Pilih Pas Foto / Foto Dokumen', desc: 'Preset 2x3, 3x4, 4x6 cm (300 DPI) + batas ukuran KB untuk SIAKAD/CPNS/beasiswa.', colorClass: 'text-pink-500 bg-pink-100 dark:bg-pink-500/20' },
-            { id: 'ocr_tool', title: 'OCR Gambar ke Teks', icon: 'fas fa-font', type: 'student_action', accept: 'image/jpeg, image/png, image/webp, .pdf', multiple: false, needsInput: 'ocr_options', inputLabel: 'Pilih Scan Halaman Buku / Jurnal', desc: 'Ekstrak dan salin teks bahasa Indonesia/Inggris secara lokal tanpa kirim ke server.', colorClass: 'text-cyan-500 bg-cyan-100 dark:bg-cyan-500/20' }
+            { id: 'ocr_tool', title: 'OCR Gambar ke Teks', icon: 'fas fa-font', type: 'student_action', accept: 'image/jpeg, image/png, image/webp, .pdf', multiple: true, needsInput: 'ocr_options', inputLabel: 'Pilih Scan Halaman Buku / Jurnal', desc: 'Ekstrak dan salin teks bahasa Indonesia/Inggris secara lokal tanpa kirim ke server.', colorClass: 'text-cyan-500 bg-cyan-100 dark:bg-cyan-500/20' }
         ];
 
         const compressData = [
@@ -638,14 +642,18 @@ button:not(:disabled):active {
 
         const pdfData = [
             { id: 'merge', title: 'Gabungkan PDF', icon: 'fas fa-object-group', type: 'real_pdf', accept: '.pdf', multiple: true, inputLabel: 'Pilih File PDF', desc: 'Satukan banyak PDF menjadi satu', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
-            { id: 'split', title: 'Pisahkan PDF', icon: 'fas fa-arrows-alt-h', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'split_options', inputLabel: 'Pilih File PDF', desc: 'Pecah halaman menjadi PDF terpisah', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
-            { id: 'delete', title: 'Hapus Halaman', icon: 'fas fa-trash-alt', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'text_input', inputLabel: 'Pilih File PDF', desc: 'Buang halaman tak perlu', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
-            { id: 'rotate', title: 'Putar PDF', icon: 'fas fa-undo', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'rotate_options', inputLabel: 'Pilih File PDF', desc: 'Perbaiki orientasi halaman', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
-            { id: 'watermark', title: 'Tanda Air', icon: 'fas fa-stamp', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'watermark_options', inputLabel: 'Pilih File PDF', desc: 'Beri cap watermark pada dokumen', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
-            { id: 'add_page_num', title: 'Nomor Halaman', icon: 'fas fa-list-ol', type: 'real_pdf', accept: '.pdf', multiple: false, needsInput: 'pagenum_options', inputLabel: 'Pilih File PDF', desc: 'Sisipkan nomor otomatis', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
-            { id: 'pdf2jpg', title: 'PDF ke JPG', icon: 'fas fa-file-image', type: 'real_pdf2image', accept: '.pdf', multiple: false, needsInput: 'pdf2image_options', inputLabel: 'Pilih File PDF', desc: 'Render PDF menjadi gambar HD', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
+            { id: 'split', title: 'Pisahkan PDF', icon: 'fas fa-arrows-alt-h', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'split_options', inputLabel: 'Pilih File PDF', desc: 'Pecah halaman menjadi PDF terpisah', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'delete', title: 'Hapus Halaman', icon: 'fas fa-trash-alt', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'text_input', inputLabel: 'Pilih File PDF', desc: 'Buang halaman tak perlu', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'rotate', title: 'Putar PDF', icon: 'fas fa-undo', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'rotate_options', inputLabel: 'Pilih File PDF', desc: 'Perbaiki orientasi halaman', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'watermark', title: 'Tanda Air', icon: 'fas fa-stamp', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'watermark_options', inputLabel: 'Pilih File PDF', desc: 'Beri cap watermark pada dokumen', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'add_page_num', title: 'Nomor Halaman', icon: 'fas fa-list-ol', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'pagenum_options', inputLabel: 'Pilih File PDF', desc: 'Sisipkan nomor otomatis', colorClass: 'text-red-500 bg-red-100 dark:bg-red-500/20' },
+            { id: 'pdf2jpg', title: 'PDF ke JPG', icon: 'fas fa-file-image', type: 'real_pdf2image', accept: '.pdf', multiple: true, needsInput: 'pdf2image_options', inputLabel: 'Pilih File PDF', desc: 'Render PDF menjadi gambar HD', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
             { id: 'jpg2pdf', title: 'JPG ke PDF', icon: 'fas fa-images', type: 'real_pdf', accept: 'image/jpeg, image/png', multiple: true, needsInput: 'jpg2pdf_options', inputLabel: 'Pilih File Gambar', desc: 'Ubah foto jadi dokumen', colorClass: 'text-blue-500 bg-blue-100 dark:bg-blue-500/20' },
-            { id: 'compress_pdf', title: 'Kompres PDF', icon: 'fas fa-compress', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'pdf_compress_options', inputLabel: 'Pilih File PDF', desc: 'Optimasi ukuran file PDF', colorClass: 'text-green-500 bg-green-100 dark:bg-green-500/20' }
+            { id: 'compress_pdf', title: 'Kompres PDF', icon: 'fas fa-compress', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'pdf_compress_options', inputLabel: 'Pilih File PDF', desc: 'Optimasi ukuran file PDF', colorClass: 'text-green-500 bg-green-100 dark:bg-green-500/20' },
+            { id: 'pdf_lock', title: 'Kunci PDF (Password)', icon: 'fas fa-lock', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'pdf_lock_options', inputLabel: 'Pilih File PDF', desc: 'Proteksi dokumen PDF dengan password & atur izin cetak/salin.', colorClass: 'text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/20' },
+            { id: 'pdf_unlock', title: 'Buka Kunci PDF', icon: 'fas fa-unlock-alt', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'pdf_unlock_options', inputLabel: 'Pilih File PDF Terkunci', desc: 'Hapus proteksi password dari PDF (memerlukan password yang benar).', colorClass: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/20' },
+            { id: 'docx2pdf', title: 'DOCX ke PDF', icon: 'fas fa-file-word', type: 'real_pdf', accept: '.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document', multiple: true, needsInput: 'docx2pdf_options', inputLabel: 'Pilih File Word (.docx)', desc: 'Konversi dokumen Word (.docx) ke PDF secara lokal di browser.', colorClass: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/20' },
+            { id: 'pdf2docx', title: 'PDF ke DOCX', icon: 'fas fa-file-alt', type: 'real_pdf', accept: '.pdf', multiple: true, needsInput: 'pdf2docx_options', inputLabel: 'Pilih File PDF', desc: 'Ubah PDF menjadi dokumen Word (.docx) yang bisa diedit.', colorClass: 'text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-500/20' }
         ];
 
         // System Maps
@@ -872,7 +880,7 @@ button:not(:disabled):active {
             document.getElementById('ws-options-area').innerHTML = '';
             if (typeof sigPadState !== 'undefined') {
                 sigPadState.canvas = null; sigPadState.ctx = null; sigPadState.drawing = false;
-                sigPadState.hasDrawn = false; sigPadState.uploadedBlob = null;
+                sigPadState.hasDrawn = false; sigPadState.uploadedBlob = null; sigPadState.customPos = null;
             }
             const cb = document.getElementById('ws-cancel-btn'); cb.disabled = false;
             document.getElementById('ws-action-btn').disabled = false;
@@ -1001,6 +1009,7 @@ button:not(:disabled):active {
                 document.getElementById('ws-options-area').style.display = currentTool.needsInput ? 'block' : 'none';
             }
             if (document.getElementById('page-thumbs')) loadPageThumbs();
+            if (document.getElementById('sig-pdf-canvas') && typeof renderSigPreviewPage === 'function') renderSigPreviewPage();
         }
 
         function removeFile(index) {
@@ -1395,6 +1404,7 @@ button:not(:disabled):active {
                                     <option value="bottom-left">Bawah Kiri (Dosen / Mengetahui)</option>
                                     <option value="bottom-center">Bawah Tengah</option>
                                     <option value="mid-right">Tengah Kanan</option>
+                                    <option value="custom-drag">Posisi Drag &amp; Drop (Kustom)</option>
                                 </select>
                             </div>
                         </div>
@@ -1406,6 +1416,17 @@ button:not(:disabled):active {
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Jarak Bawah: <span id="sig-margin-val" class="text-brand-green font-bold">80 px</span></label>
                                 <input type="range" id="opt-sig-margin" min="20" max="300" value="80" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-green">
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-700/40 space-y-2">
+                            <p class="text-xs font-bold text-slate-600 dark:text-slate-400">Pratinjau Interaktif (Seret &amp; Ubah Ukuran Tanda Tangan):</p>
+                            <p id="sig-preview-hint" class="text-[11px] text-slate-400">Upload file PDF dan buat/upload tanda tangan untuk mengaktifkan pratinjau drag-and-drop.</p>
+                            <div id="sig-preview-wrap" class="hidden relative mx-auto border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden bg-white shadow-inner select-none" style="max-width: 420px; touch-action: none;">
+                                <canvas id="sig-pdf-canvas" class="w-full h-auto block"></canvas>
+                                <div id="sig-drag-box" class="hidden absolute border-2 border-dashed border-brand-green bg-emerald-500/10 cursor-move rounded" style="touch-action: none;">
+                                    <img id="sig-drag-img" alt="Pratinjau tanda tangan" class="w-full h-full object-contain pointer-events-none">
+                                    <div id="sig-resize-handle" title="Ubah ukuran" aria-label="Ubah ukuran tanda tangan" class="absolute -bottom-2 -right-2 w-4 h-4 bg-brand-green rounded-full border-2 border-white cursor-nwse-resize shadow"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1604,7 +1625,57 @@ button:not(:disabled):active {
                     </div>
                 </div>`;
             }
-            if (currentTool.needsInput === 'pdf_compress_options') {
+            if (currentTool.needsInput === 'pdf_lock_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
+                    <div>
+                        <label for="opt-lock-pass" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password PDF</label>
+                        <div class="flex gap-2">
+                            <input type="password" id="opt-lock-pass" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="Masukkan password..." autocomplete="new-password">
+                            <button type="button" aria-label="Tampilkan password" onclick="const i=document.getElementById('opt-lock-pass');i.type=i.type==='password'?'text':'password'" class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 text-xs font-bold"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="opt-lock-pass2" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Konfirmasi Password</label>
+                        <input type="password" id="opt-lock-pass2" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="Ulangi password..." autocomplete="new-password">
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-700/40 space-y-2">
+                        <p class="text-xs font-bold text-slate-600 dark:text-slate-400">Izin Dokumen:</p>
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" id="opt-lock-print" checked class="rounded text-brand-green"> Izinkan Cetak (Print)</label>
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" id="opt-lock-copy" checked class="rounded text-brand-green"> Izinkan Salin Teks</label>
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300"><input type="checkbox" id="opt-lock-modify" class="rounded text-brand-green"> Izinkan Modifikasi</label>
+                    </div>
+                </div>`;
+            } else if (currentTool.needsInput === 'pdf_unlock_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-3">
+                    <label for="opt-unlock-pass" class="block text-sm font-bold text-slate-700 dark:text-slate-300">Password PDF Saat Ini</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="opt-unlock-pass" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white" placeholder="Masukkan password untuk membuka PDF...">
+                        <button type="button" aria-label="Tampilkan password" onclick="const i=document.getElementById('opt-unlock-pass');i.type=i.type==='password'?'text':'password'" class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 text-xs font-bold"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-400">Password hanya diproses di browser Anda untuk mendekripsi dan menyimpan ulang PDF tanpa proteksi.</p>
+                </div>`;
+            } else if (currentTool.needsInput === 'docx2pdf_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-3">
+                    <label for="opt-docx2pdf-paper" class="block text-sm font-bold text-slate-700 dark:text-slate-300">Ukuran Kertas Output</label>
+                    <select id="opt-docx2pdf-paper" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-brand-green text-sm dark:text-white cursor-pointer">
+                        <option value="a4" selected>A4 (210 × 297 mm)</option>
+                        <option value="letter">Letter (216 × 279 mm)</option>
+                    </select>
+                    <p class="text-xs text-slate-400">Mengonversi teks, tabel, dan gambar dari file .docx ke PDF secara lokal di browser.</p>
+                </div>`;
+            } else if (currentTool.needsInput === 'pdf2docx_options') {
+                html += `
+                <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-3">
+                    <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <input type="checkbox" id="opt-pdf2docx-fallback" checked class="rounded text-brand-green">
+                        <span>Sertakan gambar halaman untuk halaman hasil scan (tanpa teks)</span>
+                    </label>
+                    <p class="text-xs text-slate-400">Mengekstrak teks &amp; judul dari PDF menjadi dokumen Microsoft Word (.docx) yang bisa diedit.</p>
+                </div>`;
+            } else if (currentTool.needsInput === 'pdf_compress_options') {
                 html += `
                 <div class="bg-white dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-4">
                     <div>
@@ -1680,20 +1751,26 @@ button:not(:disabled):active {
                 setTimeout(() => { if (typeof initSignaturePad === 'function') initSignaturePad(); }, 50);
                 const sigPageSel = document.getElementById('opt-sig-page');
                 const sigCustomInp = document.getElementById('opt-sig-page-custom');
+                if (typeof initSigDragDrop === 'function') initSigDragDrop();
                 if (sigPageSel && sigCustomInp) {
                     sigPageSel.addEventListener('change', function() {
-                        sigCustomInp.classList.toggle('hidden', this.value !== 'custom');
+                        sigCustomInp.classList.toggle('hidden', this.value !== 'custom'); if (typeof renderSigPreviewPage === 'function') renderSigPreviewPage();
                     });
                 }
+                const sigPosSel = document.getElementById('opt-sig-pos');
+                if (sigPosSel) sigPosSel.addEventListener('change', () => { if (typeof syncSigBoxFromControls === 'function') syncSigBoxFromControls(); });
+                if (sigCustomInp) sigCustomInp.addEventListener('change', () => { if (typeof renderSigPreviewPage === 'function') renderSigPreviewPage(); });
                 const sigWSlider = document.getElementById('opt-sig-width');
                 if (sigWSlider) sigWSlider.addEventListener('input', e => {
                     const el = document.getElementById('sig-width-val');
                     if (el) el.textContent = e.target.value + ' px';
+                    if (typeof syncSigBoxFromControls === 'function') syncSigBoxFromControls();
                 });
                 const sigMSlider = document.getElementById('opt-sig-margin');
                 if (sigMSlider) sigMSlider.addEventListener('input', e => {
                     const el = document.getElementById('sig-margin-val');
                     if (el) el.textContent = e.target.value + ' px';
+                    if (typeof syncSigBoxFromControls === 'function') syncSigBoxFromControls();
                 });
             }
             
@@ -2438,14 +2515,222 @@ button:not(:disabled):active {
                     return;
                 }
 
-                // Single Process Tools
+                // Lock PDF (Batch)
+                if (cid === 'pdf_lock') {
+                    const pass = document.getElementById('opt-lock-pass')?.value || '';
+                    const pass2 = document.getElementById('opt-lock-pass2')?.value || '';
+                    if (!pass) { showToast('Masukkan password untuk mengunci PDF', 'error'); return; }
+                    if (pass !== pass2) { showToast('Konfirmasi password tidak cocok', 'error'); return; }
+                    const allowPrint = document.getElementById('opt-lock-print')?.checked ?? true;
+                    const allowCopy = document.getElementById('opt-lock-copy')?.checked ?? true;
+                    const allowModify = document.getElementById('opt-lock-modify')?.checked ?? false;
+                    const outFiles = [];
+                    for (let i = 0; i < currentFiles.length; i++) {
+                        if (cancelRequested) break;
+                        const cf = currentFiles[i];
+                        updateProgress(i, 30, 'Mengenkripsi...');
+                        updateGlobalProgress(Math.floor((i / currentFiles.length) * 80) + 10, `Mengunci ${cf.name}...`);
+                        try {
+                            const doc = await PDFDocument.load(await cf.arrayBuffer(), { ignoreEncryption: true });
+                            await doc.encrypt({
+                                userPassword: pass,
+                                ownerPassword: pass + '_owner_kilat',
+                                permissions: {
+                                    printing: allowPrint ? 'highResolution' : 'none',
+                                    copying: allowCopy,
+                                    modifying: allowModify
+                                }
+                            });
+                            const resBytes = await doc.save();
+                            outFiles.push({ name: `KiLat_Locked_${cf.name}`, blob: new Blob([resBytes], { type: 'application/pdf' }) });
+                            updateProgress(i, 100, 'Terkunci');
+                        } catch (e) {
+                            updateProgress(i, 0, 'Gagal: ' + e.message);
+                            showToast(`${cf.name}: ${e.message}`, 'error');
+                        }
+                    }
+                    if (!cancelRequested && outFiles.length > 0) {
+                        await createZipDownload(outFiles, 'KiLat_Locked_PDFs.zip');
+                    }
+                    return;
+                }
+
+                // Unlock PDF (Batch)
+                if (cid === 'pdf_unlock') {
+                    const pass = document.getElementById('opt-unlock-pass')?.value || '';
+                    if (!pass) { showToast('Masukkan password PDF saat ini', 'error'); return; }
+                    const outFiles = [];
+                    for (let i = 0; i < currentFiles.length; i++) {
+                        if (cancelRequested) break;
+                        const cf = currentFiles[i];
+                        updateProgress(i, 30, 'Membuka kunci...');
+                        updateGlobalProgress(Math.floor((i / currentFiles.length) * 80) + 10, `Membuka ${cf.name}...`);
+                        try {
+                            const dec = await PDFDocument.load(await cf.arrayBuffer(), { password: pass });
+                            const cleanDoc = await PDFDocument.create();
+                            const copied = await cleanDoc.copyPages(dec, dec.getPageIndices());
+                            copied.forEach(pg => cleanDoc.addPage(pg));
+                            const resBytes = await cleanDoc.save();
+                            outFiles.push({ name: `KiLat_Unlocked_${cf.name}`, blob: new Blob([resBytes], { type: 'application/pdf' }) });
+                            updateProgress(i, 100, 'Terbuka');
+                        } catch (e) {
+                            const msg = /password|decrypt|encrypt/i.test(e.message || '') ? 'Password salah atau enkripsi tidak didukung' : (e.message || 'Gagal membuka PDF');
+                            updateProgress(i, 0, 'Gagal: ' + msg);
+                            showToast(`${cf.name}: ${msg}`, 'error');
+                        }
+                    }
+                    if (!cancelRequested && outFiles.length > 0) {
+                        await createZipDownload(outFiles, 'KiLat_Unlocked_PDFs.zip');
+                    }
+                    return;
+                }
+
+                // DOCX to PDF (Batch)
+                if (cid === 'docx2pdf') {
+                    if (typeof mammoth === 'undefined' || typeof window.jspdf === 'undefined' || typeof html2canvas === 'undefined') {
+                        showToast('Pustaka DOCX ke PDF belum termuat', 'error'); return;
+                    }
+                    const paper = document.getElementById('opt-docx2pdf-paper')?.value || 'a4';
+                    const outFiles = [];
+                    for (let i = 0; i < currentFiles.length; i++) {
+                        if (cancelRequested) break;
+                        const cf = currentFiles[i];
+                        updateProgress(i, 20, 'Membaca DOCX...');
+                        updateGlobalProgress(Math.floor((i / currentFiles.length) * 80) + 10, `Mengonversi ${cf.name}...`);
+                        let host = null;
+                        try {
+                            const res = await mammoth.convertToHtml({ arrayBuffer: await cf.arrayBuffer() });
+                            host = document.createElement('div');
+                            host.style.cssText = 'position:fixed;left:-99999px;top:0;width:794px;background:#ffffff;color:#0f172a;padding:48px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;';
+                            host.innerHTML = `<style>
+                                h1{font-size:24px;font-weight:700;margin:0 0 12px;}
+                                h2{font-size:19px;font-weight:700;margin:16px 0 8px;}
+                                h3{font-size:16px;font-weight:700;margin:12px 0 6px;}
+                                p{margin:0 0 10px;}
+                                ul,ol{margin:0 0 10px 24px;}
+                                table{border-collapse:collapse;width:100%;margin:12px 0;}
+                                td,th{border:1px solid #cbd5e1;padding:6px 8px;text-align:left;}
+                                img{max-width:100%;height:auto;}
+                            </style>` + (res.value || '<p>(Dokumen kosong)</p>');
+                            document.body.appendChild(host);
+                            updateProgress(i, 55, 'Merender halaman...');
+                            const bigCanvas = await html2canvas(host, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                            const { jsPDF } = window.jspdf;
+                            const pdf = new jsPDF({ unit: 'pt', format: paper });
+                            const pw = pdf.internal.pageSize.getWidth();
+                            const ph = pdf.internal.pageSize.getHeight();
+                            const margin = 24;
+                            const drawW = pw - margin * 2;
+                            const drawHMax = ph - margin * 2;
+                            const slicePxH = Math.max(1, Math.floor(bigCanvas.width * (drawHMax / drawW)));
+                            let offsetY = 0, pageIdx = 0;
+                            while (offsetY < bigCanvas.height) {
+                                const h = Math.min(slicePxH, bigCanvas.height - offsetY);
+                                const sc = document.createElement('canvas');
+                                sc.width = bigCanvas.width; sc.height = h;
+                                sc.getContext('2d').drawImage(bigCanvas, 0, offsetY, bigCanvas.width, h, 0, 0, bigCanvas.width, h);
+                                if (pageIdx > 0) pdf.addPage();
+                                pdf.addImage(sc.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, drawW, drawW * (h / bigCanvas.width));
+                                offsetY += h; pageIdx++;
+                            }
+                            const pdfBlob = pdf.output('blob');
+                            outFiles.push({ name: `KiLat_${cf.name.replace(/\.docx$/i, '')}.pdf`, blob: pdfBlob });
+                            updateProgress(i, 100, formatBytes(pdfBlob.size));
+                        } catch (e) {
+                            updateProgress(i, 0, 'Gagal: ' + e.message);
+                            showToast(`${cf.name}: ${e.message}`, 'error');
+                        } finally {
+                            if (host && host.parentNode) host.parentNode.removeChild(host);
+                        }
+                    }
+                    if (!cancelRequested && outFiles.length > 0) {
+                        await createZipDownload(outFiles, 'KiLat_DOCX_to_PDF.zip');
+                    }
+                    return;
+                }
+
+                // PDF to DOCX (Batch)
+                if (cid === 'pdf2docx') {
+                    if (typeof window.docx === 'undefined') { showToast('Pustaka PDF ke DOCX belum termuat', 'error'); return; }
+                    const imgFallback = document.getElementById('opt-pdf2docx-fallback')?.checked ?? true;
+                    const outFiles = [];
+                    for (let i = 0; i < currentFiles.length; i++) {
+                        if (cancelRequested) break;
+                        const cf = currentFiles[i];
+                        updateProgress(i, 20, 'Membaca PDF...');
+                        updateGlobalProgress(Math.floor((i / currentFiles.length) * 80) + 10, `Mengonversi ${cf.name}...`);
+                        try {
+                            const pdfDoc = await openPdfJs(await cf.arrayBuffer());
+                            const children = [];
+                            for (let pNum = 1; pNum <= pdfDoc.numPages; pNum++) {
+                                if (cancelRequested) break;
+                                updateProgress(i, 20 + Math.floor((pNum / pdfDoc.numPages) * 70), `Halaman ${pNum}/${pdfDoc.numPages}`);
+                                const pg = await pdfDoc.getPage(pNum);
+                                const tc = await pg.getTextContent();
+                                // Group text items by Y coordinate
+                                const linesMap = new Map();
+                                for (const item of tc.items) {
+                                    const txt = item.str;
+                                    if (!txt || !txt.trim()) continue;
+                                    const y = Math.round(item.transform[5] / 3) * 3;
+                                    const x = item.transform[4];
+                                    const sz = Math.abs(item.transform[0]) || Math.abs(item.transform[3]) || 11;
+                                    if (!linesMap.has(y)) linesMap.set(y, []);
+                                    linesMap.get(y).push({ x, txt, sz });
+                                }
+                                const sortedYs = Array.from(linesMap.keys()).sort((a, b) => b - a);
+                                if (sortedYs.length > 0) {
+                                    for (const y of sortedYs) {
+                                        const lineItems = linesMap.get(y).sort((a, b) => a.x - b.x);
+                                        const lineText = lineItems.map(it => it.txt).join(' ').replace(/\s+/g, ' ').trim();
+                                        if (!lineText) continue;
+                                        const avgSz = lineItems.reduce((a, b) => a + b.sz, 0) / lineItems.length;
+                                        const heading = avgSz >= 16 ? docx.HeadingLevel.HEADING_1 : (avgSz >= 13 ? docx.HeadingLevel.HEADING_2 : undefined);
+                                        children.push(new docx.Paragraph({ heading, children: [new docx.TextRun(lineText)] }));
+                                    }
+                                } else if (imgFallback) {
+                                    const vp = pg.getViewport({ scale: 1.5 });
+                                    const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+                                    await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+                                    const pngBlob = await new Promise(r => c.toBlob(r, 'image/png'));
+                                    const buf = new Uint8Array(await pngBlob.arrayBuffer());
+                                    const w = Math.min(540, vp.width);
+                                    const h = Math.round(w * (vp.height / vp.width));
+                                    children.push(new docx.Paragraph({ children: [new docx.ImageRun({ data: buf, transformation: { width: w, height: h }, type: 'png' })] }));
+                                }
+                                if (pNum < pdfDoc.numPages) {
+                                    children.push(new docx.Paragraph({ children: [new docx.PageBreak()] }));
+                                }
+                            }
+                            if (children.length === 0) children.push(new docx.Paragraph({ text: '(Dokumen PDF kosong)' }));
+                            const wordDoc = new docx.Document({ sections: [{ children }] });
+                            const rawBlob = await docx.Packer.toBlob(wordDoc);
+                            const docxBlob = new Blob([rawBlob], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                            outFiles.push({ name: `KiLat_${cf.name.replace(/\.pdf$/i, '')}.docx`, blob: docxBlob });
+                            updateProgress(i, 100, formatBytes(docxBlob.size));
+                        } catch (e) {
+                            updateProgress(i, 0, 'Gagal: ' + e.message);
+                            showToast(`${cf.name}: ${e.message}`, 'error');
+                        }
+                    }
+                    if (!cancelRequested && outFiles.length > 0) {
+                        await createZipDownload(outFiles, 'KiLat_PDF_to_DOCX.zip');
+                    }
+                    return;
+                }
+
+                // Batch-capable PDF Tools (previously single-only)
                 if (currentFiles.length === 0) {
                     showToast("Pilih file terlebih dahulu", "error");
                     return;
                 }
-                
-                const f = currentFiles[0];
-                const bytes = await f.arrayBuffer();
+                const batchOut = [];
+                for (let fileIdx = 0; fileIdx < currentFiles.length; fileIdx++) {
+                    if (cancelRequested) break;
+                    const f = currentFiles[fileIdx];
+                    const bytes = await f.arrayBuffer();
+                    const basePct = Math.floor((fileIdx / currentFiles.length) * 80);
+                    updateGlobalProgress(basePct + 5, `Memproses ${fileIdx + 1}/${currentFiles.length}: ${f.name}`);
 
                 // PDF to JPG
                 if (cid === 'pdf2jpg') {
@@ -2521,14 +2806,13 @@ button:not(:disabled):active {
                                 }
                             }
                         });
-                        downloadBlob(zipBlob, `KiLat_${f.name.replace('.pdf', '')}_IMG.zip`);
-                        showToast(i18n[currentLang].txtDone, "success");
+                        batchOut.push({ name: `KiLat_${f.name.replace(/\.pdf$/i, '')}_IMG.zip`, blob: zipBlob });
                     } catch (e) {
                         console.error(e);
-                        updateProgress(0, 0, "Gagal");
-                        showToast("Gagal memproses PDF: " + e.message, "error");
+                        updateProgress(fileIdx, 0, "Gagal");
+                        showToast(`Gagal memproses ${f.name}: ` + e.message, "error");
                     }
-                    return;
+                    continue;
                 }
 
                 // Load PDF document
@@ -2536,8 +2820,9 @@ button:not(:disabled):active {
                 try {
                     doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
                 } catch (e) {
-                    showToast("Gagal memuat PDF: " + e.message, "error");
-                    return;
+                    updateProgress(fileIdx, 0, "Gagal");
+                    showToast(`Gagal memuat ${f.name}: ` + e.message, "error");
+                    continue;
                 }
                 
                 const pgs = doc.getPages();
@@ -2752,9 +3037,7 @@ button:not(:disabled):active {
                         const cp = await newDoc.copyPages(doc, sortedPages);
                         cp.forEach(p => newDoc.addPage(p));
                         const final = await newDoc.save();
-                        downloadBlob(new Blob([final], { type: 'application/pdf' }), 
-                            `KiLat_Extracted_${f.name}`);
-                        showToast(i18n[currentLang].txtDone, "success");
+                        batchOut.push({ name: `KiLat_Extracted_${f.name}`, blob: new Blob([final], { type: 'application/pdf' }) });
                     } else {
                         // Separate files - each range becomes its own PDF
                         const zip = new JSZip();
@@ -2787,10 +3070,9 @@ button:not(:disabled):active {
                         updateProgress(0, 100, "Selesai");
                         updateGlobalProgress(95, 'Menyimpan hasil...');
                         const zipBlob = await zip.generateAsync({ type: "blob" });
-                        downloadBlob(zipBlob, `KiLat_Split_${f.name.replace('.pdf', '')}.zip`);
-                        showToast(i18n[currentLang].txtDone, "success");
+                        batchOut.push({ name: `KiLat_Split_${f.name.replace(/\.pdf$/i, '')}.zip`, blob: zipBlob });
                     }
-                    return;
+                    continue;
                 }
                 else {
                     showToast("Fungsi tidak dikenal", "error");
@@ -2799,16 +3081,19 @@ button:not(:disabled):active {
                 
                 // Save result for non-split operations
                 if (!cancelRequested) {
-                    updateProgress(0, 100, "Selesai");
-                    updateGlobalProgress(95, 'Menyimpan hasil...');
+                    updateProgress(fileIdx, 100, "Selesai");
                     const result = await doc.save();
                     const outputName = cid === 'rotate' ? `KiLat_Rotated_${f.name}` :
                                      cid === 'add_page_num' ? `KiLat_Numbered_${f.name}` :
                                      cid === 'watermark' ? `KiLat_Watermarked_${f.name}` :
                                      cid === 'delete' ? `KiLat_Modified_${f.name}` :
                                      `KiLat_${f.name}`;
-                    downloadBlob(new Blob([result], { type: 'application/pdf' }), outputName);
-                    showToast(i18n[currentLang].txtDone, "success");
+                    batchOut.push({ name: outputName, blob: new Blob([result], { type: 'application/pdf' }) });
+                }
+                } // end batch loop
+                if (!cancelRequested && batchOut.length > 0) {
+                    updateGlobalProgress(95, 'Menyimpan hasil...');
+                    await createZipDownload(batchOut, `KiLat_${cid}_Batch.zip`);
                 }
                 
             } catch (e) {
@@ -2903,8 +3188,133 @@ let sigPadState = {
     drawing: false,
     color: '#0f172a',
     hasDrawn: false,
-    uploadedBlob: null
+    uploadedBlob: null,
+    customPos: null,
+    pageW: 595.28,
+    pageH: 841.89
 };
+
+async function getSigPreviewDataUrl() {
+    const upC = document.getElementById('sig-upload-container');
+    const isUpload = upC && !upC.classList.contains('hidden');
+    if (isUpload && sigPadState.uploadedBlob) {
+        return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(sigPadState.uploadedBlob); });
+    }
+    if (sigPadState.hasDrawn && sigPadState.canvas && canvasHasInk(sigPadState.canvas)) {
+        return sigPadState.canvas.toDataURL('image/png');
+    }
+    return null;
+}
+
+async function renderSigPreviewPage() {
+    const wrap = document.getElementById('sig-preview-wrap');
+    const cvs = document.getElementById('sig-pdf-canvas');
+    const hint = document.getElementById('sig-preview-hint');
+    if (!wrap || !cvs || !currentFiles.length) return;
+    try {
+        const pdfDoc = await openPdfJs(await currentFiles[0].arrayBuffer());
+        const total = pdfDoc.numPages;
+        const choice = document.getElementById('opt-sig-page')?.value || 'last';
+        let pIdx = total;
+        if (choice === '1') pIdx = 1;
+        else if (choice === 'custom') pIdx = Math.max(1, Math.min(total, parseInt(document.getElementById('opt-sig-page-custom')?.value || '1')));
+        const page = await pdfDoc.getPage(pIdx);
+        const vp1 = page.getViewport({ scale: 1 });
+        sigPadState.pageW = vp1.width;
+        sigPadState.pageH = vp1.height;
+        const scale = Math.min(420 / vp1.width, 1.5);
+        const vp = page.getViewport({ scale });
+        cvs.width = vp.width; cvs.height = vp.height;
+        await page.render({ canvasContext: cvs.getContext('2d'), viewport: vp }).promise;
+        wrap.classList.remove('hidden');
+        if (hint) hint.textContent = 'Seret kotak tanda tangan di bawah atau tarik sudut kanan bawah untuk mengubah ukuran.';
+        await syncSigBoxFromControls();
+    } catch (e) {
+        if (hint) hint.textContent = 'Pratinjau tidak tersedia: ' + e.message;
+    }
+}
+
+async function syncSigBoxFromControls() {
+    const box = document.getElementById('sig-drag-box');
+    const img = document.getElementById('sig-drag-img');
+    const wrap = document.getElementById('sig-preview-wrap');
+    if (!box || !img || !wrap || wrap.classList.contains('hidden')) return;
+    const url = await getSigPreviewDataUrl();
+    if (!url) { box.classList.add('hidden'); return; }
+    img.src = url;
+    await new Promise(r => { if (img.complete) r(); else { img.onload = r; img.onerror = r; } });
+    const aspect = (img.naturalHeight && img.naturalWidth) ? (img.naturalHeight / img.naturalWidth) : 0.4;
+    const posPreset = document.getElementById('opt-sig-pos')?.value || 'bottom-right';
+    if (posPreset === 'custom-drag' && sigPadState.customPos) {
+        box.style.left = (sigPadState.customPos.xPct * 100) + '%';
+        box.style.top = (sigPadState.customPos.yPct * 100) + '%';
+        box.style.width = (sigPadState.customPos.wPct * 100) + '%';
+        box.style.height = (sigPadState.customPos.wPct * (sigPadState.pageW / sigPadState.pageH) * aspect * 100) + '%';
+        box.classList.remove('hidden');
+        return;
+    }
+    const sigW = parseInt(document.getElementById('opt-sig-width')?.value || '140');
+    const margin = parseInt(document.getElementById('opt-sig-margin')?.value || '80');
+    const pw = sigPadState.pageW || 595.28, ph = sigPadState.pageH || 841.89;
+    const sigH = sigW * aspect;
+    let x = pw - sigW - 60, y = margin;
+    if (posPreset === 'bottom-left') { x = 60; y = margin; }
+    else if (posPreset === 'bottom-center') { x = (pw - sigW) / 2; y = margin; }
+    else if (posPreset === 'mid-right') { x = pw - sigW - 60; y = (ph / 2) - (sigH / 2); }
+    const xPct = Math.max(0, Math.min(1 - sigW / pw, x / pw));
+    const yPct = Math.max(0, Math.min(1 - sigH / ph, (ph - y - sigH) / ph));
+    const wPct = Math.min(0.8, sigW / pw);
+    box.style.left = (xPct * 100) + '%';
+    box.style.top = (yPct * 100) + '%';
+    box.style.width = (wPct * 100) + '%';
+    box.style.height = (wPct * (pw / ph) * aspect * 100) + '%';
+    box.classList.remove('hidden');
+}
+
+function initSigDragDrop() {
+    const wrap = document.getElementById('sig-preview-wrap');
+    const box = document.getElementById('sig-drag-box');
+    const handle = document.getElementById('sig-resize-handle');
+    if (!wrap || !box || !handle || box._bound) return;
+    box._bound = true;
+    let mode = null, startX = 0, startY = 0, origL = 0, origT = 0, origW = 0, aspect = 0.4;
+    const begin = (m, e) => {
+        e.preventDefault(); e.stopPropagation();
+        mode = m;
+        const wr = wrap.getBoundingClientRect();
+        const br = box.getBoundingClientRect();
+        startX = e.clientX; startY = e.clientY;
+        origL = br.left - wr.left; origT = br.top - wr.top; origW = br.width;
+        aspect = br.height / Math.max(1, br.width);
+        box.setPointerCapture?.(e.pointerId);
+    };
+    box.addEventListener('pointerdown', e => { if (e.target !== handle) begin('drag', e); });
+    handle.addEventListener('pointerdown', e => begin('resize', e));
+    window.addEventListener('pointermove', e => {
+        if (!mode) return;
+        const wr = wrap.getBoundingClientRect();
+        if (!wr.width || !wr.height) return;
+        const dx = e.clientX - startX, dy = e.clientY - startY;
+        if (mode === 'drag') {
+            const nl = Math.max(0, Math.min(wr.width - box.offsetWidth, origL + dx));
+            const nt = Math.max(0, Math.min(wr.height - box.offsetHeight, origT + dy));
+            const xPct = nl / wr.width, yPct = nt / wr.height, wPct = box.offsetWidth / wr.width;
+            box.style.left = (xPct * 100) + '%';
+            box.style.top = (yPct * 100) + '%';
+            sigPadState.customPos = { xPct, yPct, wPct };
+        } else {
+            const nw = Math.max(32, Math.min(wr.width - origL, origW + dx));
+            const nh = nw * aspect;
+            const wPct = nw / wr.width;
+            box.style.width = (wPct * 100) + '%';
+            box.style.height = ((nh / wr.height) * 100) + '%';
+            sigPadState.customPos = { xPct: origL / wr.width, yPct: origT / wr.height, wPct };
+        }
+        const sel = document.getElementById('opt-sig-pos');
+        if (sel) sel.value = 'custom-drag';
+    });
+    window.addEventListener('pointerup', () => { mode = null; });
+}
 
 function initSignaturePad() {
     const canvas = document.getElementById('sig-pad-canvas');
@@ -2954,6 +3364,7 @@ function initSignaturePad() {
         if (!sigPadState.drawing) return;
         sigPadState.drawing = false;
         ctx.closePath();
+        if (typeof syncSigBoxFromControls === 'function') syncSigBoxFromControls();
     }
     
     canvas.addEventListener('mousedown', startDraw);
@@ -2976,6 +3387,7 @@ function initSignaturePad() {
                 if (prevBox && prevImg) {
                     prevImg.src = URL.createObjectURL(file);
                     prevBox.classList.remove('hidden');
+                    if (typeof syncSigBoxFromControls === 'function') syncSigBoxFromControls();
                 }
             }
         });
@@ -2993,6 +3405,7 @@ function clearSignaturePad() {
     if (!sigPadState.canvas || !sigPadState.ctx) return;
     sigPadState.ctx.clearRect(0, 0, sigPadState.canvas.width, sigPadState.canvas.height);
     sigPadState.hasDrawn = false;
+    if (typeof syncSigBoxFromControls === 'function') syncSigBoxFromControls();
 }
 
 function setSigColor(c) {
@@ -3184,9 +3597,7 @@ async function processStudentTool() {
 // 1. TARGET SIZE PDF COMPRESSOR
 // -------------------------------------------------------------
 async function executeTargetPdfCompression() {
-    const f = currentFiles[0];
-    if (!f) return;
-    
+    if (currentFiles.length === 0) return;
     const targetVal = parseFloat(document.getElementById('opt-pdf-target-val')?.value);
     const targetUnit = document.getElementById('opt-pdf-target-unit')?.value || 'KB';
     const targetBytes = targetUnit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
@@ -3196,53 +3607,59 @@ async function executeTargetPdfCompression() {
     }
     const dpiMode = document.getElementById('opt-pdf-dpi-mode')?.value || 'auto';
     const gray = (document.getElementById('opt-pdf-color-mode')?.value || 'color') === 'grayscale';
-
-    if (f.size <= targetBytes) {
-        updateProgress(0, 100, `${formatBytes(f.size)} — sudah di bawah target`);
-        showToast(`File sudah ${formatBytes(f.size)}, lebih kecil dari target. Tidak perlu dikompres.`, 'info'); runFailed = true;
-        return;
+    const outFiles = [];
+    for (let i = 0; i < currentFiles.length; i++) {
+        if (cancelRequested) return;
+        const f = currentFiles[i];
+        if (f.size <= targetBytes) {
+            updateProgress(i, 100, `${formatBytes(f.size)} — sudah di bawah target`);
+            showToast(`${f.name}: sudah ${formatBytes(f.size)}, lebih kecil dari target.`, 'info');
+            if (currentFiles.length === 1) runFailed = true;
+            continue;
+        }
+        updateGlobalProgress(Math.floor((i / currentFiles.length) * 85) + 5, `Membaca ${f.name}...`);
+        updateProgress(i, 10, 'Membaca dokumen...');
+        try {
+            const pdfDoc = await openPdfJs(await f.arrayBuffer());
+            const numPages = pdfDoc.numPages;
+            const budgetPerPage = targetBytes / numPages;
+            let scale = dpiMode === 'high' ? 1.5 : (dpiMode === 'low' || budgetPerPage < 50 * 1024) ? 1.0 : budgetPerPage < 100 * 1024 ? 1.15 : 1.25;
+            let quality = dpiMode === 'high' ? 0.75 : (dpiMode === 'low' || budgetPerPage < 50 * 1024) ? 0.45 : budgetPerPage < 100 * 1024 ? 0.55 : 0.65;
+            let best = null;
+            for (let pass = 1; pass <= 5; pass++) {
+                const res = await rasterizePdf(pdfDoc, { scale, quality, gray, onPage: (n, t) => {
+                    const pct = Math.floor(10 + ((pass - 1) / 5 + n / t / 5) * 82);
+                    updateGlobalProgress(pct, `${f.name} • Percobaan ${pass}/5 (${n}/${t})`);
+                    updateProgress(i, pct, `Percobaan ${pass} • ${n}/${t}`);
+                }});
+                if (!res) return;
+                if (!best || res.length < best.length) best = res;
+                if (res.length <= targetBytes) { best = res; break; }
+                quality = Math.max(0.2, quality * 0.75);
+                scale = Math.max(0.6, scale * 0.85);
+            }
+            if (best.length >= f.size) {
+                updateProgress(i, 0, 'Tidak bisa dikecilkan');
+                showToast(`${f.name}: sudah efisien (vektor/teks); file asli dipertahankan.`, 'error');
+                continue;
+            }
+            const finalBlob = new Blob([best], { type: 'application/pdf' });
+            const savedPercent = ((1 - finalBlob.size / f.size) * 100).toFixed(1);
+            updateProgress(i, 100, `${formatBytes(f.size)} ➔ ${formatBytes(finalBlob.size)} (-${savedPercent}%)`);
+            if (finalBlob.size > targetBytes) {
+                showToast(`${f.name}: hasil ${formatBytes(finalBlob.size)} masih di atas target ${targetVal} ${targetUnit}.`, 'error');
+            }
+            outFiles.push({ name: `KiLat_Target_${targetVal}${targetUnit}_${f.name}`, blob: finalBlob });
+        } catch (e) {
+            updateProgress(i, 0, 'Gagal: ' + e.message);
+            showToast(`${f.name}: ${e.message}`, 'error');
+        }
     }
-
-    updateGlobalProgress(10, 'Membaca struktur PDF...');
-    updateProgress(0, 10, 'Membaca dokumen...');
-    
-    const bytes = await f.arrayBuffer();
-    const pdfDoc = await openPdfJs(bytes); // melempar error jelas bila rusak / password / timeout
-    const numPages = pdfDoc.numPages;
-    const budgetPerPage = targetBytes / numPages;
-    
-    let scale = dpiMode === 'high' ? 1.5 : (dpiMode === 'low' || budgetPerPage < 50 * 1024) ? 1.0 : budgetPerPage < 100 * 1024 ? 1.15 : 1.25;
-    let quality = dpiMode === 'high' ? 0.75 : (dpiMode === 'low' || budgetPerPage < 50 * 1024) ? 0.45 : budgetPerPage < 100 * 1024 ? 0.55 : 0.65;
-    
-    let best = null;
-    for (let pass = 1; pass <= 5; pass++) {
-        const res = await rasterizePdf(pdfDoc, { scale, quality, gray, onPage: (n, t) => {
-            const pct = Math.floor(10 + ((pass - 1) / 5 + n / t / 5) * 82);
-            updateGlobalProgress(pct, `Percobaan ${pass}/5 • halaman ${n}/${t}`);
-            updateProgress(0, pct, `Percobaan ${pass} • ${n}/${t}`);
-        }});
-        if (!res) return;
-        if (!best || res.length < best.length) best = res;
-        if (res.length <= targetBytes) { best = res; break; }
-        quality = Math.max(0.2, quality * 0.75);
-        scale = Math.max(0.6, scale * 0.85);
+    if (!cancelRequested && outFiles.length > 0) {
+        updateGlobalProgress(100, 'Selesai!');
+        await createZipDownload(outFiles, `KiLat_Target_${targetVal}${targetUnit}.zip`);
+        if (outFiles.length === 1) showToast(`PDF berhasil dikompres ke ${formatBytes(outFiles[0].blob.size)}!`, 'success');
     }
-    
-    if (best.length >= f.size) {
-        updateProgress(0, 0, 'Tidak bisa dikecilkan');
-        showToast('PDF ini sudah efisien (berisi teks/vektor); merender ulang justru membuatnya lebih besar. File asli dipertahankan.', 'error');
-        return;
-    }
-    
-    const finalBlob = new Blob([best], { type: 'application/pdf' });
-    const savedPercent = ((1 - finalBlob.size / f.size) * 100).toFixed(1);
-    updateProgress(0, 100, `${formatBytes(f.size)} ➔ ${formatBytes(finalBlob.size)} (-${savedPercent}%)`);
-    updateGlobalProgress(100, 'Selesai!');
-    if (finalBlob.size > targetBytes) {
-        showToast(`Hasil ${formatBytes(finalBlob.size)} masih di atas target ${targetVal} ${targetUnit}. Coba mode "Kompres Agresif" atau Grayscale.`, 'error');
-    }
-    downloadBlob(finalBlob, `KiLat_Target_${targetVal}${targetUnit}_${f.name}`);
-    if (finalBlob.size <= targetBytes) showToast(`PDF berhasil dikompres ke ${formatBytes(finalBlob.size)}!`, 'success');
 }
 
 // -------------------------------------------------------------
@@ -3295,153 +3712,116 @@ async function executePdfSignature() {
         return;
     }
     
-    updateGlobalProgress(30, 'Memuat dokumen PDF...');
-    const bytes = await f.arrayBuffer();
-    const { PDFDocument } = PDFLib;
-    const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-    const pages = doc.getPages();
-    const totalPages = pages.length;
-    
-    // Determine page
     const pageChoice = document.getElementById('opt-sig-page')?.value || 'last';
-    let targetPageIdx = totalPages - 1;
-    if (pageChoice === '1') targetPageIdx = 0;
-    else if (pageChoice === 'custom') {
-        const customP = parseInt(document.getElementById('opt-sig-page-custom')?.value || '1');
-        targetPageIdx = Math.max(0, Math.min(totalPages - 1, customP - 1));
-    }
-    
-    const targetPage = pages[targetPageIdx];
-    const { width: pageWidth, height: pageHeight } = targetPage.getSize();
-    
-    // Embed signature
-    updateGlobalProgress(60, 'Menempelkan tanda tangan...');
-    const sigImg = await doc.embedPng(sigBuffer);
-    
-    const sigW = parseInt(document.getElementById('opt-sig-width')?.value || '140');
-    const aspect = sigImg.height / sigImg.width;
-    const sigH = sigW * aspect;
+    const sigWInp = parseInt(document.getElementById('opt-sig-width')?.value || '140');
     const margin = parseInt(document.getElementById('opt-sig-margin')?.value || '80');
     const posPreset = document.getElementById('opt-sig-pos')?.value || 'bottom-right';
-    
-    let x = pageWidth - sigW - 60;
-    let y = margin;
-    
-    if (posPreset === 'bottom-left') {
-        x = 60;
-        y = margin;
-    } else if (posPreset === 'bottom-center') {
-        x = (pageWidth - sigW) / 2;
-        y = margin;
-    } else if (posPreset === 'mid-right') {
-        x = pageWidth - sigW - 60;
-        y = (pageHeight / 2) - (sigH / 2);
+    const { PDFDocument } = PDFLib;
+    const outFiles = [];
+    for (let i = 0; i < currentFiles.length; i++) {
+        if (cancelRequested) return;
+        const cf = currentFiles[i];
+        updateProgress(i, 30, 'Menempelkan TTD...');
+        updateGlobalProgress(Math.floor((i / currentFiles.length) * 80) + 10, `Menandatangani ${cf.name}...`);
+        try {
+            const doc = await PDFDocument.load(await cf.arrayBuffer(), { ignoreEncryption: true });
+            const pages = doc.getPages();
+            const totalPages = pages.length;
+            let targetPageIdx = totalPages - 1;
+            if (pageChoice === '1') targetPageIdx = 0;
+            else if (pageChoice === 'custom') {
+                const customP = parseInt(document.getElementById('opt-sig-page-custom')?.value || '1');
+                targetPageIdx = Math.max(0, Math.min(totalPages - 1, customP - 1));
+            }
+            const targetPage = pages[targetPageIdx];
+            const { width: pageWidth, height: pageHeight } = targetPage.getSize();
+            const sigImg = await doc.embedPng(sigBuffer);
+            const aspect = sigImg.height / sigImg.width;
+            let sigW = sigWInp, sigH = sigW * aspect, x = pageWidth - sigW - 60, y = margin;
+            if (posPreset === 'custom-drag' && sigPadState.customPos) {
+                sigW = sigPadState.customPos.wPct * pageWidth;
+                sigH = sigW * aspect;
+                x = Math.max(0, Math.min(pageWidth - sigW, sigPadState.customPos.xPct * pageWidth));
+                y = Math.max(0, Math.min(pageHeight - sigH, pageHeight - (sigPadState.customPos.yPct * pageHeight) - sigH));
+            } else if (posPreset === 'bottom-left') { x = 60; y = margin; }
+            else if (posPreset === 'bottom-center') { x = (pageWidth - sigW) / 2; y = margin; }
+            else if (posPreset === 'mid-right') { x = pageWidth - sigW - 60; y = (pageHeight / 2) - (sigH / 2); }
+            targetPage.drawImage(sigImg, { x, y, width: sigW, height: sigH });
+            const finalBytes = await doc.save();
+            outFiles.push({ name: `KiLat_Signed_${cf.name}`, blob: new Blob([finalBytes], { type: 'application/pdf' }) });
+            updateProgress(i, 100, 'Tertempel');
+        } catch (e) {
+            updateProgress(i, 0, 'Gagal: ' + e.message);
+            showToast(`${cf.name}: ${e.message}`, 'error');
+        }
     }
-    
-    targetPage.drawImage(sigImg, {
-        x: x,
-        y: y,
-        width: sigW,
-        height: sigH
-    });
-    
-    updateGlobalProgress(90, 'Menyimpan PDF...');
-    const finalBytes = await doc.save();
-    const outBlob = new Blob([finalBytes], { type: 'application/pdf' });
-    
-    updateProgress(0, 100, 'Tanda tangan tertempel!');
-    updateGlobalProgress(100, 'Selesai!');
-    downloadBlob(outBlob, `KiLat_Signed_${f.name}`);
-    showToast('Tanda tangan berhasil ditempel ke PDF!', 'success');
+    if (!cancelRequested && outFiles.length > 0) {
+        updateGlobalProgress(100, 'Selesai!');
+        await createZipDownload(outFiles, 'KiLat_Signed_PDFs.zip');
+        showToast('Tanda tangan berhasil ditempel ke PDF!', 'success');
+    }    showToast('Tanda tangan berhasil ditempel ke PDF!', 'success');
 }
 
 // -------------------------------------------------------------
 // 3. THESIS PAGE NUMBERING (ROMAWI + ARAB GABUNGAN)
 // -------------------------------------------------------------
 async function executeThesisPageNum() {
-    const f = currentFiles[0];
-    if (!f) return;
-    
+    if (currentFiles.length === 0) return;
     const romStart = parseInt(document.getElementById('opt-thesis-rom-start')?.value || '1');
     const romEnd = parseInt(document.getElementById('opt-thesis-rom-end')?.value || '4');
     const romStyle = document.getElementById('opt-thesis-rom-style')?.value || 'lower';
     const romPos = document.getElementById('opt-thesis-rom-pos')?.value || 'bottom-center';
     const skipCover = document.getElementById('opt-thesis-skip-cover')?.checked ?? true;
-    
     const numStart = parseInt(document.getElementById('opt-thesis-num-start')?.value || '5');
     const numValInit = parseInt(document.getElementById('opt-thesis-num-val')?.value || '1');
     const numPos = document.getElementById('opt-thesis-num-pos')?.value || 'bottom-center';
-    
     const fontSize = parseInt(document.getElementById('opt-thesis-font-size')?.value || '11');
     const fontFam = document.getElementById('opt-thesis-font-fam')?.value || 'TimesRoman';
-    
-    updateGlobalProgress(30, 'Membaca dokumen naskah...');
-    const bytes = await f.arrayBuffer();
     const { PDFDocument, StandardFonts, rgb } = PDFLib;
-    const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-    const font = await doc.embedFont(fontFam === 'TimesRoman' ? StandardFonts.TimesRoman : StandardFonts.Helvetica);
-    
-    const pages = doc.getPages();
-    const totalPages = pages.length;
-    
-    updateGlobalProgress(60, 'Membubuhkan nomor halaman skripsi...');
-    
-    for (let i = 0; i < totalPages; i++) {
-        const pageNum = i + 1;
-        const page = pages[i];
-        const { width, height } = page.getSize();
-        
-        let textToDraw = '';
-        let posChoice = 'bottom-center';
-        
-        // Section 1: Roman
-        if (pageNum >= romStart && pageNum <= romEnd) {
-            if (skipCover && pageNum === 1) {
-                continue; // Skip cover
+    const outFiles = [];
+    for (let fileIdx = 0; fileIdx < currentFiles.length; fileIdx++) {
+        if (cancelRequested) return;
+        const f = currentFiles[fileIdx];
+        updateProgress(fileIdx, 30, 'Memberi nomor...');
+        updateGlobalProgress(Math.floor((fileIdx / currentFiles.length) * 80) + 10, `Memproses ${f.name}...`);
+        try {
+            const doc = await PDFDocument.load(await f.arrayBuffer(), { ignoreEncryption: true });
+            const font = await doc.embedFont(fontFam === 'TimesRoman' ? StandardFonts.TimesRoman : StandardFonts.Helvetica);
+            const pages = doc.getPages();
+            for (let i = 0; i < pages.length; i++) {
+                const pageNum = i + 1;
+                const page = pages[i];
+                const { width, height } = page.getSize();
+                let textToDraw = '', posChoice = 'bottom-center';
+                if (pageNum >= romStart && pageNum <= romEnd) {
+                    if (skipCover && pageNum === 1) continue;
+                    textToDraw = toRoman(pageNum, romStyle === 'lower');
+                    posChoice = romPos;
+                } else if (pageNum >= numStart) {
+                    textToDraw = String(numValInit + (pageNum - numStart));
+                    posChoice = numPos;
+                }
+                if (textToDraw) {
+                    const textWidth = font.widthOfTextAtSize(textToDraw, fontSize);
+                    let x = (width - textWidth) / 2, y = 30;
+                    if (posChoice === 'top-right') { x = width - textWidth - 50; y = height - 35; }
+                    else if (posChoice === 'bottom-right') { x = width - textWidth - 50; y = 30; }
+                    page.drawText(textToDraw, { x, y, size: fontSize, font, color: rgb(0.1, 0.1, 0.1) });
+                }
             }
-            textToDraw = toRoman(pageNum, romStyle === 'lower');
-            posChoice = romPos;
-        } 
-        // Section 2: Arabic
-        else if (pageNum >= numStart) {
-            const currentNum = numValInit + (pageNum - numStart);
-            textToDraw = String(currentNum);
-            posChoice = numPos;
-        }
-        
-        if (textToDraw) {
-            const textWidth = font.widthOfTextAtSize(textToDraw, fontSize);
-            let x = (width - textWidth) / 2;
-            let y = 30; // default bottom
-            
-            if (posChoice === 'top-right') {
-                x = width - textWidth - 50;
-                y = height - 35;
-            } else if (posChoice === 'bottom-right') {
-                x = width - textWidth - 50;
-                y = 30;
-            } else if (posChoice === 'bottom-center') {
-                x = (width - textWidth) / 2;
-                y = 30;
-            }
-            
-            page.drawText(textToDraw, {
-                x, y,
-                size: fontSize,
-                font: font,
-                color: rgb(0.1, 0.1, 0.1)
-            });
+            const finalBytes = await doc.save();
+            outFiles.push({ name: `KiLat_Skripsi_Numbered_${f.name}`, blob: new Blob([finalBytes], { type: 'application/pdf' }) });
+            updateProgress(fileIdx, 100, 'Selesai!');
+        } catch (e) {
+            updateProgress(fileIdx, 0, 'Gagal: ' + e.message);
+            showToast(`${f.name}: ${e.message}`, 'error');
         }
     }
-    
-    updateGlobalProgress(90, 'Menyimpan hasil penomoran...');
-    const finalBytes = await doc.save();
-    const outBlob = new Blob([finalBytes], { type: 'application/pdf' });
-    
-    updateProgress(0, 100, 'Selesai!');
-    updateGlobalProgress(100, 'Selesai!');
-    downloadBlob(outBlob, `KiLat_Skripsi_Numbered_${f.name}`);
-    showToast('Nomor halaman skripsi berhasil disisipkan rapi!', 'success');
+    if (!cancelRequested && outFiles.length > 0) {
+        updateGlobalProgress(100, 'Selesai!');
+        await createZipDownload(outFiles, 'KiLat_Skripsi_Numbered.zip');
+        showToast('Nomor halaman skripsi berhasil disisipkan rapi!', 'success');
+    }
 }
 
 // -------------------------------------------------------------
@@ -3731,68 +4111,54 @@ async function executeDocScanner() {
 // 6. OCR LOCAL (GAMBAR KE TEKS)
 // -------------------------------------------------------------
 async function executeOcrTool() {
-    const f = currentFiles[0];
-    if (!f) return;
-    
+    if (currentFiles.length === 0) return;
     if (typeof Tesseract === 'undefined') {
-        showToast('Memuat mesin OCR Tesseract...', 'info');
-        // Dynamic load fallback
-        await new Promise((res, rej) => {
-            const s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-            s.onload = res;
-            s.onerror = () => rej(new Error('Gagal memuat pustaka OCR'));
-            document.head.appendChild(s);
-        });
+        showToast('Pustaka OCR Tesseract belum termuat', 'error');
+        return;
     }
-    
     const lang = document.getElementById('opt-ocr-lang')?.value || 'ind+eng';
-    updateGlobalProgress(15, 'Mempersiapkan OCR lokal di browser...');
-    updateProgress(0, 15, 'Membaca file...');
-    
-    let imageSource = null;
-    let urlToRevoke = null;
-    
-    if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
-        updateGlobalProgress(25, 'Merender halaman 1 PDF ke gambar...');
-        const bytes = await f.arrayBuffer();
-        const pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
-        const page = await pdfDoc.getPage(1);
-        const vp = page.getViewport({ scale: 2.0 });
-        const canvas = document.createElement('canvas');
-        canvas.width = vp.width;
-        canvas.height = vp.height;
-        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-        imageSource = canvas;
-    } else {
-        urlToRevoke = URL.createObjectURL(f);
-        imageSource = urlToRevoke;
-    }
-    
+    updateGlobalProgress(10, 'Mempersiapkan OCR lokal di browser...');
+    let worker = null;
     try {
-        updateGlobalProgress(40, 'Menjalankan pengenalan teks...');
-        
-        const worker = await Tesseract.createWorker(lang, 1, {
+        worker = await Tesseract.createWorker(lang, 1, {
             workerPath: new URL('vendor/tesseract/worker.min.js', location.href).href,
             corePath: new URL('vendor/tesseract/', location.href).href,
             logger: m => {
                 if (m.status === 'recognizing text') {
                     const pct = Math.floor(m.progress * 100);
-                    updateProgress(0, Math.min(95, 30 + Math.floor(pct * 0.65)), `Membaca: ${pct}%`);
-                    updateGlobalProgress(Math.min(95, 30 + Math.floor(pct * 0.65)), `Mengenali teks: ${pct}%`);
+                    updateGlobalProgress(Math.min(95, 20 + Math.floor(pct * 0.75)), `Mengenali teks: ${pct}%`);
                 }
             }
         });
-        
-        let ret;
-        try { ret = await worker.recognize(imageSource); } finally { await worker.terminate(); }
-        
-        if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
-        
-        const resultText = ret.data.text;
-        if (!resultText.trim()) { showToast('Tidak ada teks yang terdeteksi pada gambar ini', 'error'); }
-        
-        // Populate and reveal result area
+        const chunks = [];
+        for (let i = 0; i < currentFiles.length; i++) {
+            if (cancelRequested) break;
+            const f = currentFiles[i];
+            updateProgress(i, 20, 'Membaca...');
+            if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+                const pdfDoc = await openPdfJs(await f.arrayBuffer());
+                const pageTexts = [];
+                for (let p = 1; p <= pdfDoc.numPages; p++) {
+                    if (cancelRequested) break;
+                    const page = await pdfDoc.getPage(p);
+                    const vp = page.getViewport({ scale: 2.0 });
+                    const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+                    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+                    const ret = await worker.recognize(c);
+                    pageTexts.push(ret.data.text.trim());
+                    updateProgress(i, 20 + Math.floor((p / pdfDoc.numPages) * 80), `Halaman ${p}/${pdfDoc.numPages}`);
+                }
+                chunks.push((currentFiles.length > 1 ? `=== ${f.name} ===\n` : '') + pageTexts.join('\n\n'));
+            } else {
+                const url = URL.createObjectURL(f);
+                try {
+                    const ret = await worker.recognize(url);
+                    chunks.push((currentFiles.length > 1 ? `=== ${f.name} ===\n` : '') + ret.data.text.trim());
+                    updateProgress(i, 100, `Selesai (${ret.data.text.length} karakter)`);
+                } finally { URL.revokeObjectURL(url); }
+            }
+        }
+        const resultText = chunks.join('\n\n');
         const resultBox = document.getElementById('ocr-result-box');
         const txtArea = document.getElementById('ocr-extracted-text');
         if (resultBox && txtArea) {
@@ -3800,20 +4166,25 @@ async function executeOcrTool() {
             resultBox.classList.remove('hidden');
             resultBox.scrollIntoView({ behavior: 'smooth' });
         }
-        
-        updateProgress(0, 100, `Selesai (${resultText.length} karakter)`);
-        updateGlobalProgress(100, 'Ekstraksi teks selesai!');
-        if (resultText.trim()) showToast('Teks berhasil diekstrak! Salin atau unduh dari kotak hasil di bawah.', 'success');
-        
+        if (!resultText.trim()) {
+            showToast('Tidak ada teks yang terdeteksi pada file ini', 'error');
+        } else {
+            updateGlobalProgress(100, 'Ekstraksi teks selesai!');
+            showToast('Teks berhasil diekstrak! Salin atau unduh dari kotak hasil di bawah.', 'success');
+        }
     } catch (err) {
-        if (urlToRevoke) URL.revokeObjectURL(urlToRevoke);
         console.error(err);
         throw new Error('OCR gagal: ' + (err && err.message ? err.message : err) + ' (data bahasa perlu koneksi internet saat pertama kali dipakai)');
+    } finally {
+        if (worker) await worker.terminate().catch(() => {});
     }
 }
 
 // Export to window
 window.processStudentTool = processStudentTool;
+window.renderSigPreviewPage = renderSigPreviewPage;
+window.syncSigBoxFromControls = syncSigBoxFromControls;
+window.initSigDragDrop = initSigDragDrop;
 window.loadPageThumbs = loadPageThumbs;
 window.setTargetPdfPreset = setTargetPdfPreset;
 window.switchSigTab = switchSigTab;

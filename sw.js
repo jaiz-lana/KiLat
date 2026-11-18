@@ -1,10 +1,11 @@
 /* KiLat service worker — cache-first untuk aset lokal agar aplikasi bisa dipakai offline. */
-const VERSION = 'kilat-v2.1.0';
+const VERSION = 'kilat-v2.2.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'icon.svg',
   'vendor/tailwind.css', 'vendor/fa/css/all.min.css',
   'vendor/pdf-lib.min.js', 'vendor/jszip.min.js', 'vendor/pdf.min.js', 'vendor/pdf.worker.min.js',
-  'vendor/pako.min.js', 'vendor/UPNG.js', 'vendor/tesseract/tesseract.min.js'
+  'vendor/pako.min.js', 'vendor/UPNG.js', 'vendor/tesseract/tesseract.min.js',
+  'vendor/mammoth.browser.min.js', 'vendor/docx.iife.js', 'vendor/jspdf.umd.min.js', 'vendor/html2canvas.min.js'
 ];
 
 self.addEventListener('install', e => {
@@ -21,7 +22,6 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (!/^https?:$/.test(url.protocol)) return;
   const sameOrigin = url.origin === location.origin;
-  // Halaman: network-first (agar update cepat), fallback cache. Aset: cache-first + isi saat online.
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then(r => { const cp = r.clone(); caches.open(VERSION).then(c => c.put('index.html', cp)); return r; })
       .catch(() => caches.match('index.html')));
