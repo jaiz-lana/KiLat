@@ -11,9 +11,11 @@
     <meta name="theme-color" content="#15803d">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon.svg">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' data: blob: https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; frame-src 'self' blob: data:">
 
     <!-- Tailwind CSS V3 (dibangun lokal, lihat tools/) -->
     <link rel="stylesheet" href="vendor/tailwind.css">
+    <link rel="stylesheet" href="custom.css">
 
     <!-- FontAwesome (lokal) -->
     <link rel="stylesheet" href="vendor/fa/css/all.min.css">
@@ -37,6 +39,7 @@
     <script src="vendor/docx.iife.js"></script>
     <script src="vendor/jspdf.umd.min.js"></script>
     <script src="vendor/html2canvas.min.js"></script>
+    <script src="security.js"></script>
 
     <!-- ========================= -->
     <!-- CONFIGURATION & STYLES    -->
@@ -746,7 +749,7 @@
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) {
                     if (el.tagName === 'INPUT' && el.type === 'text') el.placeholder = t[key];
-                    else el.innerHTML = t[key];
+                    else el.textContent = t[key];
                 }
             });
 
@@ -1003,23 +1006,53 @@
             const list = document.getElementById('ws-file-list');
             if (currentFiles.length === 0) { 
                 list.classList.add('hidden'); 
-                list.innerHTML = '';
+                list.replaceChildren();
                 return; 
             }
             
             list.classList.remove('hidden');
-            list.innerHTML = currentFiles.map((file, i) => `
-                <div class="flex items-center gap-4 p-3 bg-white rounded-xl border border-[#dfe4d8] shadow-sm relative group">
-                    <div class="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-[#4b594e]"><i class="fas fa-file"></i></div>
-                    <div class="flex-grow min-w-0">
-                        <p class="text-sm font-bold text-[#222c24] truncate mb-1" dir="ltr">${file.name}</p>
-                        <div class="flex items-center gap-2">
-                            <div class="w-full bg-slate-100 rounded-full h-1.5"><div id="prog-bar-${i}" class="bg-brand-green h-full rounded-full w-0 transition-all duration-300"></div></div>
-                            <span id="prog-text-${i}" class="text-[10px] font-bold text-[#4b594e] whitespace-nowrap">${formatBytes(file.size)}</span>
-                        </div>
-                    </div>
-                    <button onclick="removeFile(${i})" aria-label="Hapus ${file.name.replace(/"/g, '&quot;')}" id="btn-remove-${i}" class="w-8 h-8 flex items-center justify-center text-[#5b695e] hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0"><i class="fas fa-times"></i></button>
-                </div>`).join('');
+            const rows = document.createDocumentFragment();
+            currentFiles.forEach((file, i) => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-4 p-3 bg-white rounded-xl border border-[#dfe4d8] shadow-sm relative group';
+                const iconBox = document.createElement('div');
+                iconBox.className = 'w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-[#4b594e]';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-file';
+                iconBox.appendChild(icon);
+                const content = document.createElement('div');
+                content.className = 'flex-grow min-w-0';
+                const name = document.createElement('p');
+                name.className = 'text-sm font-bold text-[#222c24] truncate mb-1';
+                name.dir = 'ltr';
+                name.textContent = file.name;
+                const progressRow = document.createElement('div');
+                progressRow.className = 'flex items-center gap-2';
+                const track = document.createElement('div');
+                track.className = 'w-full bg-slate-100 rounded-full h-1.5';
+                const bar = document.createElement('div');
+                bar.id = `prog-bar-${i}`;
+                bar.className = 'bg-brand-green h-full rounded-full w-0 transition-all duration-300';
+                track.appendChild(bar);
+                const size = document.createElement('span');
+                size.id = `prog-text-${i}`;
+                size.className = 'text-[10px] font-bold text-[#4b594e] whitespace-nowrap';
+                size.textContent = formatBytes(file.size);
+                progressRow.append(track, size);
+                content.append(name, progressRow);
+                const remove = document.createElement('button');
+                remove.id = `btn-remove-${i}`;
+                remove.type = 'button';
+                remove.className = 'w-8 h-8 flex items-center justify-center text-[#5b695e] hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0';
+                remove.setAttribute('aria-label', `Hapus ${file.name}`);
+                remove.addEventListener('click', () => removeFile(i));
+                const removeIcon = document.createElement('i');
+                removeIcon.className = 'fas fa-times';
+                remove.appendChild(removeIcon);
+                row.append(iconBox, content, remove);
+                rows.appendChild(row);
+            });
+            list.replaceChildren(rows);
         }
 
         function updateProgress(i, percent, statusText) {
@@ -2576,7 +2609,9 @@
                                 table{border-collapse:collapse;width:100%;margin:12px 0;}
                                 td,th{border:1px solid #cbd5e1;padding:6px 8px;text-align:left;}
                                 img{max-width:100%;height:auto;}
-                            </style>` + (res.value || '<p>(Dokumen kosong)</p>');
+                            </style>`;
+                            const sanitized = window.KiLatSecurity.sanitizeDocxHtml(res.value || '<p>(Dokumen kosong)</p>');
+                            host.insertAdjacentHTML('beforeend', sanitized);
                             document.body.appendChild(host);
                             updateProgress(i, 55, 'Merender halaman...');
                             const bigCanvas = await html2canvas(host, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });

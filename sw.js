@@ -1,15 +1,32 @@
 /* KiLat service worker — cache-first untuk aset lokal agar aplikasi bisa dipakai offline. */
-const VERSION = 'kilat-v2.3.0';
+const VERSION = 'kilat-v2.3.1';
 const SHELL = [
-  './', 'index.html', 'manifest.webmanifest', 'icon.svg',
+  './', 'index.html', 'manifest.webmanifest', 'icon.svg', 'security.js', 'custom.css',
   'vendor/tailwind.css', 'vendor/fa/css/all.min.css',
+  'vendor/fa/webfonts/fa-brands-400.woff2', 'vendor/fa/webfonts/fa-regular-400.woff2',
+  'vendor/fa/webfonts/fa-solid-900.woff2', 'vendor/fa/webfonts/fa-v4compatibility.woff2',
   'vendor/pdf-lib.min.js', 'vendor/jszip.min.js', 'vendor/pdf.min.js', 'vendor/pdf.worker.min.js',
   'vendor/pako.min.js', 'vendor/UPNG.js', 'vendor/tesseract/tesseract.min.js',
-  'vendor/mammoth.browser.min.js', 'vendor/docx.iife.js', 'vendor/jspdf.umd.min.js', 'vendor/html2canvas.min.js'
+  'vendor/tesseract/worker.min.js', 'vendor/tesseract/tesseract-core-lstm.wasm.js',
+  'vendor/tesseract/tesseract-core-simd-lstm.wasm.js',
+  'vendor/mammoth.browser.min.js', 'vendor/docx.iife.js', 'vendor/jspdf.umd.min.js',
+  'vendor/html2canvas.min.js'
 ];
 
+const OPTIONAL_ASSETS = ['static/sound/gledek.mp3'];
+
+if (typeof globalThis !== 'undefined') {
+  globalThis.KILAT_PWA_ASSETS = { SHELL, OPTIONAL_ASSETS };
+}
+
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(async c => {
+    await c.addAll(SHELL);
+    const optionalResults = await Promise.allSettled(OPTIONAL_ASSETS.map(asset => c.add(asset)));
+    optionalResults.forEach((result, i) => {
+      if (result.status === 'rejected') console.warn(`Optional asset unavailable: ${OPTIONAL_ASSETS[i]}`);
+    });
+  }).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {

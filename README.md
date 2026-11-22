@@ -136,6 +136,12 @@ cd KiLat
 open index.html
 # atau
 start index.html  # Windows
+```
+
+### Security and PWA notes
+- The page uses a practical Content Security Policy. The app currently contains existing inline scripts and inline style attributes, so the CSP allows inline script and style content (`'unsafe-inline'`) but explicitly does not allow `unsafe-eval`.
+- Future changes should move remaining inline scripts and styles to bundled files so CSP can remove `'unsafe-inline'`.
+- No 192×192 or 512×512 PNG icon is present in the existing project branding. The web manifest intentionally has no icon entries; `icon.svg` remains the browser/favicon asset. Do not reference missing raster icon files.
 
 
 ---
